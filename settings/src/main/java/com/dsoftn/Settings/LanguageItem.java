@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
+import java.util.Objects;
 
 import com.dsoftn.utils.PyDict;
 
@@ -15,6 +16,7 @@ public class LanguageItem {
     // Properties
     private String key = "";
     private String value = "";
+    private String languageCode = "";
     private String creationDate = LocalDateTime.now().format(dateTimeFormatterForJson);
     private String userData = "";
 
@@ -23,9 +25,10 @@ public class LanguageItem {
 
     public LanguageItem() {}
     
-    public LanguageItem(String key, String value) {
+    public LanguageItem(String key, String value, String languageCode) {
         this.key = key;
         this.value = value;
+        this.languageCode = languageCode;
     }
 
     // Public methods
@@ -35,6 +38,7 @@ public class LanguageItem {
 
         result.setKey(this.key);
         result.setValue(this.value);
+        result.setLanguageCode(this.languageCode);
         result.setCreationDate(this.getCreationDate());
         result.setUserData(this.userData);
 
@@ -47,6 +51,7 @@ public class LanguageItem {
         Map<String, Object> result = new PyDict();
         result.put("key", key);
         result.put("value", value);
+        result.put("languageCode", languageCode);
         result.put("creationDate", creationDate);
         result.put("userData", userData);
         
@@ -59,6 +64,9 @@ public class LanguageItem {
         
         // Value, default value, min and max
         value = (String) map.get("value");
+
+        // Language code
+        languageCode = (String) map.get("languageCode");
 
         // Creation date
         String creationDateString = (String) map.get("creationDate");
@@ -93,6 +101,14 @@ public class LanguageItem {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
     }
 
     /**
@@ -144,13 +160,77 @@ public class LanguageItem {
         this.userData = userData;
     }
 
-
     // Private methods
 
     private void printError(String message) {
         System.out.println("SettingsItem Message: " + message);
     }
 
+    // Override methods
+
+    /**
+     * <p>Compares this LanguageItem with the specified object for equality.</p>
+     * <table border="1">
+     * <tr>
+     *   <th>Compares values</th>
+     *   <th>Does not compare</th>
+     * </tr>
+     * <tr>
+     *   <td>Key</td>
+     *   <td>UserData</td>
+     * </tr>
+     * <tr>
+     *   <td>Value</td>
+     *   <td>CreationDate</td>
+     * </tr>
+     * <tr>
+     *   <td>LanguageCode</td>
+     *   <td></td>
+     * </tr>
+     * </table>
+     * @param obj the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj argument;
+     *         {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        
+        if (obj == null || getClass() != obj.getClass()) return false;
+        
+        LanguageItem other = (LanguageItem) obj;
+
+        return  Objects.equals(this.getKey(), other.getKey()) &&
+                Objects.equals(this.getValue(), other.getValue()) &&
+                Objects.equals(this.getLanguageCode(), other.getLanguageCode());
+    }
+
+    /**
+     * <p>Values of this LanguageItem.</p>
+     * <table border="1">
+     * <tr>
+     *   <th>Includes</th>
+     *   <th>Does not include</th>
+     * </tr>
+     * <tr>
+     *   <td>Key</td>
+     *   <td>UserData</td>
+     * </tr>
+     * <tr>
+     *   <td>Value</td>
+     *   <td>CreationDate</td>
+     * </tr>
+     * <tr>
+     *   <td>LanguageCode</td>
+     *   <td></td>
+     * </tr>
+     * </table>
+     * @return a hash code value for this object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(getKey(), getValue(), getLanguageCode());
+    }
 
 
 }
