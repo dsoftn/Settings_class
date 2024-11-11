@@ -560,3 +560,27 @@ ListView .list-cell {
 .split-pane:vertical > .split-pane-divider:hover {
     -fx-background-color: #555555;
 }
+
+/* ALERT DIALOG --------------------------------------------------------------------------------*/
+.alert {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: #ffff00;
+}
+
+.dialog-pane > .content.label {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: #ffff00;
+    -fx-font-size: 16px;
+ }
+
+ .dialog-pane:header .header-panel {
+    -fx-background-color: #000000;
+  }
+
+  .dialog-pane:header .header-panel .label{
+    -fx-background-color: #000000;
+    -fx-text-fill:rgb(143, 227, 241);
+    -fx-font-size:18px;
+  }
+  
+  
