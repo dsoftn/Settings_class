@@ -52,6 +52,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -3487,12 +3488,16 @@ public class MainWinController {
 
         // clear list
         if (lstStt.getItems() != null) {
-            lstStt.getItems().clear();
+            // lstStt.getItems().clear();
+            lstStt.setItems(null);
         }
         // add items
+        ObservableList<String> items = FXCollections.observableArrayList();
         for (SettingsItem itemName : itemsList) {
-            lstStt.getItems().add(itemName.getKey());
+            items.add(itemName.getKey());
         }
+
+        lstStt.setItems(items);
 
         // Try to select old Key if it exists
         if (sttVisibleList.equals("Changed")) {
