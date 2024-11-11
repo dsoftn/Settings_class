@@ -19,5 +19,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 
-# Configuration file
+# Configuration file i root directory
 /config.json
+
+# Settings and Language user files in root directory
+/*.json
