@@ -2,7 +2,10 @@ package com.dsoftn.controllers;
 
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
@@ -12,6 +15,7 @@ import javafx.geometry.Pos;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -461,6 +465,11 @@ public class SaveDialogController {
 
             if (strErrors.isEmpty()) {
                 for (String path : settingsFilesToUpdate) {
+                    boolean canBeUpdated = msgBoxInfoQuestion("Save", "Update file", "You are about to update file:\n" + path + "\n\nDo you want to continue?\n\n(This question is asked because you have 'AutoUpdateFiles' checkbox turned off.)");
+                    if (!canBeUpdated) {
+                        continue;
+                    }
+
                     settings.userSettingsFilePath = path;
                     if (!settings.load(true, false, false)) {
                         log("Failed to load file: " + path, 3);
@@ -610,6 +619,32 @@ public class SaveDialogController {
 
         } catch (IOException e) {
             System.out.println("Cannot delete directory: " + tempDir + " - " + e.getMessage());
+        }
+    }
+
+    private boolean msgBoxInfoQuestion(String title, String header, String content) {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.initOwner(primaryStage);
+
+        ButtonType yesButton = ButtonType.YES;
+        ButtonType noButton = ButtonType.NO;
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        // Set button noButton as default button
+        ((Button) alert.getDialogPane().lookupButton(yesButton)).setDefaultButton(true);
+        ((Button) alert.getDialogPane().lookupButton(noButton)).setDefaultButton(false);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == yesButton) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
