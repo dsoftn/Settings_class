@@ -20,4 +20,4 @@ Thumbs.db
 *.tmp
 
 # Configuration file
-./config.json
+/config.json
