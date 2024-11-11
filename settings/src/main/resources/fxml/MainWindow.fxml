@@ -7,6 +7,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -102,7 +103,7 @@
                      <content>
                         <AnchorPane>
                            <children>
-                              <SplitPane fx:id="sttSplitPane" dividerPositions="0.29293809938971227" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <SplitPane fx:id="sttSttSplitPane" dividerPositions="0.29293809938971227" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <items>
                                     <VBox maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="250.0">
                                        <children>
@@ -244,7 +245,79 @@
                   </Tab>
                   <Tab fx:id="tabLang" text="Language">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <AnchorPane>
+                           <children>
+                              <SplitPane fx:id="sttLangSplitPane" dividerPositions="0.29293809938971227" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <items>
+                                    <VBox maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="250.0">
+                                       <children>
+                                          <HBox maxWidth="1.7976931348623157E308" spacing="10.0">
+                                             <children>
+                                                <TextField fx:id="txtLangSearch" promptText="Search..." HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="btnLangFilterClear" mnemonicParsing="false" onAction="#onBtnLangFilterClearAction" styleClass="button-graphical" />
+                                             </children>
+                                          </HBox>
+                                          <HBox maxWidth="1.7976931348623157E308">
+                                             <children>
+                                                <Button fx:id="btnLangShowLoaded" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnLangShowLoadedClick" onContextMenuRequested="#onBtnLangShowLoadedContextMenu" styleClass="button-list-selector-selected" text="Show Loaded" HBox.hgrow="SOMETIMES" />
+                                                <Button fx:id="btnLangShowChanged" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnLangShowChangedClick" onContextMenuRequested="#onBtnLangShowChangedContextMenu" styleClass="button-list-selector-not-selected" text="Show Changed" HBox.hgrow="SOMETIMES" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets top="3.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ListView fx:id="lstLang" onContextMenuRequested="#onLstLangContextMenu" onScroll="#onLstSttScroll" VBox.vgrow="ALWAYS" />
+                                       </children>
+                                       <padding>
+                                          <Insets top="3.0" />
+                                       </padding>
+                                    </VBox>
+                                    <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                       <children>
+                                          <HBox>
+                                             <children>
+                                                <Label fx:id="lblLangRec" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0">
+                                                   <HBox.margin>
+                                                      <Insets right="5.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <Label fx:id="lblLangKeyImage" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="5.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="txtLangKey" styleClass="text-field-key" HBox.hgrow="SOMETIMES" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ScrollPane fx:id="scrPaneLang" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
+                                             <content>
+                                                <VBox fx:id="scrVBoxLang" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                                             </content>
+                                             <VBox.margin>
+                                                <Insets top="15.0" />
+                                             </VBox.margin>
+                                          </ScrollPane>
+                                          <HBox spacing="10.0">
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                             <children>
+                                                <Label fx:id="lblLangRecords" style="-fx-font-size: 20; -fx-text-fill: rgb(32, 212, 32);" text="### records" />
+                                                <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="0.0" HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="btnLangDiscard" mnemonicParsing="false" onAction="#onBtnLangDiscardClick" text="Discard Changes" />
+                                                <Button fx:id="btnLangDelete" mnemonicParsing="false" onAction="#onBtnLangDeleteClick" styleClass="button-delete" text="Delete Settings" />
+                                                <Button fx:id="btnLangUpdate" mnemonicParsing="false" onAction="#onBtnLangUpdateClick" text="Update Settings" />
+                                                <Button fx:id="btnLangAdd" mnemonicParsing="false" onAction="#onBtnLangAddClick" text="Add new Settings" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </items>
+                              </SplitPane>
+                           </children></AnchorPane>
                      </content>
                   </Tab>
                </tabs>
