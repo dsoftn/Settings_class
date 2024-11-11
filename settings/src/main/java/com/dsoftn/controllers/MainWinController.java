@@ -37,6 +37,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -78,6 +79,7 @@ import com.dsoftn.utils.UString;
 import com.dsoftn.Settings.DataType;
 import com.dsoftn.Settings.Settings;
 import com.dsoftn.Settings.SettingsItem;
+import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.Settings.SettingType;
 import com.dsoftn.controllers.SaveDialogController.SaveSection;
 import com.dsoftn.events.EventWriteLog;
@@ -212,6 +214,15 @@ public class MainWinController {
     private double fontSizeLstStt = 14; // Font size for ListView lstStt
     private String lstSttSortKey = "Created"; // Sort key for lstStt ("Key", "Created")
 
+    // -------------------------- APPLICATION VARIABLES - LANGUAGE
+    private PyDict langLoadedMap = new PyDict(); // Map of languages that are loaded from file
+    private String langLoadedCurrentItem = null; // Current item in Loaded Items on lstLang
+    private PyDict langChangedMap = new PyDict(); // Map of languages that are changed or deleted
+    private String langChangedCurrentItem = null; // Current item in Changed Items on lstLang
+    private List<String> langChangedList = new ArrayList<>(); // List of languages keys that are changed or deleted
+    private String langVisibleList = ""; // List of languages keys that are visible ("Loaded" or "Changed")
+    private double fontSizeLstLang = 14; // Font size for ListView lstLang
+    private String lstLangSortKey = "Created"; // Sort key for lstLang ("Key", "Created")
 
     // -------------------------- CONSTANTS
     // Icon size for buttons, labels...
@@ -256,6 +267,12 @@ public class MainWinController {
     private Label lblSttKeyImage; // Image on left side of Settings KEY field
     @FXML
     private Label lblSttRec; // Image on left side of Settings KEY field
+    @FXML
+    private Label lblLangRec; // Image on left side of Language KEY field
+    @FXML
+    private Label lblLangKeyImage; // Image on left side of Language KEY field
+    @FXML
+    private Label lblLangRecords; // Counter of Language records in lstLang
     //            Field Labels
     @FXML
     private Label fieldLabeSttFlag;
@@ -302,9 +319,23 @@ public class MainWinController {
     @FXML
     private Button btnSttSaveStt; // Save changed Settings
     @FXML
-    private Button btnSttSaveLang; // Save changed Language
+    private Button btnLangFilterClear; // Clear filter in lstLang
     @FXML
-    private Button btnSttSaveAll; // Save all changes, Settings and Language
+    private Button btnLangShowLoaded; // Show loaded Language List
+    @FXML
+    private Button btnLangShowChanged; // Show changed Language List
+    @FXML
+    private Button btnLangAdd; // Add new item to lstLang
+    @FXML
+    private Button btnLangUpdate; // Update existing item in lstLang
+    @FXML
+    private Button btnLangDelete; // Delete item in lstLang
+    @FXML
+    private Button btnLangDiscard; // If item is deleted it will be set to Changed, if item is changed it will be set to unmodified
+    @FXML
+    private Button btnSaveLang; // Save changed Language
+    @FXML
+    private Button btnSaveAll; // Save changed Settings and Language
 
     // TextBoxes
     @FXML
@@ -321,7 +352,10 @@ public class MainWinController {
     private TextField txtSttMax; // Max Value in lstStt
     @FXML
     private TextArea txtSttDesc; // Description in lstStt
-
+    @FXML
+    private TextField txtLangSearch; // Search in lstLang
+    @FXML
+    private TextField txtLangKey; // Key in lstLang
     // Checkboxes
     @FXML
     private CheckBox chkAutoUpdateFiles; // If checked, user will not be prompted for each file in lstFiles when saving changes
@@ -343,6 +377,10 @@ public class MainWinController {
     private AnchorPane layoutAnchorPaneMain; // Root layout
     @FXML
     private SplitPane sttSttSplitPane; // Split Pane in Settings tab
+    @FXML
+    private SplitPane sttLangSplitPane; // Split Pane in Language tab
+    @FXML
+    private VBox scrAreaVBoxLang; // Area for editing all languages in Scroll Pane
 
     // ListBoxes
     @FXML
@@ -365,6 +403,10 @@ public class MainWinController {
     private Tab tabStt;
     @FXML
     private Tab tabLang;
+
+    // Scroll Panes
+    @FXML
+    private ScrollPane scrPaneLang; // Area for editing all languages for current key
 
 
     public void initialize() {
@@ -1111,6 +1153,15 @@ public class MainWinController {
 
         langDict.setPyDictValue("loadLangFromPath", null); // Load Language from path
         langDict.setPyDictValue("updateLangFilesPaths", null); // Update Language files
+        langDict.setPyDictValue("langLoadedMap", null); // Map of loaded Language
+        langDict.setPyDictValue("langChangedMap", null); // Map of changed Language
+        langDict.setPyDictValue("langVisibleList", null); // List of visible Language (Loaded or Changed)
+        langDict.setPyDictValue("fontSizeLstLang", null); // Font size for lstLang
+        langDict.setPyDictValue("langLoadedCurrentItem", null); // Loaded Language current item
+        langDict.setPyDictValue("langChangedCurrentItem", null); // Changed Language current item
+        langDict.setPyDictValue("SplitPaneDividerPosition", null); // SplitPane divider position
+        langDict.setPyDictValue("lstLangSortKey", null); // Sort key for lstLang
+        // TODO: Save Language Current item
 
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
 
@@ -1180,6 +1231,7 @@ public class MainWinController {
         // ........................... Language SECTION
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "loadLangFromPath"), loadLangFromPath);
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"), updateLangFilesPaths);
+        // langLoadedMap
         
         log("AppState created");
     }

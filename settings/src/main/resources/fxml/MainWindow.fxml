@@ -294,7 +294,7 @@
                                           </HBox>
                                           <ScrollPane fx:id="scrPaneLang" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
                                              <content>
-                                                <VBox fx:id="scrVBoxLang" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                                                <VBox fx:id="scrAreaVBoxLang" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                                              </content>
                                              <VBox.margin>
                                                 <Insets top="15.0" />
