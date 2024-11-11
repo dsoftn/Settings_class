@@ -1079,7 +1079,7 @@ public class SettingsItem {
                 Objects.equals(this.getValueSTRING(), other.getValueSTRING()) &&
                 Objects.equals(this.getSettingType(), other.getSettingType()) &&
                 Objects.equals(this.getDataType(), other.getDataType()) &&
-                Objects.equals(this.getDefaultValue(), other.getDefaultValue()) &&
+                Objects.equals(this.getDefaultValueSTRING(), other.getDefaultValueSTRING()) &&
                 Objects.equals(this.getMinDOUBLE(), other.getMinDOUBLE()) &&
                 Objects.equals(this.getMaxDOUBLE(), other.getMaxDOUBLE()) &&
                 Objects.equals(this.getDescription(), other.getDescription());
@@ -1129,7 +1129,7 @@ public class SettingsItem {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getKey(), getValueSTRING(), getSettingType(), getDataType(), getDefaultValue(), getMinDOUBLE(), getMaxDOUBLE(), getDescription());
+        return Objects.hash(getKey(), getValueSTRING(), getSettingType(), getDataType(), getDefaultValueSTRING(), getMinDOUBLE(), getMaxDOUBLE(), getDescription());
     }
 
 
