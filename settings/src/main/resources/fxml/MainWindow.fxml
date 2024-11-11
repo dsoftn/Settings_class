@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="layoutAnchorPaneMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="828.0" prefWidth="1181.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dsoftn.controllers.MainWinController">
+   <children>
+      <VBox fx:id="layoutVBoxMain" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" prefHeight="792.0" prefWidth="1016.0" styleClass="app-basic" stylesheets="@../css/style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label fx:id="lblInfo" alignment="CENTER" graphicTextGap="20.0" maxWidth="1.7976931348623157E308" onMouseClicked="#onLblInfoClick" text="Warning message">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Label>
+            <HBox alignment="CENTER_RIGHT">
+               <children>
+                  <Button fx:id="btnLoadFrom" mnemonicParsing="false" onAction="#onBtnLoadFromAction" styleClass="button-mini" text="Load from:">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Label fx:id="lblSource" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onContextMenuRequested="#onLblSourceContextMenu" onMouseClicked="#onLblSourceClick" text="My title !" wrapText="true" HBox.hgrow="ALWAYS">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Label>
+                  <Button fx:id="btnMinimize" maxHeight="22.0" maxWidth="22.0" minHeight="22.0" minWidth="22.0" mnemonicParsing="false" onAction="#onBtnMinimizeClick" prefHeight="22.0" prefWidth="22.0" styleClass="button-graphical" stylesheets="@../css/style.css">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="btnMaximize" maxHeight="22.0" maxWidth="22.0" minHeight="22.0" minWidth="22.0" mnemonicParsing="false" onAction="#onBtnMaximizeClick" prefHeight="22.0" prefWidth="22.0" styleClass="button-graphical" stylesheets="@../css/style.css">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" top="2.0" />
+               </padding>
+            </HBox>
+            <HBox fx:id="layoutHBoxFiles" maxWidth="1.7976931348623157E308" minHeight="0.0" prefHeight="100.0">
+               <children>
+                  <VBox alignment="CENTER" minHeight="0.0" prefHeight="98.0" prefWidth="150.0">
+                     <children>
+                        <CheckBox fx:id="chkAutoUpdateFiles" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onChkAutoUpdateFilesAction" stylesheets="@../css/style.css" text="Auto Update Files" VBox.vgrow="SOMETIMES">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </CheckBox>
+                        <Button fx:id="btnCreateNew" mnemonicParsing="false" onAction="#onBtnCreateNew" styleClass="button-mini" text="Create new">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                  </VBox>
+                  <ListView fx:id="lstFiles" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="0.0" onScroll="#onLstFilesScroll" HBox.hgrow="ALWAYS" />
+                  <VBox alignment="CENTER" maxWidth="130.0" minHeight="0.0" prefWidth="130.0" spacing="10.0" HBox.hgrow="NEVER">
+                     <children>
+                        <Button fx:id="btnAddFile" maxWidth="120.0" minHeight="0.0" mnemonicParsing="false" onAction="#onBtnAddFileAction" styleClass="button-mini" text="Add File" VBox.vgrow="NEVER">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                        <Button fx:id="btnRemoveFile" maxWidth="120.0" minHeight="0.0" mnemonicParsing="false" onAction="#onBtnRemoveFile" styleClass="button-mini" text="Remove File" VBox.vgrow="NEVER">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="2.0" left="5.0" right="2.0" top="5.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="2.0" />
+               </padding>
+            </HBox>
+            <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+               <tabs>
+                  <Tab fx:id="tabStt" closable="false" text="Settings">
+                     <content>
+                        <AnchorPane>
+                           <children>
+                              <SplitPane fx:id="sttSplitPane" dividerPositions="0.29293809938971227" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <items>
+                                    <VBox maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="250.0">
+                                       <children>
+                                          <HBox maxWidth="1.7976931348623157E308" spacing="10.0">
+                                             <children>
+                                                <TextField fx:id="txtSttSearch" promptText="Search..." HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="btnSttFilterClear" mnemonicParsing="false" onAction="#onBtnSttFilterClearAction" styleClass="button-graphical" />
+                                             </children>
+                                          </HBox>
+                                          <HBox maxWidth="1.7976931348623157E308">
+                                             <children>
+                                                <Button fx:id="btnSttShowLoaded" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnSttShowLoadedClick" onContextMenuRequested="#onBtnSttShowLoadedContextMenu" styleClass="button-list-selector-selected" text="Show Loaded" HBox.hgrow="SOMETIMES" />
+                                                <Button fx:id="btnSttShowChanged" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnSttShowChangedClick" onContextMenuRequested="#onBtnSttShowChangedContextMenu" styleClass="button-list-selector-not-selected" text="Show Changed" HBox.hgrow="SOMETIMES" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets top="3.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ListView fx:id="lstStt" onContextMenuRequested="#onLstSttContextMenu" onScroll="#onLstSttScroll" VBox.vgrow="ALWAYS" />
+                                       </children>
+                                       <padding>
+                                          <Insets top="3.0" />
+                                       </padding>
+                                    </VBox>
+                                    <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                       <children>
+                                          <HBox prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <Label fx:id="lblSttRec" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0">
+                                                   <HBox.margin>
+                                                      <Insets right="5.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <Label fx:id="lblSttKeyImage" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="5.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="txtSttKey" styleClass="text-field-key" HBox.hgrow="SOMETIMES" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <HBox prefWidth="200.0" spacing="5.0">
+                                             <children>
+                                                <Label fx:id="fieldLabeSttFlag" text="Flag:" />
+                                                <ComboBox fx:id="cmbSttFlag" prefWidth="150.0" />
+                                                <Label fx:id="lblSttInfo" alignment="CENTER" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" text="Label" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <Label fx:id="fieldLabeSttDataType" text="DataType:">
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <ComboBox fx:id="cmbSttDataType" prefWidth="150.0" />
+                                                <CheckBox fx:id="chkAutoDataType" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#onChkAutoDataTypeAction" selected="true" text="Auto" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label fx:id="fieldLabeSttValue" text="Settings Value :" />
+                                                <TextArea fx:id="txtSttValue" maxHeight="1.7976931348623157E308" minHeight="60.0" prefHeight="120.0" styleClass="text-area-value" VBox.vgrow="ALWAYS" />
+                                                <HBox spacing="10.0">
+                                                   <children>
+                                                      <Region maxHeight="0.0" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                                                      <CheckBox fx:id="chkSttAutoDefault" mnemonicParsing="false" onAction="#onChkSttAutoDefaultAction" selected="true" text="Auto Copy to Default" />
+                                                      <CheckBox fx:id="chkSttAutoStrip" mnemonicParsing="false" onAction="#onChkSttAutoStripAction" selected="true" text="Auto Strip string values" HBox.hgrow="NEVER" />
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </VBox>
+                                          <VBox>
+                                             <children>
+                                                <Label fx:id="fieldLabeSttDefValue" text="Default Value:" />
+                                                <TextArea fx:id="txtSttDefValue" maxHeight="62.0" minHeight="62.0" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </VBox>
+                                          <HBox>
+                                             <children>
+                                                <Label fx:id="fieldLabeSttMin" text="Min:">
+                                                   <HBox.margin>
+                                                      <Insets />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="txtSttMin" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES" />
+                                                <Label fx:id="fieldLabeSttMax" text="Max:">
+                                                   <HBox.margin>
+                                                      <Insets left="30.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <TextField fx:id="txtSttMax" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                             <children>
+                                                <Label fx:id="fieldLabeSttDesc" text="Description:" />
+                                                <TextArea fx:id="txtSttDesc" maxHeight="1.7976931348623157E308" minHeight="20.0" prefHeight="100.0" VBox.vgrow="ALWAYS" />
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </VBox>
+                                          <HBox spacing="10.0">
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="10.0" />
+                                             </VBox.margin>
+                                             <children>
+                                                <Label fx:id="lblSttRecords" style="-fx-font-size: 20; -fx-text-fill: rgb(32, 212, 32);" text="### records" />
+                                                <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="0.0" HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="btnSttDiscard" mnemonicParsing="false" onAction="#onBtnSttDiscardClick" text="Discard Changes" />
+                                                <Button fx:id="btnSttDelete" mnemonicParsing="false" onAction="#onBtnSttDeleteClick" styleClass="button-delete" text="Delete Settings" />
+                                                <Button fx:id="btnSttUpdate" mnemonicParsing="false" onAction="#onBtnSttUpdateClick" text="Update Settings" />
+                                                <Button fx:id="btnSttAdd" mnemonicParsing="false" onAction="#onBtnSttAddClick" text="Add new Settings" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </items>
+                              </SplitPane>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab fx:id="tabLang" text="Language">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                     </content>
+                  </Tab>
+               </tabs>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </TabPane>
+            <HBox spacing="10.0">
+               <children>
+                  <CheckBox fx:id="chkSaveState" mnemonicParsing="false" onAction="#onChkSaveStateAction" selected="true" text="Save state on exit" />
+                  <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="0.0" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnSaveStt" mnemonicParsing="false" onAction="#onBtnSaveSttClick" text="Save Settings" />
+                  <Button fx:id="btnSaveLang" mnemonicParsing="false" text="Save Languages" />
+                  <Button fx:id="btnSaveAll" mnemonicParsing="false" text="Save All" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+      <Label fx:id="lblToolTip" alignment="CENTER" layoutX="1084.0" layoutY="715.0" styleClass="tooltip-label" text="Info Label" wrapText="true" />
+   </children>
+</AnchorPane>

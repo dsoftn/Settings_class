@@ -1,0 +1,87 @@
+{
+  "LANGUAGE": {
+    "updateLangFilesPaths": [],
+    "loadLangFromPath": ""
+  },
+  "lastSection": "SETTINGS",
+  "lastDir": "D:\\Programiranje\\Java\\Projekti\\Settings_class",
+  "chkAutoUpdateFiles": false,
+  "SETTINGS": {
+    "loadSttFromPath": "D:\\Programiranje\\Java\\Projekti\\Settings_class\\user_settings.json",
+    "sttChangedCurrentItem": "my_key",
+    "lstSttSortKey": "Created",
+    "sttLoadedMap": {
+      "my_key4": {
+        "min": "2",
+        "userData": "Changed",
+        "max": "Null",
+        "defaultValue": "Null",
+        "dataType": 4,
+        "description": "my_description",
+        "creationDate": "2024.10.31 15:56:10",
+        "value": "jakkioo",
+        "settingType": 8,
+        "key": "my_key4"
+      },
+      "my_key2": {
+        "min": "2",
+        "userData": "",
+        "max": "Null",
+        "defaultValue": "3",
+        "dataType": 8,
+        "description": "my_description",
+        "creationDate": "2024.10.31 15:56:08",
+        "value": "565",
+        "settingType": 8,
+        "key": "my_key2"
+      },
+      "my_key": {
+        "min": "2",
+        "userData": "Changed",
+        "max": "Null",
+        "defaultValue": "5",
+        "dataType": 8,
+        "description": "my_description",
+        "creationDate": "2024.10.31 15:56:07",
+        "value": "1",
+        "settingType": 12,
+        "key": "my_key"
+      },
+      "my_key66": {
+        "min": "null",
+        "userData": "Changed",
+        "max": "Null",
+        "defaultValue": "5",
+        "dataType": 4,
+        "description": "my_description",
+        "creationDate": "2024.11.09 14:28:13",
+        "value": "noviiii",
+        "settingType": 8,
+        "key": "my_key66"
+      }
+    },
+    "chkSttAutoDefault": false,
+    "updateSttFilesPaths": [
+      "D:\\Programiranje\\Java\\Projekti\\Settings_class\\novi_stt.json"
+    ],
+    "chkAutoDataType": true,
+    "sttVisibleList": "Loaded",
+    "sttLoadedCurrentItem": "my_key2",
+    "fontSizeLstStt": 24.0,
+    "CurrentItem": {
+      "DefValue": null,
+      "Desc": null,
+      "Min": null,
+      "Max": null,
+      "Value": null,
+      "SettingsType": null,
+      "DataType": null,
+      "Key": null
+    },
+    "SplitPaneDividerPosition": 0.2925764192139738,
+    "sttChangedMap": null,
+    "chkSttAutoStrip": true
+  },
+  "fontSizeLstFiles": 14.0,
+  "chkSaveState": true
+}

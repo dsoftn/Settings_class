@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="528.0" prefWidth="774.0" styleClass="app-basic" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dsoftn.controllers.SaveDialogController">
+   <children>
+      <VBox layoutX="154.0" layoutY="55.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Region VBox.vgrow="SOMETIMES" />
+            <VBox fx:id="layoutSectionStt" VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="title-label" text="Save changed settings items">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <Region maxHeight="1.7976931348623157E308" maxWidth="0.0" prefWidth="0.0" VBox.vgrow="SOMETIMES" />
+                  <HBox>
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Total affected" />
+                        <Label fx:id="lblSttAffected" alignment="CENTER" styleClass="info-label" text="0">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="settings items" />
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+                  <Region maxHeight="5.0" prefHeight="5.0" prefWidth="0.0" />
+                  <HBox>
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label fx:id="lblSttDeleted" alignment="CENTER" maxHeight="1.7976931348623157E308" styleClass="error-label" text="0">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </Label>
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Deleted" />
+                        <Region maxHeight="0.0" prefHeight="0.0" prefWidth="30.0" />
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Changed" />
+                        <Label fx:id="lblSttChanged" alignment="CENTER" maxHeight="1.7976931348623157E308" styleClass="warning-label" text="0">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </Label>
+                        <Region maxHeight="0.0" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+                  <Region maxHeight="20.0" prefHeight="20.0" prefWidth="0.0" />
+                  <VBox fx:id="layoutSectionSttFiles" />
+                  <Region maxHeight="1.7976931348623157E308" maxWidth="0.0" prefWidth="0.0" VBox.vgrow="SOMETIMES" />
+               </children>
+            </VBox>
+            <Region maxHeight="20.0" maxWidth="0.0" minHeight="10.0" prefHeight="20.0" prefWidth="0.0" />
+            <VBox fx:id="layoutSectionLang" VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="title-label" text="Save changed language items">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label>
+                  <Region maxHeight="1.7976931348623157E308" maxWidth="0.0" prefWidth="0.0" VBox.vgrow="SOMETIMES" />
+                  <HBox>
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Total affected" />
+                        <Label fx:id="lblLangAffected" alignment="CENTER" styleClass="info-label" text="0">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="language items" />
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+                  <Region maxHeight="5.0" prefHeight="5.0" prefWidth="0.0" />
+                  <HBox>
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label fx:id="lblLangDeleted" alignment="CENTER" maxHeight="1.7976931348623157E308" styleClass="error-label" text="0">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </Label>
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Deleted" />
+                        <Region maxHeight="0.0" prefHeight="0.0" prefWidth="30.0" />
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" text="Changed" />
+                        <Label fx:id="lblLangChanged" alignment="CENTER" maxHeight="1.7976931348623157E308" styleClass="warning-label" text="0">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </Label>
+                        <Region maxHeight="0.0" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+                  <Region maxHeight="20.0" prefHeight="20.0" prefWidth="0.0" />
+                  <VBox fx:id="layoutSectionLangFiles" />
+                  <Region maxHeight="1.7976931348623157E308" maxWidth="0.0" prefWidth="0.0" VBox.vgrow="SOMETIMES" />
+               </children>
+            </VBox>
+            <Region maxHeight="20.0" maxWidth="0.0" minHeight="10.0" prefHeight="20.0" prefWidth="0.0" />
+            <VBox fx:id="layoutSectionCompleted" VBox.vgrow="SOMETIMES">
+               <children>
+                  <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label fx:id="lblImageCompleted" alignment="CENTER" contentDisplay="CENTER" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" prefHeight="60.0" prefWidth="60.0">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblCompleted" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="title-label" text="All Files are successfully saved." />
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox fx:id="layoutSectionError" VBox.vgrow="SOMETIMES">
+               <children>
+                  <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label fx:id="lblImageError" alignment="CENTER" contentDisplay="CENTER" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" prefHeight="64.0" prefWidth="64.0">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblError" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-text-fill: #ff0202fd;" styleClass="title-label" text="Error" />
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox fx:id="layoutSectionWorking" VBox.vgrow="SOMETIMES">
+               <children>
+                  <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Label fx:id="lblImageWorking" alignment="CENTER" contentDisplay="CENTER" maxHeight="64.0" maxWidth="64.0" minHeight="64.0" minWidth="64.0" prefHeight="64.0" prefWidth="64.0">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="title-label" text="Working..." />
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <Region VBox.vgrow="SOMETIMES" />
+            <VBox fx:id="layoutSectionButtons" alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
+                        <Button fx:id="btnRollBack" mnemonicParsing="false" onAction="#onBtnRollBackClick" text="RollBack (Recommended)">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="btnKeepChanges" mnemonicParsing="false" onAction="#onBtnKeepChanges" styleClass="button-delete" text="Keep Changes (NOT Recommended)">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="btnSave" mnemonicParsing="false" onAction="#onBtnSaveClick" text="Confirm and Save">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#onBtnCancelClick" text="Cancel">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="btnOk" mnemonicParsing="false" onAction="#onBtnOkClick" text="  Ok  ">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
