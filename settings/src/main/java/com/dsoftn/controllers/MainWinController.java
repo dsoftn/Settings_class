@@ -342,7 +342,7 @@ public class MainWinController {
     @FXML
     private AnchorPane layoutAnchorPaneMain; // Root layout
     @FXML
-    private SplitPane sttSplitPane; // Split Pane in Settings tab
+    private SplitPane sttSttSplitPane; // Split Pane in Settings tab
 
     // ListBoxes
     @FXML
@@ -1154,7 +1154,7 @@ public class MainWinController {
         appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "sttChangedCurrentItem"), sttChangedCurrentItem);
 
         // SplitPane divider position
-        appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "SplitPaneDividerPosition"), sttSplitPane.getDividerPositions()[0]);
+        appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "SplitPaneDividerPosition"), sttSttSplitPane.getDividerPositions()[0]);
 
         // Auto strip Settings value
         appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "chkSttAutoStrip"), chkSttAutoStrip.isSelected());
@@ -1287,7 +1287,7 @@ public class MainWinController {
 
         // Split Pane divider position
         if (appState.getPyDictValue(concatKeys(Section.SETTINGS.toString(), "SplitPaneDividerPosition")) != null) {
-            sttSplitPane.setDividerPositions(appState.getPyDictDoubleValueEXPLICIT(concatKeys(Section.SETTINGS.toString(), "SplitPaneDividerPosition")));
+            sttSttSplitPane.setDividerPositions(appState.getPyDictDoubleValueEXPLICIT(concatKeys(Section.SETTINGS.toString(), "SplitPaneDividerPosition")));
         }
 
         // Auto strip value
@@ -1550,6 +1550,42 @@ public class MainWinController {
         imgListItemDeleted.setPreserveRatio(true);
 
         // Listener for txtSttValue
+        setupListenerForTxtSttValue();
+        // Listener for Default Value
+        setupListenerForDefaultValue();
+        // Listener for Min Value
+        setupListenerForMinValue();
+        // Listener for Max Value
+        setupListenerForMaxValue();
+        // Listener for Setting Description
+        setupListenerForDescription();
+        // Listener for txtSttKey
+        setupListenerForTxtSttKey();
+        // Listener for txtSttSearch
+        setupListenerForTxtSttSearch();
+        // Set cell factory for lstFiles
+        setupCellFactoryForLstFiles();
+        // Set cell factory for lstStt
+        setupCellFactoryForLstStt();
+        // Listener for lstStt
+        setupListenerForLstStt();
+        // Listener for cmbDataTypes
+        setupListenerForCmbDataTypes();
+        // Listener for cmbSttFlag
+        setupListenerForCmbSttFlag();
+        
+        // AnchorPaneMain KeyPress and MouseClick events
+        setupKeyPressAndMouseClickForMainAnchorPane();
+
+        
+        setupWidgetsText();
+
+        setupContextMenus();
+
+        updateMessageLabel();
+    }
+
+    private void setupListenerForTxtSttValue() {
         txtSttValue.textProperty().addListener((observable, oldValue, newValue) -> {
             ArrayList<String> availableDataTypes = getAvailableDataTypes(txtSttValue.getText());
             updateLblSttInfo(availableDataTypes);
@@ -1562,31 +1598,36 @@ public class MainWinController {
                 checkIfSettingsEntryIsValid();
             }
         });
+    }
 
-        // Listener for Default Value
+    private void setupListenerForDefaultValue() {
         txtSttDefValue.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
         });
+    }
 
-        // Listener for Min Value
+    private void setupListenerForMinValue() {
         txtSttMin.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
         });
+    }
 
-        // Listener for Max Value
+    private void setupListenerForMaxValue() {
         txtSttMax.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
         });
+    }
 
-        // Listener for Setting Description
+    private void setupListenerForDescription() {
         txtSttDesc.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
         });
+    }
 
-        // Listener for txtSttKey
+    private void setupListenerForTxtSttKey() {
         txtSttKey.textProperty().addListener((observable, oldValue, newValue) -> {
             String itemName = txtSttKey.getText();
             if (isSttItemExists(itemName)) {
@@ -1615,13 +1656,15 @@ public class MainWinController {
             }
             updateSttWidgetsAppearance();
         });
+    }
 
-        // Listener for txtSttSearch
+    private void setupListenerForTxtSttSearch() {
         txtSttSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             changeSttVisibleList(sttVisibleList);
         });
+    }
 
-        // set cell factory for lstFiles
+    private void setupCellFactoryForLstFiles() {
         lstFiles.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -1644,8 +1687,9 @@ public class MainWinController {
                 }
             }
         });
+    }
 
-        // set cell factory for lstStt
+    private void setupCellFactoryForLstStt() {
         lstStt.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -1697,16 +1741,18 @@ public class MainWinController {
                 }
             }
         });
+    }
 
-        // Listener for lstStt
+    private void setupListenerForLstStt() {
         lstStt.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 log("Current item changed to: " + newValue);
                 sttCurrentItemChanged(newValue);
             }
         });
-        
-        // Listener for cmbDataTypes
+    }
+
+    private void setupListenerForCmbDataTypes() {
         cmbSttDataType.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get Scene coordinates for cmbDataTypes
@@ -1717,8 +1763,9 @@ public class MainWinController {
                 checkIfSettingsEntryIsValid();
             }
         });
+    }
 
-        // Listener for cmbSttFlag
+    private void setupListenerForCmbSttFlag() {
         cmbSttFlag.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get Scene coordinates for cmbSttFlag
@@ -1729,8 +1776,9 @@ public class MainWinController {
                 checkIfSettingsEntryIsValid();
             }
         });
+    }
 
-        // AnchorPaneMain KeyPress and MouseClick events
+    private void setupKeyPressAndMouseClickForMainAnchorPane() {
         layoutAnchorPaneMain.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             removeInactiveAndExpiredMessages();
         });
@@ -1741,12 +1789,6 @@ public class MainWinController {
             }
             removeInactiveAndExpiredMessages();
         });
-
-        setupWidgetsText();
-
-        setupContextMenus();
-
-        updateMessageLabel();
     }
 
     private void setupContextMenus() {
