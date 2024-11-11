@@ -2646,6 +2646,7 @@ public class MainWinController {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+        alert.initOwner(primaryStage);
         alert.showAndWait();
     }
 
@@ -2654,6 +2655,7 @@ public class MainWinController {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+        alert.initOwner(primaryStage);
 
         ButtonType yesButton = ButtonType.YES;
         ButtonType noButton = ButtonType.NO;
