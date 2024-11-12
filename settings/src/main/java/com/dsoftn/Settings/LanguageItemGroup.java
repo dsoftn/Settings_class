@@ -1,7 +1,11 @@
 package com.dsoftn.Settings;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.dsoftn.utils.PyDict;
 
 
 public class LanguageItemGroup {
@@ -9,6 +13,7 @@ public class LanguageItemGroup {
     private String groupName = ""; // Group name
     private String groupKey = ""; // Group key will be determined automatically based on LanguageItems in group
     private List<LanguageItem> languageItems = new ArrayList<LanguageItem>(); // List of LanguageItems for different languages with same key
+    private String userData = "";
 
     // Constructors
     public LanguageItemGroup(String groupName) {
@@ -60,6 +65,44 @@ public class LanguageItemGroup {
         return result;
     }
 
+    // Serialization / Deserialization methods
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new PyDict();
+        result.put("groupName", groupName);
+        result.put("groupKey", groupKey);
+        result.put("userData", userData);
+        
+        List<Map<String, Object>> items = new ArrayList<>();
+
+        for (LanguageItem item : languageItems) {
+            items.add(item.toMap());
+        }
+        result.put("languageItems", items);
+
+        return result;
+    }
+    
+    public void fromMap(Map<String, Object> map) {
+        // Name
+        groupName = (String) map.get("groupName");
+
+        // Key
+        groupKey = (String) map.get("groupKey");
+
+        // User Data
+        userData = (String) map.get("userData");
+        
+        // Language Items
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> items = (List<Map<String, Object>>) map.get("languageItems");
+        languageItems = new ArrayList<LanguageItem>();
+        for (Map<String, Object> itemMap : items) {
+            LanguageItem item = new LanguageItem();
+            item.fromMap(itemMap);
+            languageItems.add(item);
+        }
+    }
 
     // Public methods
     public void addToGroup(LanguageItem item) {
@@ -88,6 +131,9 @@ public class LanguageItemGroup {
         LanguageItemGroup result = new LanguageItemGroup();
 
         result.setGroupName(this.groupName);
+
+        result.setUserData(this.userData);
+
         for (LanguageItem item : this.languageItems) {
             result.addToGroup(item.duplicate());
         }
@@ -116,7 +162,12 @@ public class LanguageItemGroup {
 
     public String getGroupKey() { return groupKey; }
 
+    public String getUserData() { return userData; }
+
+    public void setUserData(String userData) { this.userData = userData; }
+
     // Private methods
+
     private String checkItemsAndGetGroupKey(List<LanguageItem> langItems) {
         // Create virtual group key and items list
         String vGroupKey = "";
