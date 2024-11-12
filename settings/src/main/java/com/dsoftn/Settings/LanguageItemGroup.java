@@ -197,7 +197,25 @@ public class LanguageItemGroup {
         return result;
     }
 
-    public void createGroupFromLanguageMapObject(Map<String, Object> langMap, String langKeyToExtract) {
+    // Static methods
+
+    public static boolean isLanguageMapObjectValid(Map<String, Object> langMap) {
+        boolean result = true;
+
+        if (!langMap.containsKey("available_languages")) {
+            result = false;
+        }
+        if (!langMap.containsKey("active_language")) {
+            result = false;
+        }
+        if (!langMap.containsKey("data")) {
+            result = false;
+        }
+
+        return result;
+    }
+
+    public static List<LanguageItemGroup> getListOfGroupLanguageObjectsFromLanguageMapObject(Map<String, Object> langMap) {
         if (!isLanguageMapObjectValid(langMap)) {
             errorInvalidLanguageMapObject();
         }
@@ -205,37 +223,79 @@ public class LanguageItemGroup {
        if (langMap.get("data") instanceof Map) {
             Map<String, Object> data = PyDict.castToMap(langMap.get("data"));
             if (data.isEmpty()) {
-                return;
+                return new ArrayList<LanguageItemGroup>();
             }
 
             List<String> langCodeKeys = new ArrayList<>(data.keySet());
             if (langCodeKeys.isEmpty()) {
-                return;
+                return new ArrayList<LanguageItemGroup>();
+            }
+
+            List<String> keys = new ArrayList<String>();
+
+            Map<String, LanguageItem> langCodeFirst = PyDict.castToMap(data.get(langCodeKeys.get(0)));
+
+            keys.addAll(langCodeFirst.keySet());
+
+            List<LanguageItemGroup> result = new ArrayList<LanguageItemGroup>();
+
+            for (String key : keys) {
+                LanguageItemGroup group = getGroupFromLanguageMapObject(langMap, key);
+                if (group != null) {
+                    result.add(group);
+                }
+            }
+
+            return result;
+       }
+       else {
+           errorInvalidLanguageMapObject();
+           return null;
+       }
+    }
+
+    public static LanguageItemGroup getGroupFromLanguageMapObject(Map<String, Object> langMap, String langKeyToExtract) {
+        if (!isLanguageMapObjectValid(langMap)) {
+            errorInvalidLanguageMapObject();
+        }
+
+       if (langMap.get("data") instanceof Map) {
+            Map<String, Object> data = PyDict.castToMap(langMap.get("data"));
+            if (data.isEmpty()) {
+                return null;
+            }
+
+            List<String> langCodeKeys = new ArrayList<>(data.keySet());
+            if (langCodeKeys.isEmpty()) {
+                return null;
             }
 
             Map<String, LanguageItem> langCodeFirst = PyDict.castToMap(data.get(langCodeKeys.get(0)));
 
             List<String> keys = new ArrayList<>(langCodeFirst.keySet());
             if (keys.isEmpty()) {
-                return;
+                return null;
             }
 
-            languageItems = new ArrayList<LanguageItem>();
+            LanguageItemGroup group = new LanguageItemGroup();
 
             for (String langCodeKey : langCodeKeys) {
                 Map<String, LanguageItem> langCodeItem = PyDict.castToMap(data.get(langCodeKey));
                 LanguageItem item = langCodeItem.get(langKeyToExtract);
                 if (item != null) {
-                    addToGroup(item);
+                    group.addToGroup(item);
                 }
             }
+
+            return group;
        }
        else {
            errorInvalidLanguageMapObject();
+           return null;
        }
     }
 
-    public void insertIntoLanguageMapObject(Map<String, Object> langMap) {
+    public static void insertIntoLanguageMapObject(Map<String, Object> langMap, LanguageItemGroup groupObject) {
         if (!isLanguageMapObjectValid(langMap)) {
             errorInvalidLanguageMapObject();
         }
@@ -251,7 +311,7 @@ public class LanguageItemGroup {
                 return;
             }
 
-            for (LanguageItem item : languageItems) {
+            for (LanguageItem item : groupObject.getLanguageItems()) {
                 if (!langCodeKeys.contains(item.getLanguageCode())) {
                     continue;
                 }
@@ -266,6 +326,7 @@ public class LanguageItemGroup {
     }
 
     // Getters and Setters
+
     public String getGroupName() { return groupName; }
 
     public void setGroupName(String groupName) { this.groupName = groupName; }
@@ -329,22 +390,6 @@ public class LanguageItemGroup {
 
     // Private methods
 
-    private boolean isLanguageMapObjectValid(Map<String, Object> langMap) {
-        boolean result = true;
-
-        if (!langMap.containsKey("available_languages")) {
-            result = false;
-        }
-        if (!langMap.containsKey("active_language")) {
-            result = false;
-        }
-        if (!langMap.containsKey("data")) {
-            result = false;
-        }
-
-        return result;
-    }
-
     private void setupCreationDate(List<LanguageItem> langItems) {
         for (LanguageItem item : langItems) {
             setupCreationDate(item);
@@ -388,11 +433,11 @@ public class LanguageItemGroup {
         return vGroupKey;
     }
 
-    private void errorInvalidGroupItems() {
+    private static void errorInvalidGroupItems() {
         throw new RuntimeException("Invalid group items, either item key is different from group key or item with same key and language code but different value already exists in group.");
     }
 
-    private void errorInvalidLanguageMapObject() {
+    private static void errorInvalidLanguageMapObject() {
         throw new RuntimeException("Invalid language map object.");
     }
 
