@@ -235,6 +235,36 @@ public class LanguageItemGroup {
        }
     }
 
+    public void insertIntoLanguageMapObject(Map<String, Object> langMap) {
+        if (!isLanguageMapObjectValid(langMap)) {
+            errorInvalidLanguageMapObject();
+        }
+
+       if (langMap.get("data") instanceof Map) {
+            Map<String, Object> data = PyDict.castToMap(langMap.get("data"));
+            if (data.isEmpty()) {
+                return;
+            }
+
+            List<String> langCodeKeys = new ArrayList<>(data.keySet());
+            if (langCodeKeys.isEmpty()) {
+                return;
+            }
+
+            for (LanguageItem item : languageItems) {
+                if (!langCodeKeys.contains(item.getLanguageCode())) {
+                    continue;
+                }
+
+                Map<String, LanguageItem> langCodeItem = PyDict.castToMap(data.get(item.getLanguageCode()));
+                langCodeItem.put(item.getKey(), item.duplicate());
+            }
+       }
+       else {
+           errorInvalidLanguageMapObject();
+       }
+    }
+
     // Getters and Setters
     public String getGroupName() { return groupName; }
 
