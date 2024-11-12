@@ -167,6 +167,11 @@ public class PyDict extends HashMap<String, Object> {
 
     // Static methods
 
+    @SuppressWarnings("unchecked")
+    public static <K, V> Map<K, V> castToMap(Object obj) {
+        return (Map<K, V>) obj;
+    }
+    
     public static String concatKeys(String... keys) {
         String result = "";
         for (String key : keys) {
