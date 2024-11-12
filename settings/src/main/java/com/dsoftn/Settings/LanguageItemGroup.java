@@ -1,6 +1,7 @@
 package com.dsoftn.Settings;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +10,16 @@ import com.dsoftn.utils.PyDict;
 
 
 public class LanguageItemGroup {
+    // Constants
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private DateTimeFormatter dateTimeFormatterForJson = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
+
     // Properties
     private String groupName = ""; // Group name
     private String groupKey = ""; // Group key will be determined automatically based on LanguageItems in group
     private List<LanguageItem> languageItems = new ArrayList<LanguageItem>(); // List of LanguageItems for different languages with same key
     private String userData = "";
+    private String creationDate = LocalDateTime.now().format(dateTimeFormatterForJson);
 
     // Constructors
     public LanguageItemGroup(String groupName) {
@@ -27,6 +33,7 @@ public class LanguageItemGroup {
         if (this.groupKey == null) {
             errorInvalidGroupItems();
         }
+        setupCreationDate(languageItems);
     }
 
     public LanguageItemGroup() {}
@@ -72,6 +79,7 @@ public class LanguageItemGroup {
         result.put("groupName", groupName);
         result.put("groupKey", groupKey);
         result.put("userData", userData);
+        result.put("creationDate", creationDate);
         
         List<Map<String, Object>> items = new ArrayList<>();
 
@@ -92,6 +100,9 @@ public class LanguageItemGroup {
 
         // User Data
         userData = (String) map.get("userData");
+
+        // Creation Date
+        creationDate = (String) map.get("creationDate");
         
         // Language Items
         @SuppressWarnings("unchecked")
@@ -105,11 +116,42 @@ public class LanguageItemGroup {
     }
 
     // Public methods
-    public void addToGroup(LanguageItem item) {
-        this.groupKey = checkItemsAndGetGroupKey(languageItems);
-        this.languageItems.add(item);
+    public void addToGroup(List<LanguageItem> items) {
+        for (LanguageItem item : items) {
+            this.addToGroup(item);
+        }
     }
 
+    public void addToGroup(LanguageItem item) {
+        this.groupKey = checkItemsAndGetGroupKey(item);
+        if (this.groupKey == null) {
+            errorInvalidGroupItems();
+        }
+        this.languageItems.add(item);
+        setupCreationDate(item);
+    }
+
+    public boolean removeFromGroup(List<LanguageItem> items) {
+        Boolean result = null;
+        for (LanguageItem item : items) {
+            boolean removed = removeFromGroup(item);
+
+            if (result == null && removed) {
+                result = true;
+            }
+
+            if (!removed) {
+                result = false;
+            }
+        }
+
+        if (result == null) {
+            result = false;
+        }
+
+        return result;
+    }
+    
     public boolean removeFromGroup(LanguageItem item) {
         boolean result = false;
         for (LanguageItem langItem : languageItems) {
@@ -133,6 +175,8 @@ public class LanguageItemGroup {
         result.setGroupName(this.groupName);
 
         result.setUserData(this.userData);
+
+        result.setCreationDate(this.getCreationDate());
 
         for (LanguageItem item : this.languageItems) {
             result.addToGroup(item.duplicate());
@@ -166,7 +210,66 @@ public class LanguageItemGroup {
 
     public void setUserData(String userData) { this.userData = userData; }
 
+    /**
+     * Returns easy to sort date+time in format <i>yyyy-MM-dd HH:mm:ss</i>
+     * @return - <i>String</i> easy to sort date+time
+     */
+    public String getCreationDateForJson() {
+        return creationDate;
+    }
+
+    /**
+     * Returns date+time in format <i>dd.MM.yyyy HH:mm:ss</i>
+     * @return - <i>String</i> date+time
+     */
+    public String getCreationDate() {
+        try {
+            return LocalDateTime.parse(creationDate, dateTimeFormatterForJson).format(dateTimeFormatter);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets creation date+time
+     * @param creationDate - <i>String</i> date+time in format <i>dd.MM.yyyy HH:mm:ss</i>
+     */
+    public void setCreationDate(String creationDate) {
+        try {
+            this.creationDate = LocalDateTime.parse(creationDate, dateTimeFormatter).format(dateTimeFormatterForJson);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets current date+time
+     */
+    public void setCreationDate() {
+        this.creationDate = LocalDateTime.now().format(dateTimeFormatterForJson);
+    }
+
     // Private methods
+
+    private void setupCreationDate(List<LanguageItem> langItems) {
+        for (LanguageItem item : langItems) {
+            setupCreationDate(item);
+        }
+    }
+
+    private void setupCreationDate(LanguageItem item) {
+        if (item.getCreationDateForJson() != null && !item.getCreationDateForJson().isEmpty()) {
+            this.creationDate = item.getCreationDateForJson();
+        }
+    }
+
+    private String checkItemsAndGetGroupKey(LanguageItem langItem) {
+        List<LanguageItem> langItems = new ArrayList<LanguageItem>();
+        langItems.add(langItem);
+        return checkItemsAndGetGroupKey(langItems);
+    }
 
     private String checkItemsAndGetGroupKey(List<LanguageItem> langItems) {
         // Create virtual group key and items list
