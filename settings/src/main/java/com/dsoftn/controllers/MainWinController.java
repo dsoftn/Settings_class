@@ -80,6 +80,7 @@ import com.dsoftn.Settings.DataType;
 import com.dsoftn.Settings.Settings;
 import com.dsoftn.Settings.SettingsItem;
 import com.dsoftn.Settings.LanguageItem;
+import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.Settings.SettingType;
 import com.dsoftn.controllers.SaveDialogController.SaveSection;
 import com.dsoftn.events.EventWriteLog;
@@ -249,6 +250,7 @@ public class MainWinController {
     // Context Menus
     private ContextMenu contextMenuLblSource = new ContextMenu();
     private ContextMenu contextMenuLstStt = new ContextMenu();
+    private ContextMenu contextMenuLstLang = new ContextMenu();
    
     // WIDGETS IN FXML
 
@@ -1161,7 +1163,7 @@ public class MainWinController {
         langDict.setPyDictValue("langChangedCurrentItem", null); // Changed Language current item
         langDict.setPyDictValue("SplitPaneDividerPosition", null); // SplitPane divider position
         langDict.setPyDictValue("lstLangSortKey", null); // Sort key for lstLang
-        // TODO: Save Language Current item
+        // TODO: Save Language Current item Not Implemented
 
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
 
@@ -1232,6 +1234,28 @@ public class MainWinController {
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "loadLangFromPath"), loadLangFromPath);
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"), updateLangFilesPaths);
         // langLoadedMap
+        for (String key : langLoadedMap.keySet()) {
+            LanguageItemGroup langItemGroup = (LanguageItemGroup) langLoadedMap.get(key);
+            appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedMap", key), langItemGroup.toMap());
+        }
+        // langChangedMap
+        for (String key : langChangedMap.keySet()) {
+            LanguageItemGroup langItemGroup = (LanguageItemGroup) langChangedMap.get(key);
+            appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedMap", key), langItemGroup.toMap());
+        }
+        // langVisibleList
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langVisibleList"), langVisibleList);
+        // Font Size for lstLang
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "fontSizeLstLang"), fontSizeLstLang);
+        // langLoadedCurrentItem and langChangedCurrentItem
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedCurrentItem"), langLoadedCurrentItem);
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedCurrentItem"), langChangedCurrentItem);
+
+        // SplitPane divider position
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "SplitPaneDividerPositionLang"), sttLangSplitPane.getDividerPositions()[0]);
+
+        // Sort key for lstLang
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey"), lstLangSortKey);
         
         log("AppState created");
     }
@@ -1393,6 +1417,72 @@ public class MainWinController {
             updateLangFilesPaths = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"));
         }
 
+        // langLoadedMap
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedMap")) != null) {
+            Map<String, Object> map = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedMap"));
+            langLoadedMap.clear();
+            for (String key : map.keySet()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> mapItem = (Map<String, Object>) map.get(key);
+                LanguageItemGroup langGroupItem =  new LanguageItemGroup();
+                langGroupItem.fromMap(mapItem);
+                langLoadedMap.put(key, langGroupItem);
+            }
+        }
+
+        // langChangedMap
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedMap")) != null) {
+            Map<String, Object> map = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedMap"));
+            langChangedMap.clear();
+            for (String key : map.keySet()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> mapItem = (Map<String, Object>) map.get(key);
+                LanguageItemGroup langGroupItem =  new LanguageItemGroup();
+                langGroupItem.fromMap(mapItem);
+                langChangedMap.put(key, langGroupItem);
+            }
+        }
+
+        // Create langChangedList
+        langChangedList.clear();
+        for (String key : langChangedMap.keySet()) {
+            LanguageItemGroup langGroupItem = (LanguageItemGroup) langChangedMap.get(key);
+            langChangedList.add(langGroupItem.getGroupKey());
+        }
+
+        // langVisibleList
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langVisibleList")) != null) {
+            langVisibleList = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langVisibleList"));
+        }
+
+        // langLoadedCurrentItem and langChangedCurrentItem
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedCurrentItem")) != null) {
+            langLoadedCurrentItem = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedCurrentItem"));
+        }
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedCurrentItem")) != null) {
+            langChangedCurrentItem = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langChangedCurrentItem"));
+        }
+
+        changeLangVisibleList(langVisibleList);
+
+        // Font size for lstLang
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "fontSizeLstLang")) != null) {
+            fontSizeLstLang = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "fontSizeLstLang"));
+            lstLang.setStyle("-fx-font-size: " + fontSizeLstLang + "px;");
+        }
+
+        // Split Pane divider position
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "splitPaneDividerPositionLang")) != null) {
+            sttLangSplitPane.setDividerPositions(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "splitPaneDividerPositionLang")));
+        }
+
+        // Sort key for lstLang
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey")) != null) {
+            lstLangSortKey = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey"));
+        }
+
+
+
         // Handle last opened Section
         if (appState.getPyDictValue("lastSection") != null) {
             try {
@@ -1452,7 +1542,6 @@ public class MainWinController {
             populateList(lstFiles, updateLangFilesPaths);
             log("Active section changed to Language");
         }
-        
     }
 
     private void populateList(ListView<String> listWidget, List<String> itemsList) {
@@ -1592,8 +1681,11 @@ public class MainWinController {
         lblToolTip.setVisible(false);
         lblSttInfo.setText("Enter value to see available data types...");
         setWidgetIcon("/images/record.png", lblSttRec);
+        setWidgetIcon("/images/record.png", lblLangRec);
         btnSttFilterClear.setStyle("-fx-border-width: 0px;");
+        btnLangFilterClear.setStyle("-fx-border-width: 0px;");
         setWidgetIcon("/images/clear_filter.png", btnSttFilterClear);
+        setWidgetIcon("/images/clear_filter.png", btnLangFilterClear);
 
         imgListItemChanged.setFitHeight(16);
         imgListItemChanged.setPreserveRatio(true);
@@ -1601,6 +1693,8 @@ public class MainWinController {
         imgListItemDeleted.setFitHeight(16);
         imgListItemDeleted.setPreserveRatio(true);
 
+        // SETTINGS
+        
         // Listener for txtSttValue
         setupListenerForTxtSttValue();
         // Listener for Default Value
@@ -1625,7 +1719,20 @@ public class MainWinController {
         setupListenerForCmbDataTypes();
         // Listener for cmbSttFlag
         setupListenerForCmbSttFlag();
-        
+
+        // LANGUAGE
+
+        // Listener for txtLangKey
+        setupListenerForTxtLangKey();
+        // Listener for txtLangSearch
+        setupListenerForTxtLangSearch();
+        // Set cell factory for lstLang
+        setupCellFactoryForLstLang();
+        // Listener for lstLang
+        setupListenerForLstLang();
+
+        // OTHER
+
         // AnchorPaneMain KeyPress and MouseClick events
         setupKeyPressAndMouseClickForMainAnchorPane();
 
@@ -1635,6 +1742,106 @@ public class MainWinController {
         setupContextMenus();
 
         updateMessageLabel();
+    }
+
+    private void setupCellFactoryForLstLang() {
+        lstLang.setCellFactory(lv -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    getStyleClass().clear();
+                } else {
+                    setText(item);
+
+                    getStyleClass().removeAll("list-cell", "list-cell-changed", "list-cell-invalid");
+                    setGraphic(null);
+
+                    // Set items style and graphic
+                    if (langChangedList.contains(item)) {
+                        LanguageItemGroup langItem = (LanguageItemGroup) langChangedMap.get(item);
+                        if (langItem != null) {
+                            if ("Changed".equals(langItem.getUserData())) {
+                                getStyleClass().add("list-cell");
+                                getStyleClass().add("list-cell-changed");
+                                // Set graphic
+                                setGraphic(new ImageView(imgListItemChanged.getImage()) {{
+                                    setFitHeight(fontSizeLstLang);
+                                    setPreserveRatio(true);
+                                }});
+                    
+                            } else if ("Deleted".equals(langItem.getUserData())) {
+                                getStyleClass().add("list-cell");
+                                getStyleClass().add("list-cell-invalid");
+                                // Set graphic
+                                setGraphic(new ImageView(imgListItemDeleted.getImage()) {{
+                                    setFitHeight(fontSizeLstLang);
+                                    setPreserveRatio(true);
+                                }});
+
+                            } else {
+                                getStyleClass().add("list-cell");
+                            }
+                        }   
+                        else {
+                            getStyleClass().add("list-cell");
+                        }
+                    }
+                    else {
+                        getStyleClass().add("list-cell");
+                    }
+                }
+            }
+        });
+    }
+
+    private void setupListenerForLstLang() {
+        lstLang.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                log("Current Language item changed to: " + newValue);
+                langCurrentItemChanged(newValue);
+            }
+        });
+    }
+
+    private void setupListenerForTxtLangSearch() {
+        txtLangSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            changeLangVisibleList(langVisibleList);
+        });
+    }
+
+    private void setupListenerForTxtLangKey() {
+        txtLangKey.textProperty().addListener((observable, oldValue, newValue) -> {
+            String itemName = txtLangKey.getText();
+            if (isLangItemExists(itemName)) {
+                if (langVisibleList.equals("Changed")) {
+                    if (langChangedMap.containsKey(itemName)) {
+                        setCurrentItemInChangedListLang(itemName, null);
+                        populateLangItem(itemName);
+                    }
+                    else if (langLoadedMap.containsKey(itemName)) {
+                        changeLangVisibleList("Loaded");
+                        setCurrentItemInLoadedListLang(itemName, null);
+                        populateLangItem(itemName);
+                    }
+                }
+                else {
+                    if (langLoadedMap.containsKey(itemName)) {
+                        setCurrentItemInLoadedListLang(itemName, null);
+                        populateLangItem(itemName);
+                    }
+                    else if (langChangedMap.containsKey(itemName)) {
+                        changeLangVisibleList("Changed");
+                        setCurrentItemInChangedListLang(itemName, null);
+                        populateLangItem(itemName);
+                    }
+                }
+            }
+            updateLangWidgetsAppearance();
+        });
     }
 
     private void setupListenerForTxtSttValue() {
@@ -1731,10 +1938,19 @@ public class MainWinController {
 
                     getStyleClass().removeAll("list-cell", "list-cell-invalid");
 
-                    if (isSettingsFile(item)) {
-                        getStyleClass().add("list-cell");
-                    } else {
-                        getStyleClass().add("list-cell-invalid");
+                    if (activeSection == Section.SETTINGS) {
+                        if (isSettingsFile(item)) {
+                            getStyleClass().add("list-cell");
+                        } else {
+                            getStyleClass().add("list-cell-invalid");
+                        }
+                    }
+                    else if (activeSection == Section.LANGUAGE) {
+                        if (isLanguageFile(item)) {
+                            getStyleClass().add("list-cell");
+                        } else {
+                            getStyleClass().add("list-cell-invalid");
+                        }
                     }
                 }
             }
@@ -1798,7 +2014,7 @@ public class MainWinController {
     private void setupListenerForLstStt() {
         lstStt.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                log("Current item changed to: " + newValue);
+                log("Current Settings item changed to: " + newValue);
                 sttCurrentItemChanged(newValue);
             }
         });
@@ -1845,6 +2061,16 @@ public class MainWinController {
 
     private void setupContextMenus() {
         // lblSource menu
+        setupMenuLblSource();
+        
+        // lstStt menu
+        setupMenuLstStt();
+
+        // lstLang menu
+        setupMenuLstLang();
+    }
+
+    private void setupMenuLblSource() {
         MenuItem menuOpenFile = new MenuItem("Open File");
         menuOpenFile.setOnAction(event1 -> {
             selectFileToLoadFrom();
@@ -1860,9 +2086,9 @@ public class MainWinController {
 
         contextMenuLblSource.getItems().add(menuOpenFile);
         contextMenuLblSource.getItems().add(menuClear);
+    }
 
-        // lstStt menu
-
+    private void setupMenuLstStt() {
         MenuItem menuSortByKey = new MenuItem("Sort by Key");
         menuSortByKey.setOnAction(event1 -> {
             lstSttSortKey = "Key";
@@ -1949,6 +2175,93 @@ public class MainWinController {
         contextMenuLstStt.getItems().add(menuDeleteAllItems);
     }
 
+    private void setupMenuLstLang() {
+        MenuItem menuSortByKey = new MenuItem("Sort by Key");
+        menuSortByKey.setOnAction(event1 -> {
+            lstLangSortKey = "Key";
+            changeLangVisibleList(langVisibleList);
+        });
+
+        MenuItem menuSortByCreated = new MenuItem("Sort by Creation time");
+        menuSortByCreated.setOnAction(event1 -> {
+            lstLangSortKey = "Created";
+            changeLangVisibleList(langVisibleList);
+        });
+
+        MenuItem menuDeleteItem = new MenuItem("Remove Item");
+        menuDeleteItem.setOnAction(event1 -> {
+            deleteLangChangedItem();
+        });
+
+        MenuItem menuDeleteAllItems = new MenuItem("Remove All Items");
+        menuDeleteAllItems.setOnAction(event1 -> {
+            deleteAllLangChangedItems();
+        });
+
+        contextMenuLstLang.setOnShowing(event1 -> {
+            // Sort menu items
+            log("List 'lstLang' context menu opened. Preselected sort key: " + lstLangSortKey);
+            Image imageSelected = new Image(getClass().getResourceAsStream("/images/menu_selected.png"));
+            ImageView imageViewSelected = new ImageView(imageSelected);
+
+            double fontSize = contextMenuLstLang.getStyle().contains("-fx-font-size") 
+            ? Double.parseDouble(contextMenuLstLang.getStyle().replaceAll("[^\\d.]", ""))
+            : 10;
+
+            imageViewSelected.setFitHeight(fontSize);
+            imageViewSelected.setPreserveRatio(true);
+
+            if (lstLangSortKey.equals("Key")) {
+                menuSortByKey.setGraphic(imageViewSelected);
+                menuSortByCreated.setGraphic(null);
+            }
+            else if (lstLangSortKey.equals("Created")) {
+                menuSortByKey.setGraphic(null);
+                menuSortByCreated.setGraphic(imageViewSelected);
+            }
+
+            // Delete menu items
+            if (langVisibleList.equals("Changed")) {
+                String listItem = lstLang.getSelectionModel().getSelectedItem();
+                if (listItem != null) {
+                    if (lstLang.getItems().size() > 0) {
+                        menuDeleteItem.setDisable(false);
+                        menuDeleteItem.setText("Remove Item: " + listItem);
+                    }
+                    else {
+                        menuDeleteItem.setDisable(true);
+                        menuDeleteItem.setText("Remove Item");
+                    }
+                }
+                else {
+                    menuDeleteItem.setDisable(true);
+                    menuDeleteItem.setText("Remove Item");
+                }
+                
+                if (lstLang.getItems().size() > 0) {
+                    menuDeleteAllItems.setDisable(false);
+                }
+                else {
+                    menuDeleteAllItems.setDisable(true);
+                }
+            }
+            else {
+                menuDeleteItem.setDisable(true);
+                menuDeleteAllItems.setDisable(true);
+            }
+        });
+
+        contextMenuLstLang.setOnHidden(event1 -> {
+            log("List 'lstLang' context menu closed.");
+        });
+
+        contextMenuLstLang.getItems().add(menuSortByKey);
+        contextMenuLstLang.getItems().add(menuSortByCreated);
+        contextMenuLstLang.getItems().add(new SeparatorMenuItem());
+        contextMenuLstLang.getItems().add(menuDeleteItem);
+        contextMenuLstLang.getItems().add(menuDeleteAllItems);
+    }
+
     private void setupWidgetsText() {
         // Set Text
         lblInfo.setText("Settings Editor 2.0");
@@ -1958,6 +2271,7 @@ public class MainWinController {
         setTooltip("Select file (if any) to load keys from", btnLoadFrom);
         setTooltip("Add file to list of files that need to be updated", btnAddFile);
         setTooltip("Remove file from list of files that need to be updated", btnRemoveFile);
+        setTooltip("Create new file", btnCreateNew);
         
     }
     
@@ -2112,7 +2426,12 @@ public class MainWinController {
     @FXML
     private void onChkSaveStateAction() {
         appState.setPyDictValue("chkSaveState", chkSaveState.isSelected());
-        log("AppState saved");
+        if (chkSaveState.isSelected()) {
+            log("AppState enabled");
+        }
+        else {
+            log("AppState disabled");
+        }
     }
 
     @FXML
@@ -2354,8 +2673,35 @@ public class MainWinController {
     }
 
     @FXML
+    private void onLstLangScroll(ScrollEvent event) {
+        if (event.isControlDown()) {
+            if (event.getDeltaY() > 0) {
+                fontSizeLstLang = Math.min(FONT_SIZE_MAX_LIST, fontSizeLstLang + 1);
+                lstLang.setStyle("-fx-font-size: " + fontSizeLstLang + "px;");
+                log("Font increased to: " + fontSizeLstLang + "px, (Max value: " + FONT_SIZE_MAX_LIST + ")");
+                showToolTipLabel("Font size (+) : " + fontSizeLstLang + "px", event);
+                imgListItemChanged.setFitHeight(fontSizeLstLang);
+                imgListItemDeleted.setFitHeight(fontSizeLstLang);
+            }
+            else if (event.getDeltaY() < 0) {
+                fontSizeLstLang = Math.max(FONT_SIZE_MIN_LIST, fontSizeLstLang - 1);
+                lstLang.setStyle("-fx-font-size: " + fontSizeLstLang + "px;");
+                log("Font decreased to: " + fontSizeLstLang + "px, (Min value: " + FONT_SIZE_MIN_LIST + ")");
+                showToolTipLabel("Font size (-) : " + fontSizeLstLang + "px", event);
+                imgListItemChanged.setFitHeight(fontSizeLstLang);
+                imgListItemDeleted.setFitHeight(fontSizeLstLang);
+            }
+        }
+    }
+
+    @FXML
     private void onLstSttContextMenu(ContextMenuEvent event) {
         showLstSttContextMenu(event);
+    }
+
+    @FXML
+    private void onLstLangContextMenu(ContextMenuEvent event) {
+        showLstLangContextMenu(event);
     }
 
     private void showLstSttContextMenu(ContextMenuEvent event) {
@@ -2366,6 +2712,16 @@ public class MainWinController {
 
         log("Label 'lstStt' context menu shown: X=" + event.getScreenX() + ", Y=" + event.getScreenY());
         contextMenuLstStt.show(lblSource, event.getScreenX(), event.getScreenY());
+    }
+
+    private void showLstLangContextMenu(ContextMenuEvent event) {
+        if (contextMenuLstLang.isShowing()) {
+            log(LOG_INDENT + "Hiding 'lstLang' context menu, because it will be shown on other location.");
+            contextMenuLstLang.hide();
+        }
+
+        log("Label 'lstLang' context menu shown: X=" + event.getScreenX() + ", Y=" + event.getScreenY());
+        contextMenuLstLang.show(lblSource, event.getScreenX(), event.getScreenY());
     }
 
     @FXML
@@ -2405,8 +2761,18 @@ public class MainWinController {
     }
 
     @FXML
+    private void onBtnLangShowLoadedClick() {
+        changeLangVisibleList("Loaded");
+    }
+
+    @FXML
     private void onBtnSttShowLoadedContextMenu(ContextMenuEvent event) {
         showLstSttContextMenu(event);
+    }
+
+    @FXML
+    private void onBtnLangShowLoadedContextMenu(ContextMenuEvent event) {
+        showLstLangContextMenu(event);
     }
 
     @FXML
@@ -2415,14 +2781,30 @@ public class MainWinController {
     }
 
     @FXML
+    private void onBtnLangShowChangedClick() {
+        changeLangVisibleList("Changed");
+    }
+
+    @FXML
     private void onBtnSttShowChangedContextMenu(ContextMenuEvent event) {
         showLstSttContextMenu(event);
     }
 
     @FXML
+    private void onBtnLangShowChangedContextMenu(ContextMenuEvent event) {
+        showLstLangContextMenu(event);
+    }
+
+    @FXML
     private void onBtnSttFilterClearAction() {
         txtSttSearch.setText("");
-        log("Filter cleared");
+        log("Filter cleared for lstStt");
+    }
+
+    @FXML
+    private void onBtnLangFilterClearAction() {
+        txtLangSearch.setText("");
+        log("Filter cleared for lstLang");
     }
 
     @FXML
@@ -2604,8 +2986,37 @@ public class MainWinController {
                 }
             }
             else if (activeSection == Section.LANGUAGE) {
-                loadLangFromPath = selectedFile.getAbsolutePath();
-                log("Selected file for languages to be loaded from: " + selectedFile.getAbsolutePath());
+                PyDict loadedData = getLanguageFileContent(selectedFile.getAbsolutePath());
+
+                if (loadedData == null) {
+                    lblSource.setText("Error loading languages from file: " + selectedFile.getAbsolutePath());
+                    log("Error loading languages from file: " + selectedFile.getAbsolutePath());
+                    logIndentPlus();
+                    loadLangFromPath = "";
+                    log("'lblSource' cleared");
+                    langLoadedMap.clear();
+                    log("langLoadedMap cleared");
+                    changeLangVisibleList(langVisibleList);
+                    log("List of languages cleared");
+                    logIndentMinus();
+                    logIndentMinus();
+                    return false;
+                }
+                else {
+                    List<LanguageItemGroup> listOfItems = LanguageItemGroup.getListOfGroupLanguageObjectsFromLanguageMapObject(loadedData);
+                    langLoadedMap.clear();
+                    for (LanguageItemGroup itemGroup : listOfItems) {
+                        langLoadedMap.put(itemGroup.getGroupKey(), itemGroup);
+                    }
+
+                    changeLangVisibleList(langVisibleList);
+                    showToolTipLabel("List Updated", lstLang.localToScene(0, 0).getX(), lstLang.localToScene(0, 0).getY(), 1);
+                    
+                    loadLangFromPath = selectedFile.getAbsolutePath();
+                    log("Selected file for languages to be loaded from: " + selectedFile.getAbsolutePath());
+                    log("List of languages updated from: " + selectedFile.getAbsolutePath());
+                }
+
             }
 
             lblSource.setText(selectedFile.getAbsolutePath());
@@ -2635,6 +3046,31 @@ public class MainWinController {
             showMessage(msgInfoError);
             // Show ToolTip Label
             showToolTipLabel("Unable to load Settings file\nFile is not valid Settings file", lstStt.localToScene(0, 0).getX(), lstStt.localToScene(0, 0).getY(), 5);
+            return null;
+        }
+    }
+
+    private PyDict getLanguageFileContent(String file) {
+        removeMessage("Load Languages Error");
+        try {
+            Settings settings = new Settings();
+            settings.languagesFilePath = file;
+            settings.load(false, true, false);
+            if (!settings.getLastErrorString().isEmpty()) {
+                log("Language file is invalid: " + file + " - " + settings.getLastErrorString());
+                MsgInfo msg = new MsgInfo("Error loading language file", "Invalid Language file", "Language file is invalid: " + file + "\n" + settings.getLastErrorString(), MsgInfo.MsgStyle.ERROR);
+                showMessage(msg);
+                return null;
+            }
+            PyDict data = (PyDict) settings.getAllLanguagesData();
+            return data;
+        }
+        catch (Exception e) {
+            log("Error in 'getLanguageFileContent': " + e.getMessage());
+            MsgInfo msgInfoError = new MsgInfo("Load Languages Error", "Error loading Languages file", "Error in 'getLanguageFileContent'\n" + e.getMessage(), MsgInfo.MsgStyle.ERROR, MsgInfo.ErrorCode.NONE, 8, -1, false);
+            showMessage(msgInfoError);
+            // Show ToolTip Label
+            showToolTipLabel("Unable to load Languages file\nFile is not valid Languages file", lstLang.localToScene(0, 0).getX(), lstLang.localToScene(0, 0).getY(), 5);
             return null;
         }
     }
@@ -2784,7 +3220,7 @@ public class MainWinController {
             setCurrentItemInChangedList(name, index);
             changeSttVisibleList(sttVisibleList);
         }
-        log("Item '" + item + "' removed from list of changed items.");
+        log("Settings item '" + item + "' removed from list of changed items.");
     }
 
     private void deleteAllSttChangedItems() {
@@ -2795,7 +3231,7 @@ public class MainWinController {
             sttChangedMap.clear();
             changeSttVisibleList(sttVisibleList);
         }
-        log ("All items removed from list of changed items.");
+        log ("All settings items removed from list of changed items.");
     }
 
     private void unChangeSettingsItem() {
@@ -3541,16 +3977,40 @@ public class MainWinController {
             settings.defaultSettingsFilePath = filePath;
             settings.getAllDefaultSettingsData();
             log("Settings file is valid: " + filePath);
-            removeMessage("Error:" + filePath);
+            removeMessage("Error loading settings file");
             return true;
         }
         catch (Exception e) {
             log("Settings file is invalid: " + filePath + " - " + e.getMessage());
-            MsgInfo msg = new MsgInfo("Error:" + filePath, "Invalid Settings file", "Settings file is invalid: " + filePath + "\n" + e.getMessage(), MsgInfo.MsgStyle.ERROR);
+            MsgInfo msg = new MsgInfo("Error loading settings file", "Invalid Settings file", "Settings file is invalid: " + filePath + "\n" + e.getMessage(), MsgInfo.MsgStyle.ERROR);
             showMessage(msg);
             return false;
         }
-        
+    }
+
+    private boolean isLanguageFile(String filePath) {
+        try {
+            Settings settings = new Settings();
+            settings.languagesFilePath = filePath;
+            settings.load(false, true, false);
+            if (settings.getLastErrorString().isEmpty()) {
+                log("Language file is valid: " + filePath);
+                removeMessage("Error loading language file");
+                return true;
+            }
+            else {
+                log("Language file is invalid: " + filePath + " - " + settings.getLastErrorString());
+                MsgInfo msg = new MsgInfo("Error loading language file", "Invalid Language file", "Language file is invalid: " + filePath + "\n" + settings.getLastErrorString(), MsgInfo.MsgStyle.ERROR);
+                showMessage(msg);
+                return false;
+            }
+        }
+        catch (Exception e) {
+            log("Language file is invalid: " + filePath + " - " + e.getMessage());
+            MsgInfo msg = new MsgInfo("Error loading language file", "Invalid Language file", "Language file is invalid: " + filePath + "\n" + e.getMessage(), MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            return false;
+        }
     }
 
     private void populateSttList() {
@@ -3972,7 +4432,7 @@ public class MainWinController {
         }
 
         if (item == null) {
-            log("Item not found: '" + itemName + "'. Creating new item.");
+            log("Settings item not found: '" + itemName + "'. Creating new item.");
             item = new SettingsItem();
             item.setSettingType(SettingType.DEFAULT);
             item.setDataType(DataType.STRING);
@@ -4465,6 +4925,360 @@ public class MainWinController {
                 return null;
             }
         }
+    }
+
+
+    // LANGUAGE SECTION
+
+    private void changeLangVisibleList(String listToActivate) {
+        if (listToActivate.equals("Changed")) {
+            populateLangList(langChangedMap, langChangedMap, txtLangSearch.getText());
+            langVisibleList = "Changed";
+            setCurrentItemInChangedListLang(langChangedCurrentItem, null);
+        }
+        else {
+            populateLangList(langLoadedMap, langChangedMap, txtLangSearch.getText());
+            langVisibleList = "Loaded";
+            setCurrentItemInLoadedListLang(langLoadedCurrentItem, null);
+        }
+
+        log("Language visible list changed to: " + langVisibleList);
+        
+        if (lstLang.getSelectionModel().getSelectedIndex() != -1) {
+            lstLang.scrollTo(lstLang.getSelectionModel().getSelectedIndex());
+        }
+        
+        updateLangWidgetsAppearance();
+    }
+
+    private void populateLangList() {
+        if (langVisibleList.equals("Changed")) {
+            populateLangList(langChangedMap, langChangedMap, txtLangSearch.getText());
+        }
+        else {
+            populateLangList(langLoadedMap, langChangedMap, txtLangSearch.getText());
+        }
+    }
+
+    private void populateLangList(PyDict langItemsMap, PyDict langChangedItemsMap, String filterText) {
+        List<LanguageItemGroup> itemsList = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : langItemsMap.entrySet()) {
+            if (entry.getValue() instanceof LanguageItemGroup) {
+                LanguageItemGroup item = (LanguageItemGroup) entry.getValue();
+
+                if (filterText.isEmpty() || item.getGroupKey().toLowerCase().contains(filterText.toLowerCase())) {
+                    itemsList.add(item);
+                }
+            }
+        }
+        // Sort List ("Key" or "Created")
+        if (lstLangSortKey.equals("Key")) {
+            itemsList.sort(Comparator.comparing(LanguageItemGroup::getGroupKey));
+        }
+        else {
+            itemsList.sort(Comparator.comparing(LanguageItemGroup::getCreationDateForJson));
+        }
+
+        // clear list
+        if (lstLang.getItems() != null) {
+            // lstLang.getItems().clear();
+            lstLang.setItems(null);
+        }
+        // add items
+        ObservableList<String> items = FXCollections.observableArrayList();
+        for (LanguageItemGroup itemName : itemsList) {
+            items.add(itemName.getGroupKey());
+        }
+
+        lstLang.setItems(items);
+
+        // Try to select old Key if it exists
+        if (langVisibleList.equals("Changed")) {
+            setCurrentItemInChangedListLang(langChangedCurrentItem, null);
+        }
+        else {
+            setCurrentItemInLoadedListLang(langLoadedCurrentItem, null);
+        }
+    }
+
+    private int setCurrentItemInChangedListLang(String itemText, Integer itemIndex) {
+        if (itemIndex != null && itemIndex < 0) itemIndex = null;
+
+        lstLang.getSelectionModel().clearSelection();
+        if (langChangedMap.containsKey(itemText)) {
+            langChangedCurrentItem = itemText;
+            lstLang.getSelectionModel().select(itemText);
+            return lstLang.getSelectionModel().getSelectedIndex();
+        }
+
+        if (itemIndex != null) {
+            int listItemsCount = lstLang.getItems().size();
+            if (itemIndex > (listItemsCount - 1)) {
+                itemIndex = listItemsCount - 1;
+            }
+            
+            if (lstLang.getItems().size() <= 0) {
+                itemIndex = null;
+            }
+            else {
+                if (itemIndex < 0) {
+                    itemIndex = 0;
+                }
+                langChangedCurrentItem = lstLang.getItems().get(itemIndex);
+                lstLang.getSelectionModel().select(itemIndex);
+                return itemIndex;
+            }
+
+        }
+        
+        lstLang.getSelectionModel().selectFirst();
+        if (lstLang.getSelectionModel().getSelectedIndex() == -1) {
+            langChangedCurrentItem = "";
+        }
+        else {
+            langChangedCurrentItem = lstLang.getSelectionModel().getSelectedItem();
+        }
+        return lstLang.getSelectionModel().getSelectedIndex();
+    }
+
+    private int setCurrentItemInLoadedListLang(String itemText, Integer itemIndex) {
+        if (itemIndex != null && itemIndex < 0) itemIndex = null;
+
+        lstLang.getSelectionModel().clearSelection();
+        if (langLoadedMap.containsKey(itemText)) {
+            langLoadedCurrentItem = itemText;
+            lstLang.getSelectionModel().select(itemText);
+            return lstLang.getSelectionModel().getSelectedIndex();
+        }
+
+        if (itemIndex != null) {
+            int listItemsCount = lstLang.getItems().size();
+            if (itemIndex > (listItemsCount - 1)) {
+                itemIndex = listItemsCount - 1;
+            }
+            
+            if (lstLang.getItems().size() <= 0) {
+                itemIndex = null;
+            }
+            else {
+                if (itemIndex < 0) {
+                    itemIndex = 0;
+                }
+                langLoadedCurrentItem = lstLang.getItems().get(itemIndex);
+                lstLang.getSelectionModel().select(itemIndex);
+                return itemIndex;
+            }
+
+        }
+        
+        lstLang.getSelectionModel().selectFirst();
+        if (lstLang.getSelectionModel().getSelectedIndex() == -1) {
+            langLoadedCurrentItem = "";
+        }
+        else {
+            langLoadedCurrentItem = lstLang.getSelectionModel().getSelectedItem();
+        }
+        return lstLang.getSelectionModel().getSelectedIndex();
+    }
+
+    private void updateLangWidgetsAppearance() {
+        // Visible Language list
+        btnLangShowLoaded.getStyleClass().removeAll("button-list-selector-selected", "button-list-selector-not-selected");
+        btnLangShowChanged.getStyleClass().removeAll("button-list-selector-selected", "button-list-selector-not-selected");
+        if (langVisibleList.equals("Changed")) {
+            btnLangShowChanged.getStyleClass().add("button-list-selector-selected");
+            btnLangShowLoaded.getStyleClass().add("button-list-selector-not-selected");
+        }
+        else {
+            btnLangShowLoaded.getStyleClass().add("button-list-selector-selected");
+            btnLangShowChanged.getStyleClass().add("button-list-selector-not-selected");
+        }
+
+        // Record counter
+        if (langVisibleList.equals("Changed")) {
+            lblLangRecords.setText("Records: " + lstLang.getItems().size() + " of " + langChangedMap.size());
+        }
+        else {
+            lblLangRecords.setText("Records: " + lstLang.getItems().size() + " of " + langLoadedMap.size());
+        }
+
+        // Buttons "Show Loaded" and "Show Changed"
+        btnLangShowLoaded.setText("Loaded (" + langLoadedMap.size() + ")");
+        btnLangShowChanged.setText("Changed (" + langChangedMap.size() + ")");
+
+        // Set command buttons availability
+        boolean isExists = isLangItemExists(txtLangKey.getText());
+        boolean isChanged = langChangedList.contains(txtLangKey.getText());
+        boolean isDeleted = isLangItemDeleted(txtLangKey.getText());
+        if (isExists) {
+            setWidgetIcon("/images/edit.png", lblLangKeyImage, 50);
+            btnLangAdd.setDisable(true);
+            btnLangUpdate.setDisable(false);
+            
+            if (isChanged) {
+                btnLangDiscard.setDisable(false);
+                btnLangDiscard.setText("Discard Changes");
+            }
+            else {
+                btnLangDiscard.setDisable(true);
+                btnLangDiscard.setText("Discard ...");
+            }
+
+            if (isDeleted) {
+                btnLangDelete.setDisable(true);
+                btnLangDiscard.setDisable(false);
+                btnLangDiscard.setText("Undo Delete");
+            }
+            else {
+                btnLangDelete.setDisable(false);
+            }
+        }
+        else {
+            setWidgetIcon("/images/new.png", lblLangKeyImage, 50);
+            btnLangAdd.setDisable(false);
+            btnLangUpdate.setDisable(true);
+            btnLangDelete.setDisable(true);
+            btnLangDiscard.setDisable(true);
+            btnLangDiscard.setText("Discard ...");
+        }
+
+        // Hide btnLangDiscard if it is disabled
+        if (btnLangDiscard.isDisabled()) {
+            btnLangDiscard.setVisible(false);
+        }
+        else {
+            btnLangDiscard.setVisible(true);
+        }
+
+        checkIfUserIsChangingLanguage();
+
+        log("Language widgets appearance updated");
+    }
+
+    private boolean isLangItemDeleted(String itemName) {
+        LanguageItemGroup item;
+        for (Map.Entry<String, Object> entry : langChangedMap.entrySet()) {
+            item = (LanguageItemGroup) entry.getValue();
+            if (item.getGroupKey().equals(itemName) && item.getUserData().equals("Deleted")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isLangItemExists(String itemName) {
+        if (getLangItem(itemName) != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * If item exists in langChangedMap it will return it, otherwise it will return item from langLoadedMap
+     * @param itemName item name (Key)
+     * @return LanguageItemGroup or null if not found
+     */
+    private LanguageItemGroup getLangItem(String itemName) {
+        if (itemName.isEmpty()) {
+            return null;
+        }
+
+        if (langChangedMap.containsKey(itemName)) {
+            return (LanguageItemGroup) langChangedMap.get(itemName);
+        }
+
+        if (langLoadedMap.containsKey(itemName)) {
+            return (LanguageItemGroup) langLoadedMap.get(itemName);
+        }
+
+        return null;
+    }
+
+    private void checkIfUserIsChangingLanguage() {
+        boolean isUserChanging = isUserCurrentlyChangingLang(txtLangKey.getText());
+
+        if (isUserChanging) {
+            setWidgetIcon("/images/record.png", lblLangRec, 25);
+        }
+        else {
+            setWidgetIcon("/images/show.png", lblLangRec, 25);
+        }
+    }
+ 
+    private boolean isUserCurrentlyChangingLang(String itemName) {
+        LanguageItemGroup item = getLangItem(itemName);
+        if (item == null) {
+            return true;
+        }
+
+        System.out.println("Not Implemented");
+
+        return false;
+    }
+
+    private void populateLangItem(String itemName) {
+        LanguageItemGroup item;
+        if (langChangedList.contains(itemName)) {
+            item = (LanguageItemGroup) langChangedMap.get(itemName);
+        }
+        else {
+            item = (LanguageItemGroup) langLoadedMap.get(itemName);
+        }
+
+        if (item == null) {
+            log("Language item not found: '" + itemName + "'. Creating new item.");
+            item = new LanguageItemGroup();
+        }
+
+        // Key
+        if (!txtLangKey.getText().equals(item.getGroupKey())) {
+            txtLangKey.setText(item.getGroupKey());
+        }
+        
+        // Add ScrollPane content - not implemented
+
+        updateLangWidgetsAppearance();
+    }
+
+    private void langCurrentItemChanged(String itemName) {
+        if (langVisibleList.equals("Changed")) {
+            langChangedCurrentItem = itemName;
+        }
+        else {
+            langLoadedCurrentItem = itemName;
+        }
+
+        if (! txtLangKey.getText().equals(itemName)) {
+            populateLangItem(itemName);
+        }
+    }
+
+    private void deleteLangChangedItem() {
+        String item = lstLang.getSelectionModel().getSelectedItem().toString();
+        if (item != null) {
+            int index = lstLang.getSelectionModel().getSelectedIndex();
+            String name = lstLang.getItems().get(index).toString();
+            langChangedMap.remove(item);
+            langChangedList.remove(item);
+            populateLangList();
+            setCurrentItemInChangedListLang(name, index);
+            changeLangVisibleList(langVisibleList);
+        }
+        log("Language Item '" + item + "' removed from list of changed items.");
+    }
+
+    private void deleteAllLangChangedItems() {
+        boolean result = msgBoxInfoQuestion("Delete All items", "Delete All items", "Do you want to remove all changed items from list ?");
+
+        if (result) {
+            langChangedList.clear();
+            langChangedMap.clear();
+            changeLangVisibleList(langVisibleList);
+        }
+        log ("All language items removed from list of changed items.");
     }
 
 

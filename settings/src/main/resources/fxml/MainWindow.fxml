@@ -266,7 +266,7 @@
                                                 <Insets top="3.0" />
                                              </VBox.margin>
                                           </HBox>
-                                          <ListView fx:id="lstLang" onContextMenuRequested="#onLstLangContextMenu" onScroll="#onLstSttScroll" VBox.vgrow="ALWAYS" />
+                                          <ListView fx:id="lstLang" onContextMenuRequested="#onLstLangContextMenu" onScroll="#onLstLangScroll" VBox.vgrow="ALWAYS" />
                                        </children>
                                        <padding>
                                           <Insets top="3.0" />
