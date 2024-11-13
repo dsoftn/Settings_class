@@ -1,6 +1,6 @@
 package com.dsoftn.utils;
 
-public class Numbers {
+public class UNumbers {
     public static boolean isStringNumber(String str) {
         try {
             Double.parseDouble(str);

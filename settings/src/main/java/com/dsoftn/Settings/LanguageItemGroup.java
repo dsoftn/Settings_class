@@ -197,6 +197,16 @@ public class LanguageItemGroup {
         return result;
     }
 
+    public LanguageItem getLanguageItemByLanguageCode(String languageCode) {
+        for (LanguageItem item : languageItems) {
+            if (item.getLanguageCode().equals(languageCode)) {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
     // Static methods
 
     public static boolean isLanguageMapObjectValid(Map<String, Object> langMap) {
