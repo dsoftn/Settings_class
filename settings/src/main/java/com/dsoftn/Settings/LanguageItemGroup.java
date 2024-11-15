@@ -207,6 +207,14 @@ public class LanguageItemGroup {
         return null;
     }
 
+    public List<String> getListOfLanguageCodes() {
+        List<String> result = new ArrayList<>();
+        for (LanguageItem item : languageItems) {
+            result.add(item.getLanguageCode());
+        }
+        return result;
+    }
+
     // Static methods
 
     public static boolean isLanguageMapObjectValid(Map<String, Object> langMap) {

@@ -88,9 +88,18 @@ public class UTranslate {
             return null;
         }
 
-
+        public static List<String> getLanguageNames() {
+            List<String> names = new ArrayList<>(); // List of language names
+            for (LanguagesEnum lang : values()) {
+                names.add(lang.getName());
+            }
+            return names;
+        }
 
     }
 
-
+    public static String translate(String text, String fromLang, String toLang) {
+        return text;
+    }
+    
 }

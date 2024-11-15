@@ -504,7 +504,11 @@ public class SaveDialogController {
                                 strErrors += "Item '" + item.getKey() + "' has Warning(s), did not pass validation test\n";
                             }
                             item.setUserData("");
-                            if (! settings.setUserSettingsItem(item)) {
+                            SettingsItem itemToSet = item.duplicate();
+                            if (settings.isUserSettingExists(item.getKey())) {
+                                itemToSet.setCreationDate(settings.getUserSettingsItem(item.getKey()).getCreationDate());
+                            }
+                            if (! settings.setUserSettingsItem(itemToSet)) {
                                 log("Failed to change item: " + item.getKey(), 5);
                                 strErrors += "Item '" + item.getKey() + "' was not changed in file: " + path + "\n";
                             }

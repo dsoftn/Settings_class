@@ -381,8 +381,6 @@ public class MainWinController {
     private SplitPane sttSttSplitPane; // Split Pane in Settings tab
     @FXML
     private SplitPane sttLangSplitPane; // Split Pane in Language tab
-    @FXML
-    private VBox scrAreaVBoxLang; // Area for editing all languages in Scroll Pane
 
     // ListBoxes
     @FXML
