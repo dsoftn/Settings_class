@@ -19,6 +19,8 @@ import com.dsoftn.events.EventEditLanguageAdded;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
@@ -58,7 +60,8 @@ public class ScrollPanelSectionAdd extends VBox{
     private List<String> recommendedLanguages = new ArrayList<>();
     private List<String> alreadyAddedLanguages = new ArrayList<>();
 
-    // Constructor
+    // Constructors
+
     public ScrollPanelSectionAdd(List<String> fileAffected, List<String> alreadyAddedLanguages) {
         setAffectedFiles(fileAffected);
         setAlreadyAddedLanguages(alreadyAddedLanguages);
@@ -68,6 +71,57 @@ public class ScrollPanelSectionAdd extends VBox{
     public ScrollPanelSectionAdd() {
         createWidgets();
     }
+
+    // Serialization and deserialization
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        // File Affected
+        result.put("fileAffected", fileAffected);
+
+        // Recommended Languages
+        result.put("recommendedLanguages", recommendedLanguages);
+
+        // Already Added Languages
+        result.put("alreadyAddedLanguages", alreadyAddedLanguages);
+
+        // Filter
+        result.put("filter", txtFilter.getText());
+
+        // Current selection
+        result.put("currentSelection", lstLanguages.getSelectionModel().getSelectedItem());
+
+
+        return result;
+    }
+
+    public void fromMap(Map<String, Object> map) {
+        // File Affected
+        @SuppressWarnings("unchecked")
+        List<String> fileAff = (List<String>) map.get("fileAffected");
+        setAffectedFiles(fileAff);
+
+        // Recommended Languages
+        // Updated by setAffectedFiles method
+
+        // Already Added Languages
+        @SuppressWarnings("unchecked")
+        List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
+        setAlreadyAddedLanguages(alreadyAddedLang);
+
+        // Filter
+        String filter = (String) map.get("filter");
+        txtFilter.setText(filter);
+
+        // Current selection
+        String currentSelection = (String) map.get("currentSelection");
+        if (currentSelection != null) {
+            lstLanguages.getSelectionModel().select(currentSelection);
+        }
+    }
+
+    // Public methods
 
     public void setAlreadyAddedLanguages(List<String> alreadyAddedLanguages) {
         if (alreadyAddedLanguages == null) {
@@ -83,11 +137,12 @@ public class ScrollPanelSectionAdd extends VBox{
         }
 
         this.fileAffected = fileAffected;
-        recommendedLanguages = getListOfRecommendedLanguages(fileAffected);
+        recommendedLanguages = getListOfRequiredLanguageNames(fileAffected);
         updateRecommendedLanguages();
     }
 
-    private List<String> getListOfRecommendedLanguages(List<String> fileAffected) {
+    public List<String> getListOfRequiredLanguageNames(List<String> fileAffected) {
+        // Required language names
         List<String> recLang = new ArrayList<>();
 
         Settings setting = new Settings();
@@ -108,7 +163,9 @@ public class ScrollPanelSectionAdd extends VBox{
 
         return recLang;
     }
-    
+
+    // Private methods
+
     private void createWidgets() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/LanguageScrollPaneSectionAdd.fxml"));
         fxmlLoader.setRoot(this);
@@ -227,6 +284,7 @@ public class ScrollPanelSectionAdd extends VBox{
 
 
     // FXML events
+
     @FXML
     public void onBtnMoreClick() {
         if (hbxAdd.isVisible()) {

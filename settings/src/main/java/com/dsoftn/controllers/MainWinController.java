@@ -62,6 +62,7 @@ import java.util.regex.Pattern;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import java.nio.file.Files;
 import java.io.File;
@@ -85,6 +86,10 @@ import com.dsoftn.Settings.SettingType;
 import com.dsoftn.controllers.SaveDialogController.SaveSection;
 import com.dsoftn.events.EventWriteLog;
 import com.dsoftn.events.EventSettingsSaved;
+import com.dsoftn.events.EventEditLanguageContentChanged;
+import com.dsoftn.utils.UTranslate;
+import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.controllers.ScrollPaneContent;
 
 
 public class MainWinController {
@@ -224,6 +229,7 @@ public class MainWinController {
     private String langVisibleList = ""; // List of languages keys that are visible ("Loaded" or "Changed")
     private double fontSizeLstLang = 14; // Font size for ListView lstLang
     private String lstLangSortKey = "Created"; // Sort key for lstLang ("Key", "Created")
+    private ScrollPaneContent scrollPaneContent = null; // ScrollPaneContent object
 
     // -------------------------- CONSTANTS
     // Icon size for buttons, labels...
@@ -447,6 +453,9 @@ public class MainWinController {
             });
             primaryStage.addEventHandler(EventSettingsSaved.EVENT_SETTINGS_SAVED_TYPE, event -> {
                 onEventSettingsSaved(event);
+            });
+            primaryStage.addEventHandler(EventEditLanguageContentChanged.EVENT_EDIT_LANGUAGE_CONTENT_CHANGED_TYPE, event -> {
+                onEventEditLanguageContentChanged(event);
             });
 
             // Set Button icons
@@ -1161,7 +1170,8 @@ public class MainWinController {
         langDict.setPyDictValue("langChangedCurrentItem", null); // Changed Language current item
         langDict.setPyDictValue("SplitPaneDividerPosition", null); // SplitPane divider position
         langDict.setPyDictValue("lstLangSortKey", null); // Sort key for lstLang
-        // TODO: Save Language Current item Not Implemented
+        
+        langDict.setPyDictValue("CurrentItem", null); // Current item in process of changing
 
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
 
@@ -1254,6 +1264,12 @@ public class MainWinController {
 
         // Sort key for lstLang
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey"), lstLangSortKey);
+
+        // Current item in changing process
+        if (scrollPaneContent != null) {
+            appState.setPyDictValue("CurrentItem", scrollPaneContent.toMap());
+        }
+        
         
         log("AppState created");
     }
@@ -1479,6 +1495,12 @@ public class MainWinController {
             lstLangSortKey = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey"));
         }
 
+        // Current item in changing process
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")) != null) {
+            if (scrollPaneContent != null) {
+                scrollPaneContent.fromMap(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")));
+            }
+        }
 
 
         // Handle last opened Section
@@ -1728,6 +1750,8 @@ public class MainWinController {
         setupCellFactoryForLstLang();
         // Listener for lstLang
         setupListenerForLstLang();
+        // Mount ScrollPaneContent to ScrollPane
+        mountNodeToScrollPane();
 
         // OTHER
 
@@ -1740,6 +1764,28 @@ public class MainWinController {
         setupContextMenus();
 
         updateMessageLabel();
+    }
+
+    private void mountNodeToScrollPane() {
+        List<String> updateLangFilesList = getLangAffectedFilesList();
+
+        Stage stage = (Stage) scrPaneLang.getScene().getWindow();
+
+        scrollPaneContent = new ScrollPaneContent(null, stage, updateLangFilesList);
+
+        scrPaneLang.setContent(scrollPaneContent);
+    }
+
+    private List<String> getLangAffectedFilesList() {
+        List<String> updateLangFilesList = new ArrayList<>();
+        if (Files.exists(Path.of(loadLangFromPath))) {
+            updateLangFilesList.add(loadLangFromPath);
+        }
+        for (String file : updateLangFilesPaths) {
+            updateLangFilesList.add(file);
+        }
+        
+        return updateLangFilesList;
     }
 
     private void setupCellFactoryForLstLang() {
@@ -2839,13 +2885,28 @@ public class MainWinController {
     }
 
     @FXML
+    private void onBtnLangAddClick() {
+        addNewLanguageItem();
+    }
+
+    @FXML
     private void onBtnSttUpdateClick() {
         updateSettingsItem();
     }
 
     @FXML
+    private void onBtnLangUpdateClick() {
+        updateLanguageItem();
+    }
+
+    @FXML
     private void onBtnSttDeleteClick() {
         deleteSettingsItem();
+    }
+
+    @FXML
+    private void onBtnLangDeleteClick() {
+        deleteLanguageItem();
     }
 
     @FXML
@@ -2874,10 +2935,39 @@ public class MainWinController {
     }
 
     @FXML
+    private void onBtnLangDiscardClick() {
+        boolean isExists = isLangItemExists(txtLangKey.getText());
+        boolean isChanged = langChangedList.contains(txtLangKey.getText());
+        boolean isDeleted = isLangItemDeleted(txtLangKey.getText());
+        if (isExists) {
+            if (isDeleted) {
+                unDeleteLanguageItem();
+                return;
+            }
+            else if (isChanged) {
+                unChangeLanguageItem();
+                return;
+            }
+            log("Error in UNDO Language item '" + txtLangKey.getText() + "'. Item is not deleted or changed");
+            MsgInfo msg = new MsgInfo("Error", "Item not deleted or changed", "Error in UNDO Language item '" + txtLangKey.getText() + "', Item is not deleted or changed.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+        }
+        else {
+            log("Error in UNDO Language item '" + txtLangKey.getText() + "'. Item doesn't exist");
+            MsgInfo msg = new MsgInfo("Error", "Item doesn't exist", "Error in UNDO Language item '" + txtLangKey.getText() + "', Item doesn't exist.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+        }
+    }
+
+    @FXML
     private void onBtnSaveSttClick() {
         openSaveDialog(SaveSection.SETTINGS);
     }
 
+    @FXML
+    private void onBtnSaveLangClick() {
+        openSaveDialog(SaveSection.LANGUAGE);
+    }
 
 
     private void openSaveDialog(SaveSection type) {
@@ -2889,6 +2979,7 @@ public class MainWinController {
             // Get Controller and set appState data to it
             createAppState();
             appState.setPyDictValue(PyDict.concatKeys(Section.SETTINGS.toString(), "sttChangedMap"), sttChangedMap);
+            appState.setPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "langChangedMap"), langChangedMap);
 
             SaveDialogController saveDialogController = loader.getController();
             saveDialogController.setPrimaryStage(primaryStage);
@@ -2935,7 +3026,16 @@ public class MainWinController {
             
         }
         else if (activeSection == Section.LANGUAGE) {
+            log("Clearing loaded languages:");
+            logIndentPlus();
             loadLangFromPath = "";
+            log("'lblSource' cleared");
+            lstLang.getItems().clear();
+            log("List of languages cleared");
+            langLoadedMap.clear();
+            log("langLoadedMap cleared");
+            logIndentMinus();
+
             if (contextMenuLblSource.isShowing()) {
                 log(LOG_INDENT + "'lblSource' cleared, working with empty language key list");
             }
@@ -3122,6 +3222,7 @@ public class MainWinController {
         }
 
         File selectedFile = fileChooser.showSaveDialog(primaryStage);
+
         if (selectedFile != null) {
             appState.setPyDictValue("lastDir", selectedFile.getParent());
         }
@@ -4926,7 +5027,451 @@ public class MainWinController {
     }
 
 
-    // LANGUAGE SECTION
+    // LANGUAGE METHODS
+
+    private List<LanguagesEnum> getMissingLanguagesForCurrentEditItem () {
+        List<String> updateFilesList = new ArrayList<>();
+        for (String file : updateLangFilesPaths) {
+            updateFilesList.add(file);
+        }
+        updateFilesList.add(loadLangFromPath);
+
+        List<LanguagesEnum> requiredLangs = scrollPaneContent.getListOfRequiredLanguages(updateFilesList);
+        List<LanguagesEnum> hasLangs = new ArrayList<>();
+        List<LanguagesEnum> missingLangs = new ArrayList<>();
+
+        // hasLangs
+        LanguageItemGroup itemGroup = scrollPaneContent.getValueAsLanguageItemGroup("");
+        for (LanguageItem item : itemGroup.getLanguageItems()) {
+            hasLangs.add(LanguagesEnum.fromLangCode(item.getLanguageCode()));
+        }
+
+        // missingLangs
+        for (LanguagesEnum lang : requiredLangs) {
+            if (!hasLangs.contains(lang)) {
+                missingLangs.add(lang);
+            }
+        }
+
+        return missingLangs;
+    }
+
+    private void unChangeLanguageItem() {
+        log("UnChange Language item started...");
+        logIndentPlus();
+
+        // Check if item exists
+        if (! isLangItemExists(txtLangKey.getText())) {
+            log("Unable to UnChange Language item: " + txtLangKey.getText() + " - Language item does not exist.");
+            log("UnChanging Language item stopped.");
+            logIndentMinus();
+            MsgInfo msg = new MsgInfo("Error", "Language item does not exist", "Unable to UnChange Language item: " + txtLangKey.getText() + " - Language item does not exist.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            return;
+        }
+        
+        // UnMark item as changed
+        log("UnMarking Settings item as Changed...");
+        logIndentPlus();
+
+        LanguageItemGroup item = null;
+        if (langChangedMap.containsKey(txtLangKey.getText())) {
+            item = langChangedMap.getPyDictValue(txtLangKey.getText());
+        }
+
+        // If item is not found in 'langChangedMap', stop and show error
+        if (item == null) {
+            log("Unable to UnChange item '" + txtLangKey.getText() + "'. Item is not found in 'langChangedMap'.");
+            MsgInfo msg = new MsgInfo("Error", "Item not found", "Unable to UnChange item '" + txtLangKey.getText() + "'. Item is not found in 'langChangedMap'.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            logIndentMinus();
+            log("UnChanging Language item stopped.");
+            logIndentMinus();
+            return;
+        }
+        
+        // If item is found in 'langChangedMap' and marked as 'Changed' remove it from 'langChangedMap' and 'langChangedList'
+        if (item.getUserData().equals("Changed")) {
+            // Remove item from langChangedMap and langChangedList
+            langChangedMap.remove(txtLangKey.getText());
+            langChangedList.remove(txtLangKey.getText());
+            log("Item '" + txtLangKey.getText() + "' removed from 'langChangedMap' and 'langChangedList'.");
+        }
+        else {
+            log("Unable to UnChange item '" + txtLangKey.getText() + "'. Item is marked as '" + item.getUserData() + "'', not as 'Changed'.");
+            MsgInfo msg = new MsgInfo("Error", "Item not marked as 'Changed'", "Unable to UnChange item '" + txtLangKey.getText() + "'. Item is not marked as 'Changed'.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            logIndentMinus();
+            log("UnChanging Language item stopped.");
+            logIndentMinus();
+            return;
+        }
+
+        logIndentMinus();
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(txtLangKey.getText());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        // Finish
+        MsgInfo msg = new MsgInfo("UnChange Language item", "Changes to Language item are discarded successfully", "Language item UnChanged: " + txtLangKey.getText(), MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msg);
+        showToolTipLabel("Language item UnChanged: " + txtLangKey.getText(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getX(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getY(), 10);
+
+        log ("UnChanging Language item completed successfully.");
+
+        logIndentMinus();
+    }
+
+    private void unDeleteLanguageItem() {
+        log("UnDelete Language item started...");
+        logIndentPlus();
+
+        // Check if item exists
+        if (! isLangItemExists(txtLangKey.getText())) {
+            log("Unable to UnDelete Language item: " + txtLangKey.getText() + " - Language item does not exist.");
+            log("UnDeleting Language item stopped.");
+            logIndentMinus();
+            MsgInfo msg = new MsgInfo("Error", "Language item does not exist", "Unable to UnDelete Language item: " + txtLangKey.getText() + " - Language item does not exist.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            return;
+        }
+
+        // UnMark item as deleted
+        log("UnMarking Language item as Deleted...");
+        logIndentPlus();
+
+        LanguageItemGroup item = null;
+        if (langChangedMap.containsKey(txtLangKey.getText())) {
+            item = langChangedMap.getPyDictValue(txtLangKey.getText());
+        }
+
+        // If item is not found in 'langChangedMap', stop and show error
+        if (item == null) {
+            log("Unable to UnMark item '" + txtLangKey.getText() + "' as Deleted. Item is not found in 'langChangedMap'.");
+            MsgInfo msg = new MsgInfo("Error", "Item not found", "Unable to UnMark item '" + txtLangKey.getText() + "' as Deleted. Item is not found in 'langChangedMap'.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            logIndentMinus();
+            log("UnDeleting Language item stopped.");
+            logIndentMinus();
+            return;
+        }
+
+        if (item.getUserData().equals("Deleted")) {
+            if (item.equals(langLoadedMap.getPyDictValue(txtLangKey.getText()))) {
+                // Case when item should be deleted from 'langChangedMap' because it is equal to item in 'langLoadedMap'
+                langChangedMap.remove(txtLangKey.getText());
+                // Delete also from langChangedList
+                if (langChangedList.contains(txtLangKey.getText())) {
+                    langChangedList.remove(txtLangKey.getText());
+                }
+                log("Item '" + txtLangKey.getText() + "'' unmarked as deleted.");
+                MsgInfo msg = new MsgInfo("Info", "Item UnDeleted", "Item '" + txtLangKey.getText() + "'' unmarked as deleted.", MsgInfo.MsgStyle.INFORMATION);
+                showMessage(msg);
+            }
+            else {
+                //  Case when item exists in both 'langLoadedMap' and 'langChangedMap' and is NOT equal to item in 'langLoadedMap'
+                // Switch item from "Deleted" to "Changed"
+                item.setUserData("Changed");
+                log("Item '" + txtLangKey.getText() + "'' marked from 'Deleted' to 'Changed'.");
+                MsgInfo msg = new MsgInfo("Info", "Item UnDeleted and marked as 'Changed'", "Item '" + txtLangKey.getText() + "'' marked from 'Deleted' to 'Changed'.", MsgInfo.MsgStyle.INFORMATION);
+                showMessage(msg);
+            }
+        }
+        else {
+            log("Unable to UnDelete item '" + txtLangKey.getText() + "'. Item is not marked as deleted.");
+            MsgInfo msg = new MsgInfo("Error", "Item not marked as deleted", "Unable to UnDelete item '" + txtLangKey.getText() + "'. Item is not marked as deleted.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            logIndentMinus();
+            log("UnDeleting Language item stopped.");
+            logIndentMinus();
+            return;
+        }
+
+        logIndentMinus();
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(txtLangKey.getText());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        // Finish
+        MsgInfo msg = new MsgInfo("UnDelete Language item", "Language item UNDeleted successfully", "Language item UnDeleted: " + txtLangKey.getText(), MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msg);
+        showToolTipLabel("Language item UnDeleted: " + txtLangKey.getText(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getX(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getY(), 10);
+
+        log ("UnDeleting Language item completed successfully.");
+
+        logIndentMinus();
+    }
+
+    private void deleteLanguageItem() {
+        log("Delete Language item started...");
+        logIndentPlus();
+
+        // Check if item exists
+        if (! isLangItemExists(txtLangKey.getText())) {
+            log("Unable to delete Language item: " + txtLangKey.getText() + " - Language item does not exist.");
+            log("Deleting Language item stopped.");
+            logIndentMinus();
+            MsgInfo msg = new MsgInfo("Error", "Language item does not exist", "Unable to delete Language item: " + txtLangKey.getText() + " - Language item does not exist.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            return;
+        }
+
+        // Mark item as deleted
+        log("Marking Language item as deleted...");
+        logIndentPlus();
+        
+        LanguageItemGroup groupItem = getLanguageItem(txtLangKey.getText()).duplicate();
+        
+        if (groupItem != null) {
+            groupItem.setUserData("Deleted");
+            if (langChangedMap.containsKey(txtLangKey.getText())) {
+                // If item exists in 'langChangedMap' change only userData to be able UnDelete item and mark it as "Changed"
+                LanguageItemGroup existingItem = langChangedMap.getPyDictValue(txtLangKey.getText());
+                existingItem.setUserData("Deleted");
+            }
+            else {
+                // If item does not exist in 'langChangedMap' add new item to 'langChangedMap'
+                langChangedMap.setPyDictValue(txtLangKey.getText(), groupItem);
+            }
+            
+            // Add item to 'langChangedList' if needed
+            if (! langChangedList.contains(txtLangKey.getText())) {
+                langChangedList.add(txtLangKey.getText());
+            }
+
+            log("Item '" + txtLangKey.getText() + "'' marked as deleted.");
+        }
+        else {
+            log("Unable to mark item '" + txtLangKey.getText() + "' as deleted. Item is not found.");
+            MsgInfo msg = new MsgInfo("Error", "Language item not found", "Unable to mark item '" + txtLangKey.getText() + "' as deleted. Item is not found.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            logIndentMinus();
+            log("Deleting Language item stopped.");
+            logIndentMinus();
+            return;
+        }
+
+        logIndentMinus();
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(txtLangKey.getText());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        // Finish
+        MsgInfo msg = new MsgInfo("Delete Language item", "Language item deleted", "Language item deleted: " + txtLangKey.getText(), MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msg);
+        showToolTipLabel("Language item deleted: " + txtLangKey.getText(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getX(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getY(), 10);
+
+        log("Language item marked as deleted in list of changed items: " + txtLangKey.getText());
+        log ("Deleting Language item completed successfully.");
+
+        logIndentMinus();
+    }
+
+    private void onEventEditLanguageContentChanged(EventEditLanguageContentChanged event) {
+        if (event.isChanged()) {
+            setWidgetIcon("/images/record.png", lblLangRec, 25);
+        }
+        else {
+            setWidgetIcon("/images/show.png", lblLangRec, 25);
+        }
+    }
+
+    /**
+     * If item exists in langChangedMap it will return it, otherwise it will return item from langLoadedMap
+     * @param itemName item name (Key)
+     * @return LanguageItemGroup or null if not found
+     */
+    private LanguageItemGroup getLanguageItem(String itemName) {
+        if (itemName.isEmpty()) {
+            return null;
+        }
+
+        if (langChangedMap.containsKey(itemName)) {
+            return (LanguageItemGroup) langChangedMap.get(itemName);
+        }
+
+        if (langLoadedMap.containsKey(itemName)) {
+            return (LanguageItemGroup) langLoadedMap.get(itemName);
+        }
+
+        return null;
+    }
+
+    private void addNewLanguageItem() {
+        log("Add new Language item started...");
+        logIndentPlus();
+
+        // Check if item already exists
+        if (isLangItemExists(txtLangKey.getText())) {
+            log("Unable to add new Language item: " + txtLangKey.getText() + " - Language item already exists.");
+            log("Adding new Language item stopped.");
+            logIndentMinus();
+            MsgInfo msg = new MsgInfo("Warning", "Language item already exists", "Unable to add new Language item: " + txtLangKey.getText() + " - Language item already exists.", MsgInfo.MsgStyle.WARNING);
+            showMessage(msg);
+            return;
+        }
+
+        // Check for missing languages
+        List<LanguagesEnum> missingLangs = getMissingLanguagesForCurrentEditItem();
+
+        if (missingLangs.size() > 0) {
+            log("Warning:");
+            logIndentPlus();
+            log("Missing languages found: " + missingLangs.stream().map(LanguagesEnum::toString).collect(Collectors.joining(", ")));
+            String msgText = "The files that will be updated require some languages that do not exist in the Language Item you want to add!\n\nMissing languages: ";
+            msgText += missingLangs.stream().map(LanguagesEnum::toString).collect(Collectors.joining(", "));
+            msgText += "\n\nDo you want to continue?";
+
+            boolean continueResult = msgBoxInfoQuestion("Missing languages", "Missing languages", msgText);
+
+            if (!continueResult) {
+                log("User cancelled adding new Language item.");
+                log("Adding new Language item stopped.");
+                logIndentMinus();
+                return;
+            }
+
+            log("User accepted adding new Language item ... continuing.");
+            logIndentMinus();
+        }
+
+        // Create new LanguageItemGroup Object
+        LanguageItemGroup newLanguageItemGroup = scrollPaneContent.getValueAsLanguageItemGroup(txtLangKey.getText());
+        newLanguageItemGroup.setUserData("Changed");
+
+        log ("Created new LanguageItemGroup item: ");
+        logIndentPlus();
+        for (LanguageItem item : newLanguageItemGroup.getLanguageItems()) {
+            log ("Key: " + item.getKey() + ", LangCode: " + item.getLanguageCode() + ", Value: " + item.getValue());
+        }
+        logIndentMinus();
+
+        // Add new Settings item to list
+        langChangedList.add(newLanguageItemGroup.getGroupKey());
+        langChangedMap.put(newLanguageItemGroup.getGroupKey(), newLanguageItemGroup);
+        LanguageItemGroup newLanguageItemGroup2 = newLanguageItemGroup.duplicate();
+        newLanguageItemGroup2.setUserData("");
+        langLoadedMap.put(newLanguageItemGroup2.getGroupKey(), newLanguageItemGroup2);
+
+        // Update content
+        scrollPaneContent.setLanguageItemGroup(newLanguageItemGroup);
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(newLanguageItemGroup.getGroupKey());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        // Finish
+        MsgInfo msg = new MsgInfo("Add new Language item", "New Language item added", "New Language item added: " + newLanguageItemGroup.getGroupKey(), MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msg);
+        showToolTipLabel("New Language item added: " + newLanguageItemGroup.getGroupKey(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getX(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getY(), 10);
+
+        log("Added new Language item to list of changed items: " + newLanguageItemGroup.getGroupKey());
+        log ("Adding new Language item completed successfully.");
+
+        logIndentMinus();
+
+    }
+
+    private void updateLanguageItem() {
+        log("Update Language item started...");
+        logIndentPlus();
+
+        // Check if item does not exists
+        if (! isLangItemExists(txtLangKey.getText()) || txtLangKey.getText().isEmpty()) {
+            log("Unable to update Language item: " + txtLangKey.getText() + " - Language item does not exists.");
+            log("Updating Language item stopped.");
+            logIndentMinus();
+            MsgInfo msg = new MsgInfo("Warning", "Language item does not exists", "Unable to update Language item: " + txtLangKey.getText() + " - Language item does not exists.", MsgInfo.MsgStyle.WARNING);
+            showMessage(msg);
+            return;
+        }
+
+        // Check for missing languages
+        List<LanguagesEnum> missingLangs = getMissingLanguagesForCurrentEditItem();
+
+        if (missingLangs.size() > 0) {
+            log("Warning:");
+            logIndentPlus();
+            log("Missing languages found: " + missingLangs.stream().map(LanguagesEnum::toString).collect(Collectors.joining(", ")));
+            String msgText = "The files that will be updated require some languages that do not exist in the Language Item you want to update!\n\nMissing languages: ";
+            msgText += missingLangs.stream().map(LanguagesEnum::toString).collect(Collectors.joining(", "));
+            msgText += "\n\nDo you want to continue?";
+
+            boolean continueResult = msgBoxInfoQuestion("Missing languages", "Missing languages", msgText);
+
+            if (!continueResult) {
+                log("User cancelled updating new Language item.");
+                log("Updating new Language item stopped.");
+                logIndentMinus();
+                return;
+            }
+
+            log("User accepted updating new Language item ... continuing.");
+            logIndentMinus();
+        }
+        
+        // Create new LanguageItemGroup Object
+        LanguageItemGroup updatedLanguageItemGroup = scrollPaneContent.getValueAsLanguageItemGroup(txtLangKey.getText());
+        updatedLanguageItemGroup.setUserData("Changed");
+
+        log ("Created updated LanguageItemGroup item: ");
+        logIndentPlus();
+        for (LanguageItem item : updatedLanguageItemGroup.getLanguageItems()) {
+            log ("Key: " + item.getKey() + ", LangCode: " + item.getLanguageCode() + ", Value: " + item.getValue());
+        }
+        logIndentMinus();
+
+        // Update Language item in list
+        if (! langChangedList.contains(updatedLanguageItemGroup.getGroupKey())) {
+            langChangedList.add(updatedLanguageItemGroup.getGroupKey());
+        }
+        langChangedMap.put(updatedLanguageItemGroup.getGroupKey(), updatedLanguageItemGroup);
+
+        // Update content
+        scrollPaneContent.setLanguageItemGroup(updatedLanguageItemGroup);
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(updatedLanguageItemGroup.getGroupKey());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        // Finish
+        MsgInfo msg = new MsgInfo("Update Language item", "Language item is updated", "Language item updated: " + updatedLanguageItemGroup.getGroupKey(), MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msg);
+        showToolTipLabel("Language item updated: " + updatedLanguageItemGroup.getGroupKey(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getX(), txtLangKey.localToScene(0, txtLangKey.getHeight() + 3).getY(), 10);
+
+        log("Updated Language item in list of changed items: " + updatedLanguageItemGroup.getGroupKey());
+        log("Updating Language item completed successfully.");
+
+        logIndentMinus();
+    }
 
     private void changeLangVisibleList(String listToActivate) {
         if (listToActivate.equals("Changed")) {

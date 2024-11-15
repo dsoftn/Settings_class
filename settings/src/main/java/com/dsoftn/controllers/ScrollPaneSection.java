@@ -19,6 +19,8 @@ import com.dsoftn.Settings.LanguageItemGroup;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
@@ -61,10 +63,6 @@ public class ScrollPaneSection extends VBox {
     private LanguageItemGroup languageItemGroup = null;
     private String originalValue = "";
 
-
-
-
-
     public ScrollPaneSection(String languageCode, String value) {
         this.langEnum = LanguagesEnum.fromLangCode(languageCode);
 
@@ -89,6 +87,78 @@ public class ScrollPaneSection extends VBox {
     }
 
 
+    // Serialization and Deserialization
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        if (langEnum == null) {
+            result.put("langEnum", "null");
+        }
+        else {
+            result.put("langEnum", langEnum.getName());
+        }
+
+        result.put("alreadyAddedLanguages", alreadyAddedLanguages);
+        
+        result.put("originalValue", originalValue);
+        
+        result.put("isChanged", isChanged);
+        
+        result.put("value", txtValue.getText());
+        
+        if (languageItemGroup == null) {
+            result.put("languageItemGroup", "null");
+        }
+        else {
+            result.put("languageItemGroup", languageItemGroup.toMap());
+        }
+
+        return result;
+    }
+
+    public void fromMap(Map<String, Object> map) {
+        // LangEnum
+        String langEnumName = (String) map.get("langEnum");
+        langEnum = LanguagesEnum.fromName(langEnumName);
+
+        // Already Added Languages
+        @SuppressWarnings("unchecked")
+        List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
+        if (alreadyAddedLang != null) {
+            alreadyAddedLanguages = alreadyAddedLang;
+        }
+        else {
+            alreadyAddedLanguages = new ArrayList<>();
+        }
+
+        // Original Value
+        originalValue = (String) map.get("originalValue");
+
+        // Is Changed
+        isChanged = (boolean) map.get("isChanged");
+
+        // Value
+        String value = (String) map.get("value");
+        if (value != null) {
+            txtValue.setText(value);
+        }
+
+        // Language Item Group
+        @SuppressWarnings("unchecked")
+        Map<String, Object> languageItemGroupMap = (Map<String, Object>) map.get("languageItemGroup");
+        if (languageItemGroupMap != null) {
+            languageItemGroup = new LanguageItemGroup();
+            languageItemGroup.fromMap(languageItemGroupMap);
+        }
+        else {
+            languageItemGroup = null;
+        }
+
+        populateLanguageComboBox();
+        hideMessage();
+    }
+
     // Setters and Getters
 
     public void setAlreadyAddedLanguages(List<String> alreadyAddedLanguages) {
@@ -99,6 +169,15 @@ public class ScrollPaneSection extends VBox {
     public String getValue() {
         hideMessage();
         return txtValue.getText();
+    }
+
+    public LanguageItem getValueAsLanguageItem() {
+        LanguageItem result = new LanguageItem();
+        if (langEnum != null) {
+            result.setLanguageCode(langEnum.getLangCode());
+        }
+        result.setValue(txtValue.getText());
+        return result;
     }
 
     public void setValue(String value) {

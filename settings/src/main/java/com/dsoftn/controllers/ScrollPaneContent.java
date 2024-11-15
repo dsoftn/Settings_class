@@ -7,16 +7,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 
-import com.dsoftn.Settings.LanguageItemGroup;
-
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 
+import com.dsoftn.utils.PyDict;
+import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.controllers.ScrollPaneSection;
 import com.dsoftn.controllers.ScrollPanelSectionAdd;
 import com.dsoftn.events.EventEditLanguageAdded;
 import com.dsoftn.events.EventEditLanguageRemoved;
+import com.dsoftn.events.EventEditLanguageChanged;
+import com.dsoftn.events.EventEditLanguageContentChanged;
 
 public class ScrollPaneContent extends VBox {
     // Variables
@@ -43,6 +49,9 @@ public class ScrollPaneContent extends VBox {
                 onEventEditLanguageRemoved(event);
             }
         });
+        primaryStage.addEventHandler(EventEditLanguageChanged.EVENT_EDIT_LANGUAGE_CHANGED_TYPE, event -> {
+            onEventEditLanguageChanged(event);
+        });
     }
 
     // Event handlers
@@ -51,6 +60,7 @@ public class ScrollPaneContent extends VBox {
         if (event.getLanguageAdded() != null) {
             ScrollPaneSection scrollPaneSection = new ScrollPaneSection(event);
             elementList.add(elementList.size() - 1, scrollPaneSection);
+            updateAlreadyAddedForAllElements();
         }
     }
 
@@ -60,15 +70,61 @@ public class ScrollPaneContent extends VBox {
                 if (node instanceof ScrollPaneSection) {
                     ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
                     if (scrollPaneSection.getLanguageCode().equals(event.getLanguageRemoved().getLangCode())) {
-                        elementList.remove(scrollPaneSection);
+                        elementList.remove(node);
                         break;
                     }
                 }
             }
+            updateAlreadyAddedForAllElements();
         }
     }
 
+    private List<String> getChangedLangCodes() {
+        List<String> result = new ArrayList<>();
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                if (scrollPaneSection.isChanged()) {
+                    result.add(scrollPaneSection.getLanguageCode());
+                }
+            }
+        }
+        return result;
+    }
+
+    private void onEventEditLanguageChanged(EventEditLanguageChanged event) {
+        List<String> changedLangCodes = getChangedLangCodes();
+        EventEditLanguageContentChanged eventEditLanguageContentChanged = new EventEditLanguageContentChanged(changedLangCodes);
+        primaryStage.fireEvent(eventEditLanguageContentChanged);
+    }
+    
     // Public methods
+
+    public String getValue(String languageCode) {
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                if (scrollPaneSection.getLanguageCode().equals(languageCode)) {
+                    return scrollPaneSection.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public LanguageItemGroup getValueAsLanguageItemGroup(String setLanguageGroupKey) {
+        LanguageItemGroup result = new LanguageItemGroup("ScrollPaneContent");
+
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                LanguageItem languageItem = ((ScrollPaneSection) node).getValueAsLanguageItem();
+                languageItem.setKey(setLanguageGroupKey);
+                result.addToGroup(languageItem);
+            }
+        }
+
+        return result;
+    }
 
     public boolean hasChangedSections() {
         for (Node node : elementList) {
@@ -106,7 +162,133 @@ public class ScrollPaneContent extends VBox {
         updateAlreadyAddedForAllElements();
     }
 
+    public List<LanguagesEnum> getListOfRequiredLanguages(List<String> listOfAffectedFiles) {
+
+        List<LanguagesEnum> result = new ArrayList<>();
+        for (Node node : elementList) {
+            if (node instanceof ScrollPanelSectionAdd) {
+                ScrollPanelSectionAdd scrollPaneSectionAdd = (ScrollPanelSectionAdd) node;
+                for (String lName : scrollPaneSectionAdd.getListOfRequiredLanguageNames(listOfAffectedFiles)) {
+                    result.add(LanguagesEnum.fromName(lName));
+                }
+            }
+        }
+        return result;
+    }
+
+    // Serialization / Deserialization
+
+    public Map<String, Object> toMap() {
+        PyDict result = new PyDict();
+        
+        // Sections
+        List<Map<String, Object>> sections = new ArrayList<>();
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                sections.add(scrollPaneSection.toMap());
+            }
+            else if (node instanceof ScrollPanelSectionAdd) {
+                ScrollPanelSectionAdd scrollPanelSectionAdd = (ScrollPanelSectionAdd) node;
+                sections.add(scrollPanelSectionAdd.toMap());
+            }
+        }
+
+        // Variables
+        if (group == null) {
+            result.setPyDictValue("group", null);
+        }
+        else {
+            result.setPyDictValue("group", group.toMap());
+        }
+
+        result.setPyDictValue("fileAffected", fileAffected);
+
+        return result;
+    }
+
+    public void fromMap(Map<String, Object> mapFromJson) {
+        PyDict map = (PyDict) mapFromJson;
+        if (map == null) {
+            return;
+        }
+
+        // File Affected
+        List<String> fileAff = map.getPyDictValue("fileAffected");
+        fileAffected.clear();
+
+        if (fileAff != null) {
+            for (String item : fileAff) {
+                fileAffected.add(item);
+            }
+        }
+
+        // LanguageGroupItem
+        group = new LanguageItemGroup("Empty");
+        if (map.getPyDictValue("group") != null) {
+            @SuppressWarnings("unchecked")
+            HashMap<String, Object> groupItem = (HashMap<String, Object>) map.getPyDictValue("group");
+            if (groupItem != null) {
+                group.fromMap(groupItem);
+            }
+        }
+
+        // Sections
+        elementList.clear();
+        if (map.getPyDictValue("sections") != null) {
+            @SuppressWarnings("unchecked")
+            List<HashMap<String, Object>> sections = (List<HashMap<String, Object>>) map.getPyDictValue("sections");
+            if (sections != null) {
+                Integer count = 0;
+                for (HashMap<String, Object> section : sections) {
+                    if (count == sections.size() - 1) {
+                        if (section != null) {
+                            ScrollPanelSectionAdd scrollPanelSectionAdd = new ScrollPanelSectionAdd();
+                            scrollPanelSectionAdd.fromMap(section);
+                            elementList.add(scrollPanelSectionAdd);
+                        }
+                    }
+                    else {
+                        if (section != null) {
+                            ScrollPaneSection scrollPaneSection = new ScrollPaneSection("", "");
+                            scrollPaneSection.fromMap(section);
+                            elementList.add(scrollPaneSection);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (elementList.size() == 0) {
+            addFooter();
+        }
+    }
+
     // Private methods
+
+    private void checkIfSectionValueNeedsUpdate() {
+        if (hasChangedSections()) {
+            for (Node node : elementList) {
+                if (node instanceof ScrollPaneSection) {
+                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                    if (!scrollPaneSection.isChanged()) {
+                        scrollPaneSection.showMessage("Is this entry needs to be updated?");
+                    }
+                    else {
+                        scrollPaneSection.hideMessage();
+                    }
+                }
+            }
+        }
+        else {
+            for (Node node : elementList) {
+                if (node instanceof ScrollPaneSection) {
+                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                    scrollPaneSection.hideMessage();
+                }
+            }
+        }
+    }
 
     private void updateAlreadyAddedForAllElements() {
         for (Node node : elementList) {

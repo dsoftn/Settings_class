@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.dsoftn.utils.PyDict;
 
@@ -458,5 +459,73 @@ public class LanguageItemGroup {
     private static void errorInvalidLanguageMapObject() {
         throw new RuntimeException("Invalid language map object.");
     }
+
+    // Override methods
+
+    /**
+     * <p>Compares this LanguageItemGroup with the specified object for equality.</p>
+     * <p>Items are equal if they have the same group key and same items.</p>
+     * @param obj the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj argument;
+     *         {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        
+        if (obj == null || getClass() != obj.getClass()) return false;
+        
+        LanguageItemGroup other = (LanguageItemGroup) obj;
+
+        if (languageItems.size() != other.languageItems.size()) {
+            return false;
+        }
+
+        if (!this.getGroupKey().equals(other.getGroupKey())) {
+            return false;
+        }
+        
+        boolean isEqual = true;
+
+        for (LanguageItem itemInThis : languageItems) {
+            boolean hasMatch = false;
+            for (LanguageItem itemInOther : other.languageItems) {
+                if (itemInThis.equals(itemInOther)) {
+                    hasMatch = true;
+                    break;
+                }
+            }
+            if (!hasMatch) {
+                return false;
+            }
+        }
+
+        return isEqual;
+    }
+
+    /**
+     * <p>Property involved in computing the hash code.</p>
+     * <table border="1">
+     * <tr>
+     *   <th>Includes</th>
+     * </tr>
+     * <tr>
+     *   <td>GroupKey</td>
+     * </tr>
+     * <tr>
+     *   <td>LanguageItems hash codes</td>
+     * </tr>
+     * </table>
+     * @return a hash code value for this object.
+     */
+    @Override
+    public int hashCode() {
+        String hashString = getGroupKey();
+        for (LanguageItem item : languageItems) {
+            hashString += item.getKey() + item.getValue() + item.getLanguageCode();
+        }
+        return Objects.hash(hashString);
+    }
+
 
 }
