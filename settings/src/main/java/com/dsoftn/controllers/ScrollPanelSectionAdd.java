@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.events.EventEditLanguageAdded;
 
+import javafx.application.Platform;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
@@ -99,17 +100,21 @@ public class ScrollPanelSectionAdd extends VBox{
 
     public void fromMap(Map<String, Object> map) {
         // File Affected
-        @SuppressWarnings("unchecked")
-        List<String> fileAff = (List<String>) map.get("fileAffected");
-        setAffectedFiles(fileAff);
+        if (map.get("fileAffected") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> fileAff = (List<String>) map.get("fileAffected");
+            setAffectedFiles(fileAff);
+        }
 
         // Recommended Languages
         // Updated by setAffectedFiles method
 
         // Already Added Languages
-        @SuppressWarnings("unchecked")
-        List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
-        setAlreadyAddedLanguages(alreadyAddedLang);
+        if (map.get("alreadyAddedLanguages") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
+            setAlreadyAddedLanguages(alreadyAddedLang);
+        }
 
         // Filter
         String filter = (String) map.get("filter");
@@ -130,6 +135,7 @@ public class ScrollPanelSectionAdd extends VBox{
         }
 
         this.alreadyAddedLanguages = alreadyAddedLanguages;
+        updateLanguageSelectionWidgets(null);
     }
 
     public void setAffectedFiles(List<String> fileAffected) {
@@ -198,30 +204,7 @@ public class ScrollPanelSectionAdd extends VBox{
 
         // Set listener for lstLanguages change current item
         lstLanguages.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                LanguagesEnum lang = LanguagesEnum.fromName(newSelection);
-                lblLangCode.setText(lang.getLangCode());
-                lblLangName.setText(lang.getName());
-                lblLangNativeName.setText(lang.getNativeName());
-                if (alreadyAddedLanguages.contains(lang.getName())) {
-                    btnAdd.setVisible(false);
-                    btnAdd.setManaged(false);
-                    lblExists.setVisible(true);
-                    lblExists.setManaged(true);
-                }
-                else {
-                    btnAdd.setVisible(true);
-                    btnAdd.setManaged(true);
-                    lblExists.setVisible(false);
-                    lblExists.setManaged(false);
-                }
-            }
-            else {
-                btnAdd.setVisible(false);
-                btnAdd.setManaged(false);
-                lblExists.setVisible(false);
-                lblExists.setManaged(false);
-            }
+            updateLanguageSelectionWidgets(newSelection);
         });
 
         // Set listener for txtFilter change
@@ -229,11 +212,51 @@ public class ScrollPanelSectionAdd extends VBox{
             populateListOfLanguages(newValue);
         });
         
+        Platform.runLater(() -> {
+            this.layout();
+        });
+    }
+
+    private void updateLanguageSelectionWidgets(String langNameSelected) {
+        if (langNameSelected == null) {
+            if (lstLanguages.getSelectionModel().getSelectedItem() != null) {
+                langNameSelected = lstLanguages.getSelectionModel().getSelectedItem();
+            }
+            else {
+                btnAdd.setVisible(false);
+                btnAdd.setManaged(false);
+                lblExists.setVisible(false);
+                lblExists.setManaged(false);
+                return;
+            }
+        }
+
+        LanguagesEnum lang = LanguagesEnum.fromName(langNameSelected);
+        lblLangCode.setText(lang.getLangCode());
+        lblLangName.setText(lang.getName());
+        lblLangNativeName.setText(lang.getNativeName());
+        if (alreadyAddedLanguages.contains(lang.getLangCode())) {
+            btnAdd.setVisible(false);
+            btnAdd.setManaged(false);
+            lblExists.setVisible(true);
+            lblExists.setManaged(true);
+        }
+        else {
+            btnAdd.setVisible(true);
+            btnAdd.setManaged(true);
+            lblExists.setVisible(false);
+            lblExists.setManaged(false);
+        }
+
     }
 
     private void populateListOfLanguages(String filter) {
         lstLanguages.getItems().clear();
         for (String lang : LanguagesEnum.getLanguageNames()) {
+            if (lang.equals("Unknown")) {
+                continue;
+            }
+
             if (filter != null && !filter.isEmpty()) {
                 if (lang.toLowerCase().contains(filter.toLowerCase())) {
                     lstLanguages.getItems().add(lang);
@@ -249,6 +272,9 @@ public class ScrollPanelSectionAdd extends VBox{
         lblExists.setVisible(false);
         lblExists.setManaged(false);
 
+        lblLangCode.setText("Code");
+        lblLangName.setText("Name");
+        lblLangNativeName.setText("Native Name");
     }
 
     private void updateRecommendedLanguages() {

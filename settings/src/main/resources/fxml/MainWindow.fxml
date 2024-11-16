@@ -99,7 +99,7 @@
             </HBox>
             <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                <tabs>
-                  <Tab fx:id="tabStt" closable="false" text="Settings">
+                  <Tab fx:id="tabStt" closable="false" onSelectionChanged="#onTabChanged" text="Settings">
                      <content>
                         <AnchorPane>
                            <children>
@@ -243,7 +243,7 @@
                         </AnchorPane>
                      </content>
                   </Tab>
-                  <Tab fx:id="tabLang" text="Language">
+                  <Tab fx:id="tabLang" onSelectionChanged="#onTabChanged" text="Language">
                      <content>
                         <AnchorPane>
                            <children>

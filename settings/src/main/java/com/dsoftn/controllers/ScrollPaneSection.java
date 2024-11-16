@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 
 import com.dsoftn.Settings.LanguageItemGroup;
 
+import javafx.application.Platform;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,13 +97,15 @@ public class ScrollPaneSection extends VBox {
         Map<String, Object> result = new HashMap<>();
 
         if (langEnum == null) {
-            result.put("langEnum", "null");
+            result.put("langEnum", null);
         }
         else {
             result.put("langEnum", langEnum.getName());
         }
 
         result.put("alreadyAddedLanguages", alreadyAddedLanguages);
+
+        result.put("currentTranslateLanguage", cmbTranslateFrom.getValue());
         
         result.put("originalValue", originalValue);
         
@@ -111,7 +114,7 @@ public class ScrollPaneSection extends VBox {
         result.put("value", txtValue.getText());
         
         if (languageItemGroup == null) {
-            result.put("languageItemGroup", "null");
+            result.put("languageItemGroup", null);
         }
         else {
             result.put("languageItemGroup", languageItemGroup.toMap());
@@ -123,23 +126,44 @@ public class ScrollPaneSection extends VBox {
     public void fromMap(Map<String, Object> map) {
         // LangEnum
         String langEnumName = (String) map.get("langEnum");
-        langEnum = LanguagesEnum.fromName(langEnumName);
-
-        // Already Added Languages
-        @SuppressWarnings("unchecked")
-        List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
-        if (alreadyAddedLang != null) {
-            alreadyAddedLanguages = alreadyAddedLang;
+        if (langEnumName == null) {
+            langEnum = LanguagesEnum.UNKNOWN;
         }
         else {
-            alreadyAddedLanguages = new ArrayList<>();
+            langEnum = LanguagesEnum.fromName(langEnumName);
+        }
+        if (langEnum == null) {
+            langEnum = LanguagesEnum.UNKNOWN;
+        }
+        else {
+            lblLangCode.setText(langEnum.getLangCode());
+            lblLangName.setText(langEnum.getName());
+        }
+
+        // Already Added Languages
+        if (map.get("alreadyAddedLanguages") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> alreadyAddedLang = (List<String>) map.get("alreadyAddedLanguages");
+            if (alreadyAddedLang != null) {
+                alreadyAddedLanguages = alreadyAddedLang;
+            }
+            else {
+                alreadyAddedLanguages = new ArrayList<>();
+            }
+        }
+
+        String currentTranslateLanguage = (String) map.get("currentTranslateLanguage");
+        if (currentTranslateLanguage != null) {
+            cmbTranslateFrom.setValue(currentTranslateLanguage);
         }
 
         // Original Value
         originalValue = (String) map.get("originalValue");
 
         // Is Changed
-        isChanged = (boolean) map.get("isChanged");
+        if (map.get("isChanged") != null) {
+            isChanged = (boolean) map.get("isChanged");
+        }
 
         // Value
         String value = (String) map.get("value");
@@ -148,14 +172,16 @@ public class ScrollPaneSection extends VBox {
         }
 
         // Language Item Group
-        @SuppressWarnings("unchecked")
-        Map<String, Object> languageItemGroupMap = (Map<String, Object>) map.get("languageItemGroup");
-        if (languageItemGroupMap != null) {
-            languageItemGroup = new LanguageItemGroup();
-            languageItemGroup.fromMap(languageItemGroupMap);
-        }
-        else {
-            languageItemGroup = null;
+        if (map.get("languageItemGroup") != null) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> languageItemGroupMap = (Map<String, Object>) map.get("languageItemGroup");
+            if (languageItemGroupMap != null) {
+                languageItemGroup = new LanguageItemGroup();
+                languageItemGroup.fromMap(languageItemGroupMap);
+            }
+            else {
+                languageItemGroup = null;
+            }
         }
 
         populateLanguageComboBox();
@@ -274,13 +300,25 @@ public class ScrollPaneSection extends VBox {
         originalValue = value;
         populateLanguageComboBox();
 
+        // Set image fro close button
+        Image img = new Image(getClass().getResourceAsStream("/images/close.png"));
+        ImageView imgView = new ImageView(img);
+        imgView.setFitWidth(23);
+        imgView.setFitHeight(23);
+        imgView.setPreserveRatio(true);
+        btnClose.setGraphic(imgView);
+
         // Set listener for txtValue change
         txtValue.textProperty().addListener((observable, oldValue, newValue) -> {
-            EventEditLanguageChanged eventLangChanged = new EventEditLanguageChanged(langEnum);
-            Stage primaryStage = (Stage) txtValue.getScene().getWindow();
-            primaryStage.fireEvent(eventLangChanged);
-            hideMessage();
+            Platform.runLater(() -> {
+                EventEditLanguageChanged eventLangChanged = new EventEditLanguageChanged(langEnum);
+                Stage primaryStage = (Stage) txtValue.getScene().getWindow();
+                primaryStage.fireEvent(eventLangChanged);
+                hideMessage();
+            });
         });
+
+        hideMessage();
     }
 
     private void populateLanguageComboBox() {
@@ -289,7 +327,8 @@ public class ScrollPaneSection extends VBox {
         
         for (String langCode : alreadyAddedLanguages) {
             if (!langCode.equals(langEnum.getLangCode())) {
-                cmbTranslateFrom.getItems().add(langCode);
+                LanguagesEnum langEnum = LanguagesEnum.fromLangCode(langCode);
+                cmbTranslateFrom.getItems().add(langEnum.getName());
             }
         }        
 

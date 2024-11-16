@@ -24,6 +24,7 @@ import com.dsoftn.events.EventEditLanguageAdded;
 import com.dsoftn.events.EventEditLanguageRemoved;
 import com.dsoftn.events.EventEditLanguageChanged;
 import com.dsoftn.events.EventEditLanguageContentChanged;
+import com.dsoftn.events.EventWriteLog;
 
 public class ScrollPaneContent extends VBox {
     // Variables
@@ -69,6 +70,10 @@ public class ScrollPaneContent extends VBox {
             ScrollPaneSection scrollPaneSection = new ScrollPaneSection(event);
             elementList.add(elementList.size() - 1, scrollPaneSection);
             updateAlreadyAddedForAllElements();
+            
+            // Write log
+            EventWriteLog eventWriteLog = new EventWriteLog("Added language: " + event.getLanguageAdded().getName());
+            primaryStage.fireEvent(eventWriteLog);
         }
     }
 
@@ -84,6 +89,10 @@ public class ScrollPaneContent extends VBox {
                 }
             }
             updateAlreadyAddedForAllElements();
+
+            // Write log
+            EventWriteLog eventWriteLog = new EventWriteLog("Removed language: " + event.getLanguageRemoved().getName());
+            primaryStage.fireEvent(eventWriteLog);
         }
     }
 
@@ -104,6 +113,7 @@ public class ScrollPaneContent extends VBox {
         List<String> changedLangCodes = getChangedLangCodes();
         EventEditLanguageContentChanged eventEditLanguageContentChanged = new EventEditLanguageContentChanged(changedLangCodes);
         primaryStage.fireEvent(eventEditLanguageContentChanged);
+        checkIfSectionValueNeedsUpdate();
     }
     
     // Public methods
@@ -187,7 +197,7 @@ public class ScrollPaneContent extends VBox {
     // Serialization / Deserialization
 
     public Map<String, Object> toMap() {
-        PyDict result = new PyDict();
+        Map<String, Object> result = new HashMap<>();
         
         // Sections
         List<Map<String, Object>> sections = new ArrayList<>();
@@ -202,40 +212,47 @@ public class ScrollPaneContent extends VBox {
             }
         }
 
+        result.put("sections", sections);
+
         // Variables
         if (group == null) {
-            result.setPyDictValue("group", null);
+            result.put("group", null);
         }
         else {
-            result.setPyDictValue("group", group.toMap());
+            result.put("group", group.toMap());
         }
 
-        result.setPyDictValue("fileAffected", fileAffected);
+        result.put("fileAffected", fileAffected);
 
         return result;
     }
 
     public void fromMap(Map<String, Object> mapFromJson) {
-        PyDict map = (PyDict) mapFromJson;
-        if (map == null) {
+        if (mapFromJson == null) {
             return;
         }
 
         // File Affected
-        List<String> fileAff = map.getPyDictValue("fileAffected");
-        fileAffected.clear();
+        if (mapFromJson.get("fileAffected") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> fileAff = (List<String>) mapFromJson.get("fileAffected");
+            fileAffected.clear();
 
-        if (fileAff != null) {
-            for (String item : fileAff) {
-                fileAffected.add(item);
+            if (fileAff != null) {
+                for (String item : fileAff) {
+                    if (item == null || item.isEmpty()) {
+                        continue;
+                    }
+                    fileAffected.add(item);
+                }
             }
         }
 
         // LanguageGroupItem
         group = new LanguageItemGroup("Empty");
-        if (map.getPyDictValue("group") != null) {
+        if (mapFromJson.get("group") != null) {
             @SuppressWarnings("unchecked")
-            HashMap<String, Object> groupItem = (HashMap<String, Object>) map.getPyDictValue("group");
+            Map<String, Object> groupItem = (Map<String, Object>) mapFromJson.get("group");
             if (groupItem != null) {
                 group.fromMap(groupItem);
             }
@@ -243,12 +260,12 @@ public class ScrollPaneContent extends VBox {
 
         // Sections
         elementList.clear();
-        if (map.getPyDictValue("sections") != null) {
+        if (mapFromJson.get("sections") != null) {
             @SuppressWarnings("unchecked")
-            List<HashMap<String, Object>> sections = (List<HashMap<String, Object>>) map.getPyDictValue("sections");
+            List<Map<String, Object>> sections = (List<Map<String, Object>>) mapFromJson.get("sections");
             if (sections != null) {
                 Integer count = 0;
-                for (HashMap<String, Object> section : sections) {
+                for (Map<String, Object> section : sections) {
                     if (count == sections.size() - 1) {
                         if (section != null) {
                             ScrollPanelSectionAdd scrollPanelSectionAdd = new ScrollPanelSectionAdd();
@@ -258,11 +275,12 @@ public class ScrollPaneContent extends VBox {
                     }
                     else {
                         if (section != null) {
-                            ScrollPaneSection scrollPaneSection = new ScrollPaneSection("", "");
+                            ScrollPaneSection scrollPaneSection = new ScrollPaneSection("?", "");
                             scrollPaneSection.fromMap(section);
                             elementList.add(scrollPaneSection);
                         }
                     }
+                    count++;
                 }
             }
         }
@@ -325,9 +343,7 @@ public class ScrollPaneContent extends VBox {
 
     private void addFooter() {
         ScrollPanelSectionAdd scrollPanelSectionAdd = new ScrollPanelSectionAdd(fileAffected, getAlreadyAddedLanguageCodes());
-        System.out.println("Before" + getChildren().size());
         elementList.add(scrollPanelSectionAdd);
-        System.out.println("After" + getChildren().size());
     }
 
 

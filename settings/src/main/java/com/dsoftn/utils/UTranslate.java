@@ -13,6 +13,8 @@ public class UTranslate {
 
     // Language ENUM
     public enum LanguagesEnum {
+        UNKNOWN("?", "Unknown", "?", ""),
+
         ENGLISH("en", "English", "English", "en"),
         SERBIAN("sr", "Serbian", "Srpski", "sr"),
         SERBIAN_CYR("sr-cyr", "Serbian (Cyrillic)", "Srpski (Ćirilica)", "sr"),

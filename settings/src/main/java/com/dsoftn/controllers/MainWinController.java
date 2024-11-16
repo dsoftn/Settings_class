@@ -1172,7 +1172,7 @@ public class MainWinController {
         langDict.setPyDictValue("SplitPaneDividerPosition", null); // SplitPane divider position
         langDict.setPyDictValue("lstLangSortKey", null); // Sort key for lstLang
         
-        langDict.setPyDictValue("CurrentItem", null); // Current item in process of changing
+        langDict.setPyDictValue("scrollPaneContent", null); // Current item in process of changing
 
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
 
@@ -1235,7 +1235,7 @@ public class MainWinController {
             appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "[CurrentItem][Desc]"), txtSttDesc.getText());
             appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "[CurrentItem][SettingsType]"), cmbSttFlag.getSelectionModel().getSelectedItem());
             appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "[CurrentItem][DataType]"), cmbSttDataType.getSelectionModel().getSelectedItem());
-            log(LOG_INDENT + "Saving current item in changing process: " + txtSttKey.getText());
+            log("Saving current Settings item in changing process: " + txtSttKey.getText());
         }
 
 
@@ -1268,7 +1268,8 @@ public class MainWinController {
 
         // Current item in changing process
         if (scrollPaneContent != null) {
-            appState.setPyDictValue("CurrentItem", scrollPaneContent.toMap());
+            appState.setPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "scrollPaneContent"), scrollPaneContent.toMap());
+            log("Saving current Language item in changing process: " + txtLangKey.getText());
         }
         
         
@@ -1497,10 +1498,10 @@ public class MainWinController {
         }
 
         // Current item in changing process
-        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")) != null) {
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "scrollPaneContent")) != null) {
             if (scrollPaneContent != null) {
                 log(LOG_INDENT + "Restoring current Language item.");
-                scrollPaneContent.fromMap(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")));
+                scrollPaneContent.fromMap(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "scrollPaneContent")));
             }
         }
 
@@ -1541,7 +1542,7 @@ public class MainWinController {
             tabPane.getSelectionModel().select(tabStt);
             // Set info label to show source file for keys
             if (loadSttFromPath.isEmpty()) {
-                lblSource.setText("Click to load keys from file...");
+                lblSource.setText("Click to load Settings keys from file...");
             }
             else {
                 lblSource.setText(loadSttFromPath);
@@ -1555,7 +1556,7 @@ public class MainWinController {
             tabPane.getSelectionModel().select(tabLang);
             // Set info label to show source file for keys
             if (loadLangFromPath.isEmpty()) {
-                lblSource.setText("Click to load language from file...");
+                lblSource.setText("Click to load language keys from file...");
             }
             else {
                 lblSource.setText(loadLangFromPath);
@@ -1779,7 +1780,7 @@ public class MainWinController {
 
     private List<String> getLangAffectedFilesList() {
         List<String> updateLangFilesList = new ArrayList<>();
-        if (Files.exists(Path.of(loadLangFromPath))) {
+        if (loadLangFromPath != null && !loadLangFromPath.isEmpty() && Files.exists(Path.of(loadLangFromPath))) {
             updateLangFilesList.add(loadLangFromPath);
         }
         for (String file : updateLangFilesPaths) {
@@ -2384,6 +2385,16 @@ public class MainWinController {
     }
 
     // Events
+
+    @FXML
+    private void onTabChanged() {
+        if (tabStt.isSelected()) {
+            activateSection(Section.SETTINGS);
+        }
+        else if (tabLang.isSelected()) {
+            activateSection(Section.LANGUAGE);
+        }
+    }
 
     @FXML
     private void onLblSourceClick(MouseEvent event) {
@@ -5824,9 +5835,11 @@ public class MainWinController {
             return true;
         }
 
-        System.out.println("Not Implemented");
+        if (!itemName.equals(txtLangKey.getText())) {
+            return false;
+        }
 
-        return false;
+        return scrollPaneContent.hasChangedSections();
     }
 
     private void populateLangItem(String itemName) {
