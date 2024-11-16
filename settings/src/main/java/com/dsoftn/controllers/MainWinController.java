@@ -1573,6 +1573,9 @@ public class MainWinController {
         for (String itemName : itemsList) {
             listWidget.getItems().add(itemName);
         }
+
+        // Try to refresh list display
+        listWidget.layout();
     }
 
     // LOGGING
@@ -3189,12 +3192,11 @@ public class MainWinController {
         }
 
         String lastDir = appState.getPyDictValue("lastDir");
-        if (lastDir != null) {
+        if (lastDir != null && !lastDir.isEmpty() && new File(lastDir).exists()) {
             fileChooser.setInitialDirectory(new File(lastDir));
         }
 
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
-
         if (selectedFile != null) {
             appState.setPyDictValue("lastDir", selectedFile.getParent());
         }
@@ -3218,7 +3220,7 @@ public class MainWinController {
         }
 
         String lastDir = appState.getPyDictValue("lastDir");
-        if (lastDir != null) {
+        if (lastDir != null && !lastDir.isEmpty() && new File(lastDir).exists()) {
             fileChooser.setInitialDirectory(new File(lastDir));
         }
 
@@ -4162,6 +4164,9 @@ public class MainWinController {
         else {
             setCurrentItemInLoadedList(sttLoadedCurrentItem, null);
         }
+
+        // Try to refresh list display
+        lstStt.layout();
     }
 
     private int setCurrentItemInChangedList(String itemText, Integer itemIndex) {
@@ -5602,6 +5607,9 @@ public class MainWinController {
         else {
             setCurrentItemInLoadedListLang(langLoadedCurrentItem, null);
         }
+
+        // Try to refresh list display
+        lstLang.layout();
     }
 
     private int setCurrentItemInChangedListLang(String itemText, Integer itemIndex) {
@@ -5840,7 +5848,8 @@ public class MainWinController {
             txtLangKey.setText(item.getGroupKey());
         }
         
-        // Add ScrollPane content - not implemented
+        // Add ScrollPane content
+        scrollPaneContent.setLanguageItemGroup(item);
 
         updateLangWidgetsAppearance();
     }
