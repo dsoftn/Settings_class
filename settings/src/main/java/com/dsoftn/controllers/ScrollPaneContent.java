@@ -4,6 +4,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 
@@ -36,6 +37,13 @@ public class ScrollPaneContent extends VBox {
     public ScrollPaneContent(LanguageItemGroup languageItemGroup, Stage primaryStage, List<String> fileAffected) {
         this.primaryStage = primaryStage;
         this.fileAffected = fileAffected;
+        // Listener for element list
+        elementList.addListener((ListChangeListener<Node>) c -> {
+            while (c.next()) {
+                this.getChildren().setAll(elementList);
+            }
+        });
+
         setLanguageItemGroup(languageItemGroup);
 
         // Events
@@ -317,7 +325,9 @@ public class ScrollPaneContent extends VBox {
 
     private void addFooter() {
         ScrollPanelSectionAdd scrollPanelSectionAdd = new ScrollPanelSectionAdd(fileAffected, getAlreadyAddedLanguageCodes());
+        System.out.println("Before" + getChildren().size());
         elementList.add(scrollPanelSectionAdd);
+        System.out.println("After" + getChildren().size());
     }
 
 

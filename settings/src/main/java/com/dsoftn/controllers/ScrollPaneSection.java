@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Region;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -55,6 +56,8 @@ public class ScrollPaneSection extends VBox {
     private Button btnYes; // Yes button
     @FXML
     private Button btnNo; // No button
+    @FXML
+    private Region regMsg;
 
     // Properties
     private LanguagesEnum langEnum = null;
@@ -242,6 +245,8 @@ public class ScrollPaneSection extends VBox {
         btnYes.setManaged(true);
         btnNo.setVisible(true);
         btnNo.setManaged(true);
+        regMsg.setVisible(false);
+        regMsg.setManaged(false);
     }
 
     private void hideYesNoButtons() {
@@ -249,14 +254,16 @@ public class ScrollPaneSection extends VBox {
         btnYes.setManaged(false);
         btnNo.setVisible(false);
         btnNo.setManaged(false);
+        regMsg.setVisible(true);
+        regMsg.setManaged(true);
     }
 
     private void createWidgets(String value) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/LanguageScrollPaneSection.fxml"));
-        fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         try {
-            fxmlLoader.load();
+            VBox content = fxmlLoader.load();
+            this.getChildren().add(content);
         } catch (IOException e) {
             e.printStackTrace();
         }

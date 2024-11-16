@@ -446,6 +446,7 @@ public class MainWinController {
         Platform.runLater(() -> {
             // Set primaryStage
             this.primaryStage = (Stage) layoutAnchorPaneMain.getScene().getWindow();
+            mountNodeToScrollPane();
 
             // Connect custom events
             primaryStage.addEventHandler(EventWriteLog.EVENT_WRITE_LOG_TYPE, event -> {
@@ -1398,7 +1399,7 @@ public class MainWinController {
         // Current item in changing process
         if (appState.getPyDictValue(concatKeys(Section.SETTINGS.toString(), "CurrentItem", "Key")) != null) {
             txtSttKey.setText(appState.getPyDictValue(concatKeys(Section.SETTINGS.toString(), "CurrentItem", "Key")).toString());
-            log(LOG_INDENT + "Restoring current item: " + txtSttKey.getText());
+            log(LOG_INDENT + "Restoring current settings item.");
         }
         if (appState.getPyDictValue(concatKeys(Section.SETTINGS.toString(), "CurrentItem", "Value")) != null) {
             txtSttValue.setText(appState.getPyDictValue(concatKeys(Section.SETTINGS.toString(), "CurrentItem", "Value")).toString());
@@ -1498,6 +1499,7 @@ public class MainWinController {
         // Current item in changing process
         if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")) != null) {
             if (scrollPaneContent != null) {
+                log(LOG_INDENT + "Restoring current Language item.");
                 scrollPaneContent.fromMap(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "CurrentItem")));
             }
         }
@@ -1750,8 +1752,6 @@ public class MainWinController {
         setupCellFactoryForLstLang();
         // Listener for lstLang
         setupListenerForLstLang();
-        // Mount ScrollPaneContent to ScrollPane
-        mountNodeToScrollPane();
 
         // OTHER
 
@@ -1769,9 +1769,7 @@ public class MainWinController {
     private void mountNodeToScrollPane() {
         List<String> updateLangFilesList = getLangAffectedFilesList();
 
-        Stage stage = (Stage) scrPaneLang.getScene().getWindow();
-
-        scrollPaneContent = new ScrollPaneContent(null, stage, updateLangFilesList);
+        scrollPaneContent = new ScrollPaneContent(null, primaryStage, updateLangFilesList);
 
         scrPaneLang.setContent(scrollPaneContent);
     }
@@ -2571,6 +2569,9 @@ public class MainWinController {
 
     @FXML
     private void onBtnRemoveFile() {
+        VBox node = new VBox();
+        node.getChildren().add(new Label("Are you sure you want to remove the selected files?"));
+        scrollPaneContent.getChildren().add(node);
         log("Started FileDialog for removing file that should be updated...");
         logIndentPlus();
 
@@ -5034,14 +5035,16 @@ public class MainWinController {
         for (String file : updateLangFilesPaths) {
             updateFilesList.add(file);
         }
-        updateFilesList.add(loadLangFromPath);
+        if (loadLangFromPath != null && !loadLangFromPath.isEmpty()) {
+            updateFilesList.add(loadLangFromPath);
+        }
 
         List<LanguagesEnum> requiredLangs = scrollPaneContent.getListOfRequiredLanguages(updateFilesList);
         List<LanguagesEnum> hasLangs = new ArrayList<>();
         List<LanguagesEnum> missingLangs = new ArrayList<>();
 
         // hasLangs
-        LanguageItemGroup itemGroup = scrollPaneContent.getValueAsLanguageItemGroup("");
+        LanguageItemGroup itemGroup = scrollPaneContent.getValueAsLanguageItemGroup("DsoftN");
         for (LanguageItem item : itemGroup.getLanguageItems()) {
             hasLangs.add(LanguagesEnum.fromLangCode(item.getLanguageCode()));
         }
@@ -5059,6 +5062,12 @@ public class MainWinController {
     private void unChangeLanguageItem() {
         log("UnChange Language item started...");
         logIndentPlus();
+
+        // Check if has valid key
+        if (! validateEditedLanguageItem()) {
+            logIndentMinus();
+            return;
+        }
 
         // Check if item exists
         if (! isLangItemExists(txtLangKey.getText())) {
@@ -5132,6 +5141,12 @@ public class MainWinController {
         log("UnDelete Language item started...");
         logIndentPlus();
 
+        // Check if has valid key
+        if (! validateEditedLanguageItem()) {
+            logIndentMinus();
+            return;
+        }
+        
         // Check if item exists
         if (! isLangItemExists(txtLangKey.getText())) {
             log("Unable to UnDelete Language item: " + txtLangKey.getText() + " - Language item does not exist.");
@@ -5217,6 +5232,12 @@ public class MainWinController {
     private void deleteLanguageItem() {
         log("Delete Language item started...");
         logIndentPlus();
+
+        // Check if has valid key
+        if (! validateEditedLanguageItem()) {
+            logIndentMinus();
+            return;
+        }
 
         // Check if item exists
         if (! isLangItemExists(txtLangKey.getText())) {
@@ -5315,9 +5336,41 @@ public class MainWinController {
         return null;
     }
 
+
+    private boolean validateEditedLanguageItem() {
+        if (txtLangKey.getText().isEmpty()) {
+            log("Unable to process Language item: " + txtLangKey.getText() + " - Key is empty.");
+            log("Processing Language item stopped.");
+            
+            MsgInfo msg = new MsgInfo("Error", "Key is empty", "Unable to process Language item: " + txtLangKey.getText() + " - Key is empty.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            msgBoxInfoCritical("Error", "Key is empty", "Unable to process Language item because KEY is empty.");
+            return false;
+        }
+
+        LanguageItemGroup item = scrollPaneContent.getValueAsLanguageItemGroup(txtLangKey.getText());
+        if (item.getLanguageItems().size() == 0) {
+            log("Unable to process Language item: " + txtLangKey.getText() + " - Item has no languages.");
+            log("Processing Language item stopped.");
+
+            MsgInfo msg = new MsgInfo("Error", "Item has no languages", "Unable to process Language item: " + txtLangKey.getText() + " - Item has no languages.", MsgInfo.MsgStyle.ERROR);
+            showMessage(msg);
+            msgBoxInfoCritical("Error", "Item has no languages", "Unable to process Language item because item has no languages.");
+            return false;
+        }
+
+        return true;
+    }
+
     private void addNewLanguageItem() {
         log("Add new Language item started...");
         logIndentPlus();
+
+        // Check if has valid key
+        if (! validateEditedLanguageItem()) {
+            logIndentMinus();
+            return;
+        }
 
         // Check if item already exists
         if (isLangItemExists(txtLangKey.getText())) {
@@ -5399,6 +5452,12 @@ public class MainWinController {
         log("Update Language item started...");
         logIndentPlus();
 
+        // Check if has valid key
+        if (! validateEditedLanguageItem()) {
+            logIndentMinus();
+            return;
+        }
+        
         // Check if item does not exists
         if (! isLangItemExists(txtLangKey.getText()) || txtLangKey.getText().isEmpty()) {
             log("Unable to update Language item: " + txtLangKey.getText() + " - Language item does not exists.");

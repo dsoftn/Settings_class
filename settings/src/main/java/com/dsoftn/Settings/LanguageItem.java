@@ -163,7 +163,7 @@ public class LanguageItem {
     // Private methods
 
     private void printError(String message) {
-        System.out.println("SettingsItem Message: " + message);
+        System.out.println("LanguageItem Message: " + message);
     }
 
     // Override methods

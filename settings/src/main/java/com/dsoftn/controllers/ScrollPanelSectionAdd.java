@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.net.URL;
 
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
@@ -63,9 +64,9 @@ public class ScrollPanelSectionAdd extends VBox{
     // Constructors
 
     public ScrollPanelSectionAdd(List<String> fileAffected, List<String> alreadyAddedLanguages) {
+        createWidgets();
         setAffectedFiles(fileAffected);
         setAlreadyAddedLanguages(alreadyAddedLanguages);
-        createWidgets();
     }
 
     public ScrollPanelSectionAdd() {
@@ -167,11 +168,16 @@ public class ScrollPanelSectionAdd extends VBox{
     // Private methods
 
     private void createWidgets() {
+        URL fxmlLocation = getClass().getResource("/fxml/LanguageScrollPaneSectionAdd.fxml");
+        if (fxmlLocation == null) {
+            System.out.println("FXML file not found!");
+        }
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/LanguageScrollPaneSectionAdd.fxml"));
-        fxmlLoader.setRoot(this);
+        // FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/test.fxml"));
         fxmlLoader.setController(this);
         try {
-            fxmlLoader.load();
+            VBox content = fxmlLoader.load();
+            this.getChildren().add(content);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -180,6 +186,7 @@ public class ScrollPanelSectionAdd extends VBox{
     }
 
     private void defineWidgets() {
+        btnMore.setId("Protected");
         hbxAdd.setVisible(false);
         hbxAdd.setManaged(false);
 
@@ -236,13 +243,18 @@ public class ScrollPanelSectionAdd extends VBox{
                 lstLanguages.getItems().add(lang);
             }
         }
-        
+
+        btnAdd.setVisible(false);
+        btnAdd.setManaged(false);
+        lblExists.setVisible(false);
+        lblExists.setManaged(false);
+
     }
 
     private void updateRecommendedLanguages() {
         // Remove custom buttons
         for (int i = hbxMore.getChildren().size() - 1; i >= 0 ; i--) {
-            if (hbxMore.getChildren().get(i) instanceof Button && hbxMore.getChildren().get(i).getId() != null && !hbxMore.getChildren().get(i).getId().isEmpty()) {
+            if (hbxMore.getChildren().get(i) instanceof Button && hbxMore.getChildren().get(i).getId() != null && !hbxMore.getChildren().get(i).getId().equals("Protected")) {
                 hbxMore.getChildren().remove(i);
             }
         }
