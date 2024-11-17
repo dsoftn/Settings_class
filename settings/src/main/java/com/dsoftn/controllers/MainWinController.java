@@ -242,7 +242,7 @@ public class MainWinController {
     private final double FILE_LIST_PANE_HEIGHT = 100.0;
     private final double FILE_LIST_PANE_ANIMATION_DURATION_MS = 300.0;
     // Max / Min font size for ListView
-    private final double FONT_SIZE_MAX_LIST = 30.0;
+    private final double FONT_SIZE_MAX_LIST = 40.0;
     private final double FONT_SIZE_MIN_LIST = 10.0;
 
     private final String APP_STATE_FILE_NAME = "config.json";
@@ -486,6 +486,68 @@ public class MainWinController {
     }
 
     public void onEventSettingsSaved(EventSettingsSaved event) {
+        if (event.isSettingsSaved()) {
+            removeSavedSettingsItems(event);
+        }
+        
+        if (event.isLanguageSaved()) {
+            removeSavedLanguageItems(event);
+        }
+    }
+
+    public void removeSavedLanguageItems(EventSettingsSaved event) {
+        log("Languages has been saved, updating list of changed items...");
+        logIndentPlus();
+
+        List<String> langToBeRemoved = new ArrayList<>(); // List of changed items to be removed
+
+        for (String langKey : langChangedList) {
+            langToBeRemoved.add(langKey);
+        }
+
+        // Remove changed items from Changed List and Changed Map
+        for (String langKey : langToBeRemoved) {
+            langChangedList.remove(langKey);
+            langChangedMap.remove(langKey);
+        }
+
+        // Refresh Loaded Map
+        PyDict loadedData = getLanguageFileContent(loadSttFromPath);
+
+        if (loadedData != null) {
+            changeLangVisibleList("Loaded");
+            int index = lstLang.getSelectionModel().getSelectedIndex();
+            String name = lstLang.getItems().get(index).toString();
+
+            List<LanguageItemGroup> listOfItems = LanguageItemGroup.getListOfGroupLanguageObjectsFromLanguageMapObject(loadedData);
+            langLoadedMap.clear();
+            for (LanguageItemGroup itemGroup : listOfItems) {
+                langLoadedMap.put(itemGroup.getGroupKey(), itemGroup);
+            }
+
+            populateLangList(langLoadedMap, langChangedMap,txtLangSearch.getText());
+            setCurrentItemInLoadedListLang(name, index);
+            showToolTipLabel("List Refreshed", lstLang.localToScene(0, 0).getX(), lstLang.localToScene(0, 0).getY(), 1);
+            
+            log("List of loaded languages item is refreshed");
+        }
+
+        // Refreshing display
+        changeLangVisibleList(langVisibleList);
+        txtLangKey.setText(txtLangKey.getText());
+
+        // Save AppState
+        if (chkSaveState.isSelected()) {
+            saveAppState();
+        }
+
+        logIndentMinus();
+        log("List of changed items has been updated.");
+        MsgInfo msgInfo = new MsgInfo("DataSaved", "Languages saved", "Languages have been saved", MsgInfo.MsgStyle.INFORMATION);
+        showMessage(msgInfo);
+    }
+    
+    public void removeSavedSettingsItems(EventSettingsSaved event) {        
         log("Settings has been saved, updating list of changed items...");
         logIndentPlus();
 

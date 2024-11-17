@@ -191,7 +191,7 @@ public class LanguageItemGroup {
             result.addToGroup(item.duplicate());
         }
 
-        if (this.groupKey != result.getGroupKey()) {
+        if (!this.groupKey.equals(result.getGroupKey())) {
             throw new RuntimeException("Internal error: group keys are different. This GroupKey: " + this.groupKey + " ResultGroupKey: " + result.getGroupKey());
         }
 
@@ -224,7 +224,7 @@ public class LanguageItemGroup {
         if (!langMap.containsKey("available_languages")) {
             result = false;
         }
-        if (!langMap.containsKey("active_language")) {
+        if (!langMap.containsKey("default_language")) {
             result = false;
         }
         if (!langMap.containsKey("data")) {

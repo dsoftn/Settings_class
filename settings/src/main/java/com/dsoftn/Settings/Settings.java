@@ -3,6 +3,7 @@ package com.dsoftn.Settings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.FileWriter;
 import java.io.File;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 import com.dsoftn.utils.PyDict;
+import com.dsoftn.utils.UTranslate.LanguagesEnum;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -218,6 +220,17 @@ public class Settings {
     }
 
     /**
+     * <p>Get Language settings object (LanguageItem) for specified key and LangCode</p>
+     * @param key - <b>String</b> <i>key</i> - key of setting
+     * @param fromLangCode - <b>String</b> <i>fromLangCode</i> - Language Code
+     * @return <b>LanguageItem</b> <i>value</i> - value of setting
+     * @throws RuntimeException if key not found
+     */
+    public LanguageItem getLanguageItem(String key, String fromLangCode) {
+        return (LanguageItem) lang.getPyDictValue(PyDict.concatKeys("data", fromLangCode, key));
+    }
+
+    /**
      * <p>Get Language settings object (LanguageItem) for specified key</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @return <b>LanguageItem</b> <i>value</i> - value of setting
@@ -228,12 +241,8 @@ public class Settings {
             printError("No active language set");
             throw new RuntimeException("No active language set");
         }
-        if (! isLanguageKeyExists(key)) {
-            printError("Language settings " + key + " not found");
-            throw new RuntimeException("Language settings " + key + " not found");
-        }
-        
-        return (LanguageItem) lang.getPyDictValue(PyDict.concatKeys("data", activeLanguage, key));
+
+        return getLanguageItem(key, activeLanguage);
     }
 
     /**
@@ -243,23 +252,145 @@ public class Settings {
      * @throws RuntimeException if active language not set
      */
     public boolean setLanguageItem(LanguageItem value) {
-        return setLanguageItem(value.getKey(), value);
+        return setLanguageItem(value.getKey(), value, value.getLanguageCode());
     }
 
     /**
-     * <p>Set Language settings object (LanguageItem) for specified key</p>
+     * <p>Set Language settings object (LanguageItem) for specified key and LangCode</p>
+     * <p>If Language code not found return false</p>
+     * @param value - <b>LanguageItem</b> <i>value</i> - value of setting
+     * @param forLangCode - <b>String</b> <i>forLangCode</i> - Language Code
+     * @return <b>boolean</b> <i>true</i> if setting was set, <i>false</i> otherwise
+     */
+    public boolean setLanguageItem(LanguageItem value, String forLangCode) {
+        return setLanguageItem(value.getKey(), value, forLangCode);
+    }
+
+    /**
+     * <p>Set Language settings object (LanguageItem) for specified key and LangCode</p>
+     * <p>If Language code not found return false</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @param value - <b>LanguageItem</b> <i>value</i> - value of setting
+     * @param forLangCode - <b>String</b> <i>forLangCode</i> - Language Code
      * @return <b>boolean</b> <i>true</i> if setting was set, <i>false</i> otherwise
-     * @throws RuntimeException if active language not set
      */
-    public boolean setLanguageItem(String key, LanguageItem value) {
-        if (activeLanguage.isEmpty()) {
-            printError("No active language set");
-            throw new RuntimeException("No active language set");
+    public boolean setLanguageItem(String key, LanguageItem value, String forLangCode) {
+        if (!getAvailableLanguageCodes().contains(forLangCode)) {
+            return false;
         }
-        
-        return lang.setPyDictValue(PyDict.concatKeys("data", activeLanguage, key), value);
+
+        return lang.setPyDictValue(PyDict.concatKeys("data", forLangCode, key), value);
+    }
+
+    public boolean deleteLanguageItem(String key) {
+        PyDict langData;
+        langData = lang.getPyDictValue("data");
+
+        boolean isDeleted = false;
+
+        for (String langCode : getAvailableLanguageCodes()) {
+            if (langData.containsKey(langCode)) {
+                PyDict item;
+                item = langData.getPyDictValue(langCode);
+                item.remove(key);
+                isDeleted = true;
+            }
+        }
+
+        return isDeleted;
+    }
+
+    public boolean isLanguageItemGroupHasAllRequiredLanguages(LanguageItemGroup langGroup) {
+        List<String> langCodes = getAvailableLanguageCodes();
+
+        for (String langCode : langCodes) {
+            if (!langGroup.getListOfLanguageCodes().contains(langCode)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean mergeLanguageItemGroup(LanguageItemGroup langGroup) {
+        List<String> langCodes = getAvailableLanguageCodes();
+
+        if (!isLanguageItemGroupHasAllRequiredLanguages(langGroup)) {
+            return false;
+        }
+
+        boolean isMerged = false;
+        for (LanguageItem item : langGroup.getLanguageItems()) {
+            if (!langCodes.contains(item.getLanguageCode())) {
+                continue;
+            }
+
+            isMerged = true;
+            LanguageItem originalItem = getLanguageItem(item.getKey(), item.getLanguageCode());
+            if (originalItem == null) {
+                item.setUserData("");
+                setLanguageItem(item, item.getLanguageCode());
+            }
+            else {
+                originalItem.setValue(item.getValue());
+            }
+        }
+
+        return isMerged;
+    }
+
+    /**
+     * <p>Add new language in base if it doesn't exist</p>
+     * @param newLang - <b>LanguagesEnum</b> <i>newLang</i> - Language
+     * @return <b>boolean</b> <i>true</i> if language was added, <i>false</i> otherwise
+     */
+    public boolean addNewLanguageInBase(LanguagesEnum newLang) {
+        if (getAvailableLanguageCodes().contains(newLang.getLangCode())) {
+            return false;
+        }
+
+        ArrayList<ArrayList<String>> langCodes = lang.getPyDictValue("available_languages");
+        langCodes.add(new ArrayList<>(List.of(newLang.getLangCode(), newLang.getName())));
+
+        lang.setPyDictValue("available_languages", langCodes);
+
+        if (!lang.isPyDictKeyExists(PyDict.concatKeys("data", newLang.getLangCode()))) {
+            PyDict newDataKey = new PyDict();
+            lang.setPyDictValue(PyDict.concatKeys("data", newLang.getLangCode()), newDataKey);
+        }
+
+        return true;
+    }
+
+    /**
+     * <p>Remove language from base</p>
+     * @param langToRemove - <b>LanguagesEnum</b> <i>langToRemove</i> - Language
+     * @return <b>boolean</b> <i>true</i> if language was removed, <i>false</i> otherwise
+     */
+    public boolean removeLanguageFromBase(LanguagesEnum langToRemove) {
+        if (!getAvailableLanguageCodes().contains(langToRemove.getLangCode())) {
+            return false;
+        }
+
+        ArrayList<ArrayList<String>> langCodes = lang.getPyDictValue("available_languages");
+        ArrayList<ArrayList<String>> newLangCodes = new ArrayList<>();
+
+        for (ArrayList<String> langCode : langCodes) {
+            if (!langCode.get(0).equals(langToRemove.getLangCode())) {
+                newLangCodes.add(langCode);
+            }
+        }
+
+        lang.setPyDictValue("available_languages", newLangCodes);
+
+        PyDict langData;
+        langData = lang.getPyDictValue("data");
+
+        if (langData.containsKey(langToRemove.getLangCode())) {
+            langData.remove(langToRemove.getLangCode());
+        }
+
+        return true;
     }
 
     // Getters and Setters for User values
@@ -542,6 +673,21 @@ public class Settings {
         item.setValue(value);
     }
 
+    /**
+     * <p>Get active language code</p>
+     * @return <b>String</b> <i>code</i> - active language code
+     */
+    public String getActiveLanguage() {
+        return activeLanguage;
+    }
+
+    /**
+     * <p>Set active language code</p>
+     * @param language - <b>String</b> <i>language</i> - active language code
+     */
+    public void setActiveLanguage(String language) {
+        activeLanguage = language;
+    }
 
         // Getters and Setters for App values
 
@@ -898,7 +1044,8 @@ public class Settings {
         PyDict newData = new PyDict();
         newData.setPyDictValue("available_languages", new ArrayList<ArrayList<String>>());
         newData.setPyDictValue("default_language", "");
-        newData.setPyDictValue("data", new PyDict());
+        PyDict newDataKey = new PyDict();
+        newData.setPyDictValue("data", newDataKey);
         
         saveLanguageData(newData, filePath);
     }
@@ -1207,18 +1354,24 @@ public class Settings {
 
         // Translate all LanguageItems to Map
         PyDict translatedData = new PyDict();
+        translatedData.setPyDictValue("data", new PyDict());
         for (Map.Entry<String, Object> entry : dataToSave.entrySet()) {
             if (entry.getKey().equals("data")) {
-                PyDict dataLanguages = (PyDict) dataToSave.get("data");
-                for (Map.Entry<String, Object> languageEntry : dataLanguages.entrySet()) {
-                    if (languageEntry.getValue() instanceof LanguageItem) {
-                        LanguageItem item = (LanguageItem) languageEntry.getValue();
-                        Map<String, Object> map = item.toMap();
-                        translatedData.setPyDictValue(PyDict.concatKeys("data", languageEntry.getKey(), item.getKey()), map);
-                    }
-                    else {
-                        translatedData.setPyDictValue(PyDict.concatKeys("data", languageEntry.getKey(), languageEntry.getKey()), languageEntry.getValue());
-                        printError("LanguageItem is not valid: " + languageEntry.getKey());
+                PyDict dataLanguagesBases = (PyDict) dataToSave.get("data");
+
+                for (Map.Entry<String, Object> languageBaseEntry : dataLanguagesBases.entrySet()) {
+                    translatedData.setPyDictValue(PyDict.concatKeys("data", languageBaseEntry.getKey()), new PyDict());
+
+                    for (Map.Entry<String, Object> languageEntry : ((PyDict) languageBaseEntry.getValue()).entrySet()) {
+                        if (languageEntry.getValue() instanceof LanguageItem) {
+                            LanguageItem item = (LanguageItem) languageEntry.getValue();
+                            Map<String, Object> map = item.toMap();
+                            translatedData.setPyDictValue(PyDict.concatKeys("data", languageBaseEntry.getKey(), languageEntry.getKey()), map);
+                        }
+                        else {
+                            translatedData.setPyDictValue(PyDict.concatKeys("data", languageBaseEntry.getKey(), languageEntry.getKey()), languageEntry.getValue());
+                            printError("LanguageItem is not valid: " + languageEntry.getKey());
+                        }
                     }
                 }
 
@@ -1282,14 +1435,16 @@ public class Settings {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> origLanguages = (Map<String, Object>) data.get("data");
+        Map<String, Object> origLanguages = (Map<String, Object>) mapOfMaps.get("data");
 
         for (Map.Entry<String, Object> entry : origLanguages.entrySet()) {
-            PyDict langKeys = (PyDict) entry.getValue();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> langKeys = (Map<String, Object>) entry.getValue();
             languages.setPyDictValue(entry.getKey(), new PyDict());
             for (Map.Entry<String, Object> langKeyEntry : langKeys.entrySet()) {
                 LanguageItem languageItem = new LanguageItem();
-                PyDict map = (PyDict) langKeyEntry.getValue();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = (Map<String, Object>) langKeyEntry.getValue();
                 languageItem.fromMap(map);
                 languages.setPyDictValue(PyDict.concatKeys(entry.getKey(), langKeyEntry.getKey()), languageItem);
             }

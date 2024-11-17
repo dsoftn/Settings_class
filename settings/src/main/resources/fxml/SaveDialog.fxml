@@ -135,7 +135,7 @@
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Label>
-                        <Label fx:id="lblCompleted" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="title-label" text="All Files are successfully saved." />
+                        <Label fx:id="lblCompleted" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="title-label" text="All Files are successfully saved." wrapText="true" />
                         <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
                      </children>
                   </HBox>
@@ -151,7 +151,7 @@
                               <Insets right="20.0" />
                            </HBox.margin>
                         </Label>
-                        <Label fx:id="lblError" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-text-fill: #ff0202fd;" styleClass="title-label" text="Error" />
+                        <Label fx:id="lblError" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-text-fill: #ff0202fd;" styleClass="title-label" text="Error" wrapText="true" />
                         <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" prefHeight="0.0" HBox.hgrow="SOMETIMES" />
                      </children>
                   </HBox>

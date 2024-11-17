@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.nio.file.StandardCopyOption;
 
 import com.dsoftn.utils.PyDict;
+import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.Settings.LanguageItem;
+import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.Settings.Settings;
 import com.dsoftn.Settings.SettingsItem;
 import com.dsoftn.controllers.MainWinController.Section;
@@ -182,7 +185,7 @@ public class SaveDialogController {
                 else {
                     layoutSectionCompleted.setVisible(true);
                     layoutSectionCompleted.setManaged(true);
-                    lblCompleted.setText("No selected files to update");
+                    lblCompleted.setText("No selected settings files to update");
                     btnOk.setVisible(true);
                     btnOk.setManaged(true);
                 }
@@ -196,41 +199,99 @@ public class SaveDialogController {
             populateWidgets();
         }
         else if (type == SaveSection.LANGUAGE) {
+            List<String> langFilesToUpdate = appState.getPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"));
             layoutSectionLang.setVisible(true);
             layoutSectionLang.setManaged(true);
-            // if (getChangedLanguageItemsList().isEmpty()) {
-            //     layoutSectionCompleted.setVisible(true);
-            //     layoutSectionCompleted.setManaged(true);
-            //     lblCompleted.setText("No language to save");
-            //     btnOk.setVisible(true);
-            //     btnOk.setManaged(true);
-            // }
-            // else {
-            //     btnSave.setVisible(true);
-            //     btnSave.setManaged(true);
-            //     btnCancel.setVisible(true);
-            //     btnCancel.setManaged(true);
-            // }
+            if (getChangedLanguageItemsList().isEmpty() || langFilesToUpdate == null || langFilesToUpdate.isEmpty()) {
+                if (getChangedLanguageItemsList().isEmpty()) {
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    lblCompleted.setText("No language to save");
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+                else {
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    lblCompleted.setText("No selected language files to update");
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+            }
+            else {
+                btnSave.setVisible(true);
+                btnSave.setManaged(true);
+                btnCancel.setVisible(true);
+                btnCancel.setManaged(true);
+            }
+
             populateWidgets();
         }
         else if (type == SaveSection.ALL) {
+            // Show Settings
+            List<String> sttFilesToUpdate = appState.getPyDictValue(PyDict.concatKeys(Section.SETTINGS.toString(), "updateSttFilesPaths"));
             layoutSectionStt.setVisible(true);
             layoutSectionStt.setManaged(true);
+            if (getChangedSettingsItemsList().isEmpty() || sttFilesToUpdate == null || sttFilesToUpdate.isEmpty()) {
+                if (getChangedSettingsItemsList().isEmpty()) {
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    lblCompleted.setText("No settings to save");
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+                else {
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    lblCompleted.setText("No selected settings files to update");
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+            }
+            else {
+                btnSave.setVisible(true);
+                btnSave.setManaged(true);
+                btnCancel.setVisible(true);
+                btnCancel.setManaged(true);
+            }
+
+            // Show Language
+            List<String> langFilesToUpdate = appState.getPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"));
             layoutSectionLang.setVisible(true);
             layoutSectionLang.setManaged(true);
-            // if (getChangedSettingsItemsList().isEmpty() && getChangedLanguageItemsList().isEmpty()) {
-            //     layoutSectionCompleted.setVisible(true);
-            //     layoutSectionCompleted.setManaged(true);
-            //     lblCompleted.setText("No settings or language to save");
-            //     btnOk.setVisible(true);
-            //     btnOk.setManaged(true);
-            // }
-            // else {
-            //     btnSave.setVisible(true);
-            //     btnSave.setManaged(true);
-            //     btnCancel.setVisible(true);
-            //     btnCancel.setManaged(true);
-            // }
+            if (getChangedLanguageItemsList().isEmpty() || langFilesToUpdate == null || langFilesToUpdate.isEmpty()) {
+                if (getChangedLanguageItemsList().isEmpty()) {
+                    if (layoutSectionCompleted.isVisible()) {
+                        lblCompleted.setText(lblCompleted.getText() + "\nNo language to save");
+                    }
+                    else {
+                        lblCompleted.setText("No language to save");
+                    }
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+                else {
+                    if (layoutSectionCompleted.isVisible()) {
+                        lblCompleted.setText(lblCompleted.getText() + "\nNo selected language files to update");
+                    }
+                    else {
+                        lblCompleted.setText("No selected language files to update");
+                    }
+                    layoutSectionCompleted.setVisible(true);
+                    layoutSectionCompleted.setManaged(true);
+                    btnOk.setVisible(true);
+                    btnOk.setManaged(true);
+                }
+            }
+            else {
+                btnSave.setVisible(true);
+                btnSave.setManaged(true);
+                btnCancel.setVisible(true);
+                btnCancel.setManaged(true);
+            }
+
             populateWidgets();
         }
         else if (type == SaveSection.COMPLETED) {
@@ -327,7 +388,49 @@ public class SaveDialogController {
 
         // Section LANGUAGE
 
+        log("Populating section LANGUAGE", 2);
+        List<LanguageItemGroup> changedLangItems = getChangedLanguageItemsList();
+        int langDeleted = (int) changedLangItems.stream().filter(item -> item.getUserData().equals("Deleted")).count();
+        lblLangAffected.setText(Integer.toString(changedLangItems.size()));
+        log("Affected items: " + changedLangItems.size(), 3);
+        lblLangDeleted.setText(Integer.toString(langDeleted));
+        log("Deleted items: " + langDeleted, 3);
+        lblLangChanged.setText(Integer.toString(changedLangItems.size() - langDeleted));
+        log("Changed items: " + (changedLangItems.size() - langDeleted), 3);
 
+        List<String> filesToUpdateLang = getLanguageFilesToUpdateList();
+        layoutSectionLangFiles.getChildren().clear();
+        Label titleLabelLang = new Label("Files to update:");
+        titleLabelLang.setStyle("-fx-text-fill: #ffff00;");
+        titleLabelLang.setMaxWidth(Double.MAX_VALUE);
+        titleLabelLang.setWrapText(true);
+        titleLabelLang.setAlignment(Pos.CENTER);
+        layoutSectionLangFiles.getChildren().add(titleLabelLang);
+
+        if (filesToUpdateLang.isEmpty()) {
+            Label fileLabelLang = new Label("You did not select any files to update!\nPlease select at least one file.");
+            // Align label text to center
+            fileLabelLang.setAlignment(Pos.CENTER);
+            fileLabelLang.setMaxWidth(Double.MAX_VALUE);
+            fileLabelLang.setWrapText(true);
+            fileLabelLang.setStyle("-fx-text-fill: rgb(226, 106, 136); -fx-font-size: 16px;");
+
+            layoutSectionLangFiles.getChildren().add(fileLabelLang);
+            log ("There is no selected language file(s) to update", 3);
+        }
+        else {
+            for (String path : filesToUpdateLang) {
+                Label fileLabelLang = new Label(path);
+                // Align label text to center
+                fileLabelLang.setAlignment(Pos.CENTER);
+                fileLabelLang.setMaxWidth(Double.MAX_VALUE);
+                fileLabelLang.setWrapText(true);
+                fileLabelLang.setStyle("-fx-text-fill: #00ffff;");
+
+                layoutSectionLangFiles.getChildren().add(fileLabelLang);
+                log ("File to update: " + path, 3);
+            }
+        }
 
         log("Finished populating widgets", 1);
     }
@@ -384,13 +487,28 @@ public class SaveDialogController {
         return settingsList;
     }
 
-    private List<ArrayList<String>> getChangedLanguageItemsList() {
+    private List<LanguageItemGroup> getChangedLanguageItemsList() {
         if (appState == null) {
-            return new ArrayList<ArrayList<String>>();
+            return new ArrayList<LanguageItemGroup>();
         }
 
-        // Throw not implemented error
-        throw new RuntimeException("Not implemented");
+        PyDict languageToSave;
+        languageToSave = (PyDict) appState.getPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "langChangedMap"));
+        if (languageToSave == null) {
+            return new ArrayList<LanguageItemGroup>();
+        }
+
+        List<LanguageItemGroup> languageList = new ArrayList<>();
+
+        LanguageItemGroup languageItem;
+        if (languageToSave != null) {
+            for (Map.Entry<String, Object> entry : languageToSave.entrySet()) {
+                languageItem = (LanguageItemGroup) entry.getValue();
+                languageList.add(languageItem);
+            }
+        }
+
+        return languageList;
     }
 
     private void saveData() {
@@ -465,9 +583,11 @@ public class SaveDialogController {
 
             if (strErrors.isEmpty()) {
                 for (String path : settingsFilesToUpdate) {
-                    boolean canBeUpdated = msgBoxInfoQuestion("Save", "Update file", "You are about to update file:\n" + path + "\n\nDo you want to continue?\n\n(This question is asked because you have 'AutoUpdateFiles' checkbox turned off.)");
-                    if (!canBeUpdated) {
-                        continue;
+                    if (appState.getPyDictBooleanValueEXPLICIT("chkAutoUpdateFiles") != true) {
+                        boolean canBeUpdated = msgBoxInfoQuestion("Save", "Update file", "You are about to update file:\n" + path + "\n\nDo you want to continue?\n\n(This question is asked because you have 'AutoUpdateFiles' checkbox turned off.)");
+                        if (!canBeUpdated) {
+                            continue;
+                        }
                     }
 
                     settings.userSettingsFilePath = path;
@@ -494,7 +614,6 @@ public class SaveDialogController {
                             }
                             else {
                                 log("Item: " + item.getKey() + " does not exist", 5);
-                                settings.deleteUserSettingsItem(item.getKey());
                             }
                         }
                         else if (item.getUserData().equals("Changed")) {
@@ -537,15 +656,121 @@ public class SaveDialogController {
         }
 
         // Section LANGUAGE
+        if (workingWith == SaveSection.LANGUAGE || workingWith == SaveSection.ALL) {
+            log("Saving language...", 2);
+            List<LanguageItemGroup> changedLangItems = getChangedLanguageItemsList();
+            Settings settings = new Settings();
+            
+            // Check if all files are valid Language files
+            for (String path : languageFilesToUpdate) {
+                settings.languagesFilePath = path;
+                try {
+                    settings.load(false, true, false);
+                    if (!settings.getLastErrorString().isEmpty()) {
+                        strErrors += "Error in loading Language file.\nFile: " + path + "\nError: " + settings.getLastErrorString() + "\n";
+                        settings.clearErrorString();
+                        log("Error in loading Language file. File: " + path + " Error: " + settings.getLastErrorString(), 3);
+                    }
+                }
+                catch (Exception e) {
+                    log("Error in loading Language file. File: " + path + " Error: " + e.getMessage(), 3);
+                    strErrors += "Error in loading Language file.\nFile: " + path + "\nError: " + e.getMessage() + "\n";
+                }
+            }
 
+            if (strErrors.isEmpty()) {
+                for (String path : languageFilesToUpdate) {
+                    if (appState.getPyDictBooleanValueEXPLICIT("chkAutoUpdateFiles") != true) {
+                        boolean canBeUpdated = msgBoxInfoQuestion("Save", "Update file", "You are about to update file:\n" + path + "\n\nDo you want to continue?\n\n(This question is asked because you have 'AutoUpdateFiles' checkbox turned off.)");
+                        if (!canBeUpdated) {
+                            continue;
+                        }
+                    }
 
+                    settings.languagesFilePath = path;
+                    if (!settings.load(false, true, false)) {
+                        log("Failed to load file: " + path, 3);
+                        continue;
+                    }
+                    else {
+                        log("Loaded file: " + path, 3);
+                    }
 
+                    for (LanguageItemGroup originalItem : changedLangItems) {
+                        LanguageItemGroup item = originalItem.duplicate();
+
+                        // If file is empty add languages to base
+                        if (settings.getAvailableLanguageCodes().size() == 0) {
+                            log("File has no languages in base, adding new languages...", 3);
+                            for (LanguageItem langItem : item.getLanguageItems()) {
+                                settings.addNewLanguageInBase(LanguagesEnum.fromLangCode(langItem.getLanguageCode()));
+                                log("Added language: " + LanguagesEnum.fromLangCode(langItem.getLanguageCode()).getName(), 4);
+                            }
+                        }
+
+                        if (item.getUserData().equals("Deleted")) {
+                            log("Deleting item: " + item.getGroupKey(), 3);
+                            if (settings.deleteLanguageItem(item.getGroupKey())) {
+                                log("Item: " + item.getGroupKey() + " deleted", 4);
+                            }
+                            else {
+                                log("Item: " + item.getGroupKey() + " does not exist", 4);
+                            }
+                        }
+                        else if (item.getUserData().equals("Changed")) {
+                            log("Changing item: " + item.getGroupKey(), 3);
+                            List<String> requiredCodes = settings.getAvailableLanguageCodes();
+                            if (settings.isLanguageItemGroupHasAllRequiredLanguages(item)) {
+                                settings.mergeLanguageItemGroup(item);
+                                log("Item: " + item.getGroupKey() + " changed", 4);
+                            }
+                            else {
+                                log("Item: " + item.getGroupKey() + " does not have all required languages. Required languages:" + requiredCodes.toString(), 4);
+                                log("Item skipped!", 4);
+                            }
+                        }
+                    }
+                    settings.clearErrorString();
+                    try {
+                        if (! settings.save(false, true, false)) {
+                            log("Failed to save file: " + path, 3);
+                            strErrors += "Error in saving Language file.\nFile: " + path + "\nError: " + settings.getLastErrorString() + "\n";
+                        }
+                        else {
+                            log("Saved file: " + path, 3);
+                        }
+                    }
+                    catch (Exception e) {
+                        log("Error in saving Language file. File: " + path + " Error: " + e.getMessage(), 3);
+                        strErrors += "Error in saving Language file.\nFile: " + path + "\nError: " + e.getMessage() + "\n";
+                    }
+                }
+            }
+            log("Finished saving language", 2);
+        }
 
         if (strErrors.isEmpty()) {
             log("Finished saving data, completed without errors", 1);
             resultValue = true;
             setSaveType(SaveSection.COMPLETED);
-            EventSettingsSaved eventSaved = new EventSettingsSaved();
+
+            Boolean sttHasSaved;
+            if (workingWith == SaveSection.SETTINGS || workingWith == SaveSection.ALL) {
+                sttHasSaved = true;
+            }
+            else {
+                sttHasSaved = false;
+            }
+
+            Boolean langHasSaved;
+            if (workingWith == SaveSection.LANGUAGE || workingWith == SaveSection.ALL) {
+                langHasSaved = true;
+            }
+            else {
+                langHasSaved = false;
+            }
+
+            EventSettingsSaved eventSaved = new EventSettingsSaved(sttHasSaved, langHasSaved );
             primaryStage.fireEvent(eventSaved);
         }
         else {
@@ -700,7 +925,24 @@ public class SaveDialogController {
         setSaveType(SaveSection.COMPLETED);
         rollBackRemoveTempDir();
         log("'temp' directory removed", 1);
-        EventSettingsSaved eventSaved = new EventSettingsSaved();
+
+        Boolean sttHasSaved;
+        if (workingWith == SaveSection.SETTINGS || workingWith == SaveSection.ALL) {
+            sttHasSaved = true;
+        }
+        else {
+            sttHasSaved = false;
+        }
+
+        Boolean langHasSaved;
+        if (workingWith == SaveSection.LANGUAGE || workingWith == SaveSection.ALL) {
+            langHasSaved = true;
+        }
+        else {
+            langHasSaved = false;
+        }
+
+        EventSettingsSaved eventSaved = new EventSettingsSaved(sttHasSaved, langHasSaved);
         primaryStage.fireEvent(eventSaved);
 
     }

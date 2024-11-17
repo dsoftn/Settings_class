@@ -1,0 +1,47 @@
+{
+  "data": {
+    "sr-cyr": {
+      "horacije2": {
+        "userData": "",
+        "languageCode": "sr-cyr",
+        "creationDate": "2024.11.17 01:26:30",
+        "value": "nesto",
+        "key": "horacije2"
+      },
+      "horacije": {
+        "userData": "",
+        "languageCode": "sr-cyr",
+        "creationDate": "2024.11.17 00:24:14",
+        "value": "snupi",
+        "key": "horacije"
+      }
+    },
+    "en": {
+      "horacije2": {
+        "userData": "",
+        "languageCode": "en",
+        "creationDate": "2024.11.17 01:26:30",
+        "value": "snupy2",
+        "key": "horacije2"
+      },
+      "horacije": {
+        "userData": "",
+        "languageCode": "en",
+        "creationDate": "2024.11.17 00:24:14",
+        "value": "snupy",
+        "key": "horacije"
+      }
+    }
+  },
+  "available_languages": [
+    [
+      "en",
+      "English"
+    ],
+    [
+      "sr-cyr",
+      "Serbian (Cyrillic)"
+    ]
+  ],
+  "default_language": ""
+}

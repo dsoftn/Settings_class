@@ -330,7 +330,7 @@
                   <CheckBox fx:id="chkSaveState" mnemonicParsing="false" onAction="#onChkSaveStateAction" selected="true" text="Save state on exit" />
                   <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="0.0" HBox.hgrow="ALWAYS" />
                   <Button fx:id="btnSaveStt" mnemonicParsing="false" onAction="#onBtnSaveSttClick" text="Save Settings" />
-                  <Button fx:id="btnSaveLang" mnemonicParsing="false" text="Save Languages" />
+                  <Button fx:id="btnSaveLang" mnemonicParsing="false" onAction="#onBtnSaveLangClick" text="Save Languages" />
                   <Button fx:id="btnSaveAll" mnemonicParsing="false" text="Save All" />
                </children>
                <VBox.margin>
