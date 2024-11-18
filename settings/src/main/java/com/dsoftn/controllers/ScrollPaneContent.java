@@ -163,11 +163,51 @@ public class ScrollPaneContent extends VBox {
             if (elementList.size() == 0) {
                 addFooter();
             }
+
+            for (Node node : elementList) {
+                if (node instanceof ScrollPaneSection) {
+                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                    scrollPaneSection.setLanguageItemGroup(null);
+                }
+            }
+
             updateAlreadyAddedForAllElements();
             return;
         }
 
         this.group = languageItemGroup;
+
+        // Check if all required languages are already added
+        boolean allLanguagesAdded = true;
+        for (LanguageItem languageItem : languageItemGroup.getLanguageItems()) {
+            boolean languageAdded = false;
+            for (Node node : elementList) {
+                if (node instanceof ScrollPaneSection) {
+                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                    if (scrollPaneSection.getLanguageCode().equals(languageItem.getLanguageCode())) {
+                        languageAdded = true;
+                        break;
+                    }
+                }
+            }
+            if (!languageAdded) {
+                allLanguagesAdded = false;
+                break;
+            }
+        }
+
+        if (allLanguagesAdded) {
+            for (Node node : elementList) {
+                if (node instanceof ScrollPaneSection) {
+                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                    scrollPaneSection.setLanguageItemGroup(languageItemGroup);
+                }
+            }
+            
+            updateAlreadyAddedForAllElements();
+            return;
+        }
+        
 
         elementList.clear();
         addFooter();

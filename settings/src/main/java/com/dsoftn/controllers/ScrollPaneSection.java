@@ -66,6 +66,7 @@ public class ScrollPaneSection extends VBox {
     private boolean isChanged = false;
     private LanguageItemGroup languageItemGroup = null;
     private String originalValue = "";
+    private String translateFromValue = "";
 
     public ScrollPaneSection(String languageCode, String value) {
         this.langEnum = LanguagesEnum.fromLangCode(languageCode);
@@ -155,6 +156,7 @@ public class ScrollPaneSection extends VBox {
         String currentTranslateLanguage = (String) map.get("currentTranslateLanguage");
         if (currentTranslateLanguage != null) {
             cmbTranslateFrom.setValue(currentTranslateLanguage);
+            translateFromValue = currentTranslateLanguage;
         }
 
         // Original Value
@@ -254,14 +256,24 @@ public class ScrollPaneSection extends VBox {
 
     public void setLanguageItemGroup(LanguageItemGroup languageItemGroup) {
         this.languageItemGroup = languageItemGroup;
+
+        if (languageItemGroup == null) {
+            originalValue = txtValue.getText();
+            showMessage("New item");
+            return;
+        }
         LanguageItem languageItem = languageItemGroup.getLanguageItemByLanguageCode(langEnum.getLangCode());
 
         if (languageItem != null) {
+            originalValue = languageItem.getValue();
             txtValue.setText(languageItem.getValue());
+            hideMessage();
         }
-
-        hideMessage();
-        originalValue = languageItem.getValue();
+        else {
+            originalValue = "";
+            txtValue.setText(originalValue);
+            showMessage("Language not in item");
+        }
     }
 
     // Private Methods
@@ -300,7 +312,7 @@ public class ScrollPaneSection extends VBox {
         originalValue = value;
         populateLanguageComboBox();
 
-        // Set image fro close button
+        // Set image for close button
         Image img = new Image(getClass().getResourceAsStream("/images/close.png"));
         ImageView imgView = new ImageView(img);
         imgView.setFitWidth(23);
@@ -318,11 +330,21 @@ public class ScrollPaneSection extends VBox {
             });
         });
 
+        // Set listener for cmbTranslateFrom change
+        cmbTranslateFrom.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection == null) {
+                translateFromValue = "";
+            }
+            else {
+                translateFromValue = newSelection;
+            }
+        });
+
         hideMessage();
     }
 
     private void populateLanguageComboBox() {
-        String currentItem = cmbTranslateFrom.getValue();
+        String transV = translateFromValue;
         cmbTranslateFrom.getItems().clear();
         
         for (String langCode : alreadyAddedLanguages) {
@@ -332,8 +354,10 @@ public class ScrollPaneSection extends VBox {
             }
         }        
 
-        if (currentItem != null && !currentItem.isEmpty() && cmbTranslateFrom.getItems().contains(currentItem)) {
-            cmbTranslateFrom.setValue(currentItem);
+        translateFromValue = transV;
+        if (translateFromValue != null && !translateFromValue.isEmpty() && cmbTranslateFrom.getItems().contains(translateFromValue)) {
+            cmbTranslateFrom.getSelectionModel().select(translateFromValue);
+            cmbTranslateFrom.setValue(translateFromValue);
         }
     }
 

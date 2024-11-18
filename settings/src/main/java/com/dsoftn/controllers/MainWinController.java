@@ -1948,6 +1948,10 @@ public class MainWinController {
                     }
                 }
             }
+            else {
+                populateLangItem(null);
+            }
+
             updateLangWidgetsAppearance();
         });
     }
@@ -5905,6 +5909,14 @@ public class MainWinController {
     }
 
     private void populateLangItem(String itemName) {
+        if (itemName == null) {
+            // Add ScrollPane content
+            scrollPaneContent.setLanguageItemGroup(null);
+
+            updateLangWidgetsAppearance();
+            return;
+        }
+
         LanguageItemGroup item;
         if (langChangedList.contains(itemName)) {
             item = (LanguageItemGroup) langChangedMap.get(itemName);
