@@ -2201,6 +2201,16 @@ public class MainWinController {
     }
 
     private void setupMenuLstStt() {
+        MenuItem menuLoadFromFile = new MenuItem("Load from file");
+        menuLoadFromFile.setOnAction(event1 -> {
+            selectFileToLoadFrom();
+        });
+
+        MenuItem menuUnload = new MenuItem("UnLoad data");
+        menuUnload.setOnAction(event1 -> {
+            clearFileToLoadFrom();
+        });
+
         MenuItem menuSortByKey = new MenuItem("Sort by Key");
         menuSortByKey.setOnAction(event1 -> {
             lstSttSortKey = "Key";
@@ -2247,6 +2257,8 @@ public class MainWinController {
 
             // Delete menu items
             if (sttVisibleList.equals("Changed")) {
+                menuLoadFromFile.setDisable(true);
+                menuUnload.setDisable(true);
                 String listItem = lstStt.getSelectionModel().getSelectedItem();
                 if (listItem != null) {
                     if (lstStt.getItems().size() > 0) {
@@ -2271,6 +2283,8 @@ public class MainWinController {
                 }
             }
             else {
+                menuLoadFromFile.setDisable(false);
+                menuUnload.setDisable(false);
                 menuDeleteItem.setDisable(true);
                 menuDeleteAllItems.setDisable(true);
             }
@@ -2280,6 +2294,9 @@ public class MainWinController {
             log("List 'lstStt' context menu closed.");
         });
 
+        contextMenuLstStt.getItems().add(menuLoadFromFile);
+        contextMenuLstStt.getItems().add(menuUnload);
+        contextMenuLstStt.getItems().add(new SeparatorMenuItem());
         contextMenuLstStt.getItems().add(menuSortByKey);
         contextMenuLstStt.getItems().add(menuSortByCreated);
         contextMenuLstStt.getItems().add(new SeparatorMenuItem());
@@ -2288,6 +2305,16 @@ public class MainWinController {
     }
 
     private void setupMenuLstLang() {
+        MenuItem menuLoadFromFile = new MenuItem("Load from file");
+        menuLoadFromFile.setOnAction(event1 -> {
+            selectFileToLoadFrom();
+        });
+
+        MenuItem menuUnload = new MenuItem("UnLoad data");
+        menuUnload.setOnAction(event1 -> {
+            clearFileToLoadFrom();
+        });
+
         MenuItem menuSortByKey = new MenuItem("Sort by Key");
         menuSortByKey.setOnAction(event1 -> {
             lstLangSortKey = "Key";
@@ -2334,6 +2361,8 @@ public class MainWinController {
 
             // Delete menu items
             if (langVisibleList.equals("Changed")) {
+                menuLoadFromFile.setDisable(true);
+                menuUnload.setDisable(true);
                 String listItem = lstLang.getSelectionModel().getSelectedItem();
                 if (listItem != null) {
                     if (lstLang.getItems().size() > 0) {
@@ -2358,6 +2387,8 @@ public class MainWinController {
                 }
             }
             else {
+                menuLoadFromFile.setDisable(false);
+                menuUnload.setDisable(false);
                 menuDeleteItem.setDisable(true);
                 menuDeleteAllItems.setDisable(true);
             }
@@ -2367,6 +2398,9 @@ public class MainWinController {
             log("List 'lstLang' context menu closed.");
         });
 
+        contextMenuLstLang.getItems().add(menuLoadFromFile);
+        contextMenuLstLang.getItems().add(menuUnload);
+        contextMenuLstLang.getItems().add(new SeparatorMenuItem());
         contextMenuLstLang.getItems().add(menuSortByKey);
         contextMenuLstLang.getItems().add(menuSortByCreated);
         contextMenuLstLang.getItems().add(new SeparatorMenuItem());
@@ -3096,6 +3130,9 @@ public class MainWinController {
             log("List of settings cleared");
             sttLoadedMap.clear();
             log("sttLoadedMap cleared");
+            txtSttSearch.setText("");
+            changeSttVisibleList(sttVisibleList);
+            log("Clear filter and update list");
             logIndentMinus();
 
             if (contextMenuLblSource.isShowing()) {
@@ -3115,6 +3152,9 @@ public class MainWinController {
             log("List of languages cleared");
             langLoadedMap.clear();
             log("langLoadedMap cleared");
+            txtLangSearch.setText("");
+            changeLangVisibleList(langVisibleList);
+            log("Clear filter and update list");
             logIndentMinus();
 
             if (contextMenuLblSource.isShowing()) {
