@@ -446,7 +446,6 @@ public class MainWinController {
         Platform.runLater(() -> {
             // Set primaryStage
             this.primaryStage = (Stage) layoutAnchorPaneMain.getScene().getWindow();
-            mountNodeToScrollPane();
 
             // Connect custom events
             primaryStage.addEventHandler(EventWriteLog.EVENT_WRITE_LOG_TYPE, event -> {
@@ -1234,6 +1233,7 @@ public class MainWinController {
         langDict.setPyDictValue("SplitPaneDividerPosition", null); // SplitPane divider position
         langDict.setPyDictValue("lstLangSortKey", null); // Sort key for lstLang
         
+        langDict.setPyDictValue("currentTxtLangKey", null); // Current key value in txtLangKey
         langDict.setPyDictValue("scrollPaneContent", null); // Current item in process of changing
 
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
@@ -1329,6 +1329,7 @@ public class MainWinController {
         appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "lstLangSortKey"), lstLangSortKey);
 
         // Current item in changing process
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE.toString(), "currentTxtLangKey"), txtLangKey.getText());
         if (scrollPaneContent != null) {
             appState.setPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "scrollPaneContent"), scrollPaneContent.toMap());
             log("Saving current Language item in changing process: " + txtLangKey.getText());
@@ -1345,6 +1346,7 @@ public class MainWinController {
             appState = getAppStateEmptyDict();
             appState.setPyDictValue("chkSaveState", true);
             chkSaveState.setSelected(true);
+            mountNodeToScrollPane();
             return;
         }
 
@@ -1355,6 +1357,7 @@ public class MainWinController {
             appState = getAppStateEmptyDict();
             appState.setPyDictValue("chkSaveState", false);
             chkSaveState.setSelected(false);
+            mountNodeToScrollPane();
             return;
         }
         else if (chkSaveStateValue == null) {
@@ -1494,6 +1497,7 @@ public class MainWinController {
         if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths")) != null) {
             updateLangFilesPaths = appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"));
         }
+        mountNodeToScrollPane();
 
         // langLoadedMap
         if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "langLoadedMap")) != null) {
@@ -1560,6 +1564,9 @@ public class MainWinController {
         }
 
         // Current item in changing process
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "currentTxtLangKey")) != null) {
+            txtLangKey.setText(appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "currentTxtLangKey")).toString());
+        }
         if (appState.getPyDictValue(concatKeys(Section.LANGUAGE.toString(), "scrollPaneContent")) != null) {
             if (scrollPaneContent != null) {
                 log(LOG_INDENT + "Restoring current Language item.");
@@ -2670,6 +2677,7 @@ public class MainWinController {
                     updateLangFilesPaths.add(selectedFile.getAbsolutePath());
                     log("File added to list of language files to be updated: " + selectedFile.getAbsolutePath());
                     populateList(lstFiles, updateLangFilesPaths);
+                    scrollPaneContent.setFileAffected(updateLangFilesPaths);
                     showMessage(msgInfoSuccess);
                 }
             }
@@ -2717,6 +2725,8 @@ public class MainWinController {
                     updateLangFilesPaths.remove(selectedItem);
                     log("File: " + selectedItem);
                 }
+
+                scrollPaneContent.setFileAffected(updateLangFilesPaths);
 
                 logIndentMinus();
                 if (selectedItems.size() == 1) {
@@ -2783,6 +2793,7 @@ public class MainWinController {
                 updateLangFilesPaths.add(selectedFile.getAbsolutePath());
                 log("File created and added to list of language files to be updated: " + selectedFile.getAbsolutePath());
                 populateList(lstFiles, updateLangFilesPaths);
+                scrollPaneContent.setFileAffected(updateLangFilesPaths);
                 showMessage(msgInfoSuccess);
             }
         }

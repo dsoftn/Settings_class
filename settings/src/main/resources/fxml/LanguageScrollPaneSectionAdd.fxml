@@ -15,7 +15,10 @@
       <HBox fx:id="hbxMore" alignment="CENTER">
          <children>
             <Region HBox.hgrow="SOMETIMES" />
-            <Button fx:id="btnMore" mnemonicParsing="false" onAction="#onBtnMoreClick" text="More languages" />
+            <Button fx:id="btnMore" mnemonicParsing="false" onAction="#onBtnMoreClick" text="More languages">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin></Button>
             <Region maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
             <Label fx:id="lblDots" styleClass="label-normal" text="...">
                <padding>

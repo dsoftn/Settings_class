@@ -234,6 +234,17 @@ public class ScrollPaneContent extends VBox {
         return result;
     }
 
+    public void setFileAffected(List<String> fileAffectedList) {
+        this.fileAffected = fileAffectedList;
+
+        for (Node node : elementList) {
+            if (node instanceof ScrollPanelSectionAdd) {
+                ScrollPanelSectionAdd scrollPaneSectionAdd = (ScrollPanelSectionAdd) node;
+                scrollPaneSectionAdd.setAffectedFiles(fileAffectedList);
+            }
+        }
+    }
+
     // Serialization / Deserialization
 
     public Map<String, Object> toMap() {
@@ -383,6 +394,7 @@ public class ScrollPaneContent extends VBox {
 
     private void addFooter() {
         ScrollPanelSectionAdd scrollPanelSectionAdd = new ScrollPanelSectionAdd(fileAffected, getAlreadyAddedLanguageCodes());
+        scrollPanelSectionAdd.setAffectedFiles(fileAffected);
         elementList.add(scrollPanelSectionAdd);
     }
 

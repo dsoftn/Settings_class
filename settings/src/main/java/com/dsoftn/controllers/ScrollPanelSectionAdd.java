@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -11,7 +12,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
+import javafx.geometry.Insets;
 
 import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.events.EventEditLanguageAdded;
@@ -83,7 +84,7 @@ public class ScrollPanelSectionAdd extends VBox{
         result.put("fileAffected", fileAffected);
 
         // Recommended Languages
-        result.put("recommendedLanguages", recommendedLanguages);
+        // result.put("recommendedLanguages", recommendedLanguages);
 
         // Already Added Languages
         result.put("alreadyAddedLanguages", alreadyAddedLanguages);
@@ -105,6 +106,7 @@ public class ScrollPanelSectionAdd extends VBox{
             List<String> fileAff = (List<String>) map.get("fileAffected");
             setAffectedFiles(fileAff);
         }
+        System.out.println("After MAP recommended languages: " + recommendedLanguages);
 
         // Recommended Languages
         // Updated by setAffectedFiles method
@@ -136,12 +138,16 @@ public class ScrollPanelSectionAdd extends VBox{
 
         this.alreadyAddedLanguages = alreadyAddedLanguages;
         updateLanguageSelectionWidgets(null);
+        updateRecommendedLanguages();
+        System.out.println("Already added languages: " + alreadyAddedLanguages);
     }
 
     public void setAffectedFiles(List<String> fileAffected) {
         if (fileAffected == null) {
             fileAffected = new ArrayList<>();
         }
+
+        System.out.println("File affected: " + fileAffected);
 
         this.fileAffected = fileAffected;
         recommendedLanguages = getListOfRequiredLanguageNames(fileAffected);
@@ -213,6 +219,7 @@ public class ScrollPanelSectionAdd extends VBox{
         });
         
         Platform.runLater(() -> {
+            updateRecommendedLanguages();
             this.layout();
         });
     }
@@ -278,6 +285,8 @@ public class ScrollPanelSectionAdd extends VBox{
     }
 
     private void updateRecommendedLanguages() {
+        System.out.println("Updating recommended languages. Affected files: " + fileAffected);
+
         // Remove custom buttons
         for (int i = hbxMore.getChildren().size() - 1; i >= 0 ; i--) {
             if (hbxMore.getChildren().get(i) instanceof Button && hbxMore.getChildren().get(i).getId() != null && !hbxMore.getChildren().get(i).getId().equals("Protected")) {
@@ -289,7 +298,12 @@ public class ScrollPanelSectionAdd extends VBox{
         lblDots.setManaged(false);
 
         int count = 0;
+        System.out.println("Recommended languages: " + recommendedLanguages);
         for (String lang : recommendedLanguages) {
+            if (alreadyAddedLanguages.contains(LanguagesEnum.fromName(lang).getLangCode())) {
+                continue;
+            }
+
             if (count == MAX_RECOMMENDED_LANGUAGES) {
                 lblDots.setVisible(true);
                 lblDots.setManaged(true);
@@ -297,11 +311,13 @@ public class ScrollPanelSectionAdd extends VBox{
             }
             else {
                 Button btn = createButton(lang);
-                btn.setText(lang);
+                btn.setText("Add: " + lang);
+                btn.getStyleClass().add("button-recommended-lang");
                 btn.setOnAction(event -> {
                     addLanguage(lang);
                 });
-                hbxMore.getChildren().add(hbxMore.getChildren().size() - 3, btn);
+                hbxMore.getChildren().add(hbxMore.getChildren().size() - 2, btn);
+                HBox.setMargin(btn, new Insets(0, 0, 0, 5));
             }
             count++;
         }

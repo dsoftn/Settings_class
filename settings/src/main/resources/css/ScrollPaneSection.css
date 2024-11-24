@@ -95,6 +95,33 @@
     -fx-border-color: rgb(9, 196, 186);
 }
 
+.button-recommended-lang {
+    -fx-background-color: rgba(16, 177, 110, 0.411);
+    -fx-text-fill: rgb(198, 230, 179);
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-border-width: 1;
+    -fx-border-color: rgb(109, 109, 108);
+    -fx-border-style: solid;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.button-recommended-lang:hover {
+    -fx-background-color: rgb(9, 88, 55);
+    -fx-text-fill: rgb(234, 238, 2);
+    -fx-border-color: rgb(233, 233, 170);
+}
+
+.button-recommended-lang:disabled {
+    -fx-text-fill: rgb(207, 205, 205);
+}
+
+.button-recommended-lang:pressed {
+    -fx-background-color: rgb(3, 53, 32);
+}
+
+
 /* TEXT AREA WIDGET ----------------------------------------------------------------------------- */
 .text-area {
     -fx-background-color: rgba(6, 66, 6, 0.932);
