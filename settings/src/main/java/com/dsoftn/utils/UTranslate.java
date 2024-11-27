@@ -17,6 +17,9 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.Socket;
 
+import com.dsoftn.utils.UFile;
+
+
 public class UTranslate {
     public static final String TRANSLATOR_SERVER_HOST = "127.0.0.1";
     public static final int TRANSLATOR_SERVER_PORT = 29975;
@@ -338,7 +341,17 @@ public class UTranslate {
 
     }
 
+    // Transalate Service
+    public enum TranslateServiceEnum {
+        TRANSLATOR_SERVER,
+        GOOGLE_API;
+    }
+
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
+        return translate(text, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER);
+    }
+
+    public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
         if (text == null || fromLang == null || toLang == null) {
             return null;
         }
@@ -360,7 +373,30 @@ public class UTranslate {
             return text;
         }
 
-        return UTranslate.translateUsingTranslatorServer(text, fromLang, toLang);
+        // Call translate service
+        if (service.equals(TranslateServiceEnum.TRANSLATOR_SERVER)) {
+            String translatedText = UTranslate.translateUsingTranslatorServer(text, fromLang, toLang);
+            if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
+                return convertCyrillicToLatin(translatedText);
+            } else {
+                return translatedText;
+            }
+        }
+        else if (service.equals(TranslateServiceEnum.GOOGLE_API)) {
+            String translatedText = UTranslate.translateUsingGoogleAPI(text, fromLang, toLang);
+            if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
+                return convertCyrillicToLatin(translatedText);
+            } else {
+                return translatedText;
+            }
+        }
+
+        return null;
+    }
+
+    public static String translateUsingGoogleAPI(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
+        return null;
+    
     }
 
     public static String translateUsingTranslatorServer(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
@@ -427,11 +463,7 @@ public class UTranslate {
 
             String translatedText = response.get("translated_text");
             
-            if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
-                return UTranslate.convertCyrillicToLatin(translatedText);
-            } else {
-                return translatedText;
-            }
+            return translatedText;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -464,24 +496,15 @@ public class UTranslate {
     }
 
     public static boolean startTranslatorServer() {
-        String filePath = System.getProperty("user.dir") + "\\translator.exe";
-        ProcessBuilder processBuilder = new ProcessBuilder(filePath, "-server");
-
-        // ProcessBuilder processBuilder = new ProcessBuilder("python", "translator.py", "-server");
-
-        processBuilder.environment().put("PYTHONIOENCODING", "utf-8");
-
-
-        processBuilder.redirectErrorStream(true);
-
-        try {
-            Process process = processBuilder.start();
-            return true;
-        } catch (IOException e) {
-            System.err.println("Error starting translator server: " + e.getMessage());
-            return false;
+        boolean result;
+        result = UFile.startFile("translator.py", "-server");
+        if (!result) {
+            result = UFile.startFile("translator.exe", "-server");
         }
+
+        return result;
     }
+
 
     public static String convertCyrillicToLatin(String text) {
         if (text == null) {
