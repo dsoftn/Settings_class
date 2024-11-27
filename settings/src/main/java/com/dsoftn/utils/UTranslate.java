@@ -5,24 +5,38 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-
-import com.dsoftn.utils.UFile;
+import java.net.URLEncoder;
 
 
 public class UTranslate {
     public static final String TRANSLATOR_SERVER_HOST = "127.0.0.1";
     public static final int TRANSLATOR_SERVER_PORT = 29975;
+
+    private static final String API_KEY = "YOUR_API_KEY";
+    private static final String TRANSLATE_URL = "https://translation.googleapis.com/language/translate/v2";
 
     private static final Map<Character, String> cyrillicToLatinMap = new HashMap<>();
     static {
@@ -343,12 +357,15 @@ public class UTranslate {
 
     // Transalate Service
     public enum TranslateServiceEnum {
-        TRANSLATOR_SERVER,
-        GOOGLE_API;
+        TRANSLATOR_SERVER_FREE,
+        GOOGLE_API_WITH_KEY,
+        GOOGLE_PUBLIC_HTTP_FREE;
     }
 
+    // STATIC METHODS
+
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        return translate(text, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER);
+        return translate(text, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
     }
 
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
@@ -374,7 +391,7 @@ public class UTranslate {
         }
 
         // Call translate service
-        if (service.equals(TranslateServiceEnum.TRANSLATOR_SERVER)) {
+        if (service.equals(TranslateServiceEnum.TRANSLATOR_SERVER_FREE)) {
             String translatedText = UTranslate.translateUsingTranslatorServer(text, fromLang, toLang);
             if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
                 return convertCyrillicToLatin(translatedText);
@@ -382,8 +399,16 @@ public class UTranslate {
                 return translatedText;
             }
         }
-        else if (service.equals(TranslateServiceEnum.GOOGLE_API)) {
+        else if (service.equals(TranslateServiceEnum.GOOGLE_API_WITH_KEY)) {
             String translatedText = UTranslate.translateUsingGoogleAPI(text, fromLang, toLang);
+            if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
+                return convertCyrillicToLatin(translatedText);
+            } else {
+                return translatedText;
+            }
+        }
+        else if (service.equals(TranslateServiceEnum.GOOGLE_PUBLIC_HTTP_FREE)) {
+            String translatedText = UTranslate.translateUsingGooglePublicHTTP(text, fromLang, toLang);
             if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
                 return convertCyrillicToLatin(translatedText);
             } else {
@@ -394,9 +419,85 @@ public class UTranslate {
         return null;
     }
 
+    public static String translateUsingGooglePublicHTTP(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
+        // LIMITAIONS:
+        // Up to 5000 characters per request
+        // Up to 100 requests per minute (recommended: 60)
+
+        OkHttpClient client = new OkHttpClient();
+
+        // Encode the query parameters
+        String query;
+        try {
+            query = URLEncoder.encode(text, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            return null;
+        }
+
+        // Build the URL
+        String url = String.format("https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s", 
+                                fromLang.getGoogleCode(), toLang.getGoogleCode(), query);
+
+        // Build the request
+        Request request = new Request.Builder()
+                .url(url)
+                .header("User-Agent", "Mozilla/5.0")
+                .build();
+
+
+        // Execute the request and get the response
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new Exception("Unexpected code " + response);
+            }
+
+            // Parse the response body
+            String responseBody = response.body().string();
+
+            // Extract the translated text
+            JSONArray jsonArray = new JSONArray(responseBody);
+            String translatedText = jsonArray.getJSONArray(0).getJSONArray(0).getString(0);
+
+            return translatedText;
+        }
+        catch (IOException e) {
+            return null;
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
     public static String translateUsingGoogleAPI(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        return null;
-    
+        OkHttpClient client = new OkHttpClient();
+
+        JSONObject jsonRequest = new JSONObject();
+        jsonRequest.put("q", text);
+        jsonRequest.put("target", toLang.getGoogleCode());
+
+        RequestBody body = RequestBody.create(
+                jsonRequest.toString(),
+                MediaType.parse("application/json; charset=utf-8")
+        );
+
+        Request request = new Request.Builder()
+                .url(TRANSLATE_URL + "?key=" + API_KEY)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            return jsonResponse.getJSONObject("data").getJSONArray("translations")
+                    .getJSONObject(0).getString("translatedText");
+        }
+        catch (IOException e) {
+            return null;
+        }
     }
 
     public static String translateUsingTranslatorServer(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
@@ -504,7 +605,6 @@ public class UTranslate {
 
         return result;
     }
-
 
     public static String convertCyrillicToLatin(String text) {
         if (text == null) {

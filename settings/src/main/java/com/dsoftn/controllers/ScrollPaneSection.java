@@ -393,6 +393,10 @@ public class ScrollPaneSection extends VBox {
 
     @FXML
     public void onBtnTranslateClick() {
+        translateTextValue();
+    }
+
+    private void translateTextValue() {
         if (cmbTranslateFrom.getValue() == null) {
             showMessage("Select language to translate from");
             return;
