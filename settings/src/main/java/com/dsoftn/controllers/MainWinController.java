@@ -2534,15 +2534,21 @@ public class MainWinController {
         // Animation
         Timeline timeline = new Timeline();
 
-        KeyFrame keyFrame = new KeyFrame(
+        KeyFrame keyFramePrefHeight = new KeyFrame(
             Duration.millis(FILE_LIST_PANE_ANIMATION_DURATION_MS),
             new KeyValue(layoutHBoxFiles.prefHeightProperty(), 0)
         );
+        KeyFrame keyFrameMinHeight = new KeyFrame(
+            Duration.millis(FILE_LIST_PANE_ANIMATION_DURATION_MS),
+            new KeyValue(layoutHBoxFiles.minHeightProperty(), 0)
+        );
 
-        timeline.getKeyFrames().add(keyFrame);
+        timeline.getKeyFrames().add(keyFramePrefHeight);
+        timeline.getKeyFrames().add(keyFrameMinHeight);
 
         timeline.setOnFinished(event -> {
             lstFiles.setVisible(false);
+            layoutHBoxFiles.setMinHeight(0);
         });
 
         timeline.play();
@@ -2554,12 +2560,17 @@ public class MainWinController {
         // Animation
         Timeline timeline = new Timeline();
 
-        KeyFrame keyFrame = new KeyFrame(
+        KeyFrame keyFramePrefHeight = new KeyFrame(
             Duration.millis(FILE_LIST_PANE_ANIMATION_DURATION_MS),
             new KeyValue(layoutHBoxFiles.prefHeightProperty(), FILE_LIST_PANE_HEIGHT)
         );
+        KeyFrame keyFrameMinHeight = new KeyFrame(
+            Duration.millis(FILE_LIST_PANE_ANIMATION_DURATION_MS),
+            new KeyValue(layoutHBoxFiles.minHeightProperty(), FILE_LIST_PANE_HEIGHT)
+        );
 
-        timeline.getKeyFrames().add(keyFrame);
+        timeline.getKeyFrames().add(keyFramePrefHeight);
+        timeline.getKeyFrames().add(keyFrameMinHeight);
 
         // Set visibility after animation is complete
         timeline.setOnFinished(event -> {
@@ -2567,6 +2578,7 @@ public class MainWinController {
             btnAddFile.setVisible(true);
             btnRemoveFile.setVisible(true);
             btnCreateNew.setVisible(true);
+            layoutHBoxFiles.setMinHeight(FILE_LIST_PANE_HEIGHT);
         });
 
         lstFiles.setVisible(true);
@@ -2691,9 +2703,6 @@ public class MainWinController {
 
     @FXML
     private void onBtnRemoveFile() {
-        VBox node = new VBox();
-        node.getChildren().add(new Label("Are you sure you want to remove the selected files?"));
-        scrollPaneContent.getChildren().add(node);
         log("Started FileDialog for removing file that should be updated...");
         logIndentPlus();
 
