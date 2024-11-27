@@ -87,9 +87,7 @@ import com.dsoftn.controllers.SaveDialogController.SaveSection;
 import com.dsoftn.events.EventWriteLog;
 import com.dsoftn.events.EventSettingsSaved;
 import com.dsoftn.events.EventEditLanguageContentChanged;
-import com.dsoftn.utils.UTranslate;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
-import com.dsoftn.controllers.ScrollPaneContent;
 
 
 public class MainWinController {
@@ -1092,10 +1090,6 @@ public class MainWinController {
 
     private void saveAppState() {
         saveAppState(null, true);
-    }
-
-    private void saveAppState(String filePath) {
-        saveAppState(filePath, false);
     }
 
     private void saveAppState(String filePath, boolean silent) {

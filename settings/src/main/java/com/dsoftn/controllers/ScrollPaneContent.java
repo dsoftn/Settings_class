@@ -1,6 +1,5 @@
 package com.dsoftn.controllers;
 
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
@@ -12,14 +11,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Optional;
 
-import com.dsoftn.utils.PyDict;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
 import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.Settings.LanguageItem;
-import com.dsoftn.controllers.ScrollPaneSection;
-import com.dsoftn.controllers.ScrollPanelSectionAdd;
 import com.dsoftn.events.EventEditLanguageAdded;
 import com.dsoftn.events.EventEditLanguageRemoved;
 import com.dsoftn.events.EventEditLanguageChanged;

@@ -409,12 +409,6 @@ public class LanguageItemGroup {
 
     // Private methods
 
-    private void setupCreationDate(List<LanguageItem> langItems) {
-        for (LanguageItem item : langItems) {
-            setupCreationDate(item);
-        }
-    }
-
     private void setupCreationDate(LanguageItem item) {
         if (item.getCreationDateForJson() != null && !item.getCreationDateForJson().isEmpty()) {
             this.creationDate = item.getCreationDateForJson();

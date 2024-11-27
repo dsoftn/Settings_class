@@ -60,7 +60,7 @@ public class UFile {
         processBuilder.redirectErrorStream(true);
 
         try {
-            Process process = processBuilder.start();
+            processBuilder.start();
             return true;
         } catch (IOException e) {
             return false;

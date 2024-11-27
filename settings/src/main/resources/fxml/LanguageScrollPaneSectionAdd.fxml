@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox stylesheets="@../css/ScrollPaneSection.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+<VBox stylesheets="@../css/ScrollPaneSection.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Region maxHeight="20.0" minHeight="20.0" prefHeight="20.0" />
       <HBox fx:id="hbxMore" alignment="CENTER">

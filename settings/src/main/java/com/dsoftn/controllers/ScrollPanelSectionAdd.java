@@ -4,17 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.geometry.Insets;
 
-import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.events.EventEditLanguageAdded;
 
 import javafx.application.Platform;
@@ -25,7 +21,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
 
-import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.utils.UTranslate.LanguagesEnum;
 import com.dsoftn.Settings.Settings;
 
