@@ -28,3 +28,5 @@ Thumbs.db
 # Translator Server Executable
 translator.exe
 translator.py
+translator.bat
+

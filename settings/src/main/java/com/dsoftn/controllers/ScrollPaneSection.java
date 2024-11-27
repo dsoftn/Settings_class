@@ -375,7 +375,7 @@ public class ScrollPaneSection extends VBox {
 
         btnYes.setId("close");
         btnNo.setId("close");
-        showMessage("Remove this language ?", MessageType.NORMAL);
+        showMessage("Remove lang ?", MessageType.NORMAL);
         showYesNoButtons();
     }
 
@@ -398,7 +398,7 @@ public class ScrollPaneSection extends VBox {
             return;
         }
 
-        log("Translating to " + cmbTranslateFrom.getValue() + " started...");
+        log("Translating from " + cmbTranslateFrom.getValue() + " to " + langEnum.getName() + " started...");
 
         // Check if translator.exe is in project working directory
         File translatorEXE = new File("translator.exe");
@@ -407,45 +407,6 @@ public class ScrollPaneSection extends VBox {
             log("Translator not found", 1);
             return;
         }
-
-        // Check if Translator Server is running
-        if (!UTranslate.isTranslatorServerRunning()) {
-            showMessage("Starting Translator Server...");
-            log("Translator Server not running. Starting Translator Server...", 1);
-            
-            boolean serverStarted = UTranslate.startTranslatorServer();
-            if (!serverStarted) {
-                showMessage("Can't start Translator Server", MessageType.ERROR);
-                log("Can't start Translator Server", 1);
-                return;
-            }
-                
-            // Attempt to connect to Translator Server 10 times with 2 seconds delay
-            for (int i = 0; i < 10; i++) {
-                log("Attempting to connect to Translator Server...(" + (i + 1) + "/10)", 2);
-                if (UTranslate.isTranslatorServerRunning()) {
-                    log("Connected to Translator Server", 2);
-                    break;
-                }
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    log("InterruptedException: " + e.getMessage() , 2);
-                }
-            }
-            if (!UTranslate.isTranslatorServerRunning()) {
-                showMessage("Can't connect to Translator Server", MessageType.ERROR);
-                log("Can't connect to Translator Server", 2);
-                return;
-            }
-            else {
-                log("Connected to Translator Server", 2);
-            }
-        }
-
-        showMessage("Translating...", MessageType.WORKING);
-        log("Translating...", 1);
 
         // Get text to translate
         Parent parent = this.getParent();
@@ -472,35 +433,129 @@ public class ScrollPaneSection extends VBox {
             log("No text to translate", 2);
             return;
         }
-        
-        // Translate
-        Task<String> translationTask = new Task<>() {
-            @Override
-            protected String call() throws Exception {
-                return UTranslate.translate(text, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
-            }
-        };
 
-        translationTask.setOnSucceeded(event -> {
-            String response = translationTask.getValue();
-            if (response == null) {
+        // Check if Translator Server is running
+        if (!UTranslate.isTranslatorServerRunning()) {
+            showMessage("Starting Translator Server...");
+            log("Translator Server not running. Starting Translator Server...", 1);
+
+            // Starting translator server
+            Task<String> translatorStartTask = new Task<>() {
+                @Override
+                protected String call() throws Exception {
+                    boolean serverStarted = UTranslate.startTranslatorServer();
+                    if (!serverStarted) {
+                        showMessage("Can't start Translator Server", MessageType.ERROR);
+                        log("Can't start Translator Server", 1);
+                        return "Can't start Translator Server";
+                    }
+                        
+                    // Attempt to connect to Translator Server 10 times with 2 seconds delay
+                    for (int i = 0; i < 10; i++) {
+                        log("Attempting to connect to Translator Server...(" + (i + 1) + "/10)", 2);
+                        if (UTranslate.isTranslatorServerRunning()) {
+                            log("Connected to Translator Server", 2);
+                            break;
+                        }
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            log("InterruptedException: " + e.getMessage() , 2);
+                        }
+                    }
+                    if (!UTranslate.isTranslatorServerRunning()) {
+                        showMessage("Can't connect to Translator Server", MessageType.ERROR);
+                        log("Can't connect to Translator Server", 2);
+                        return "Can't connect to Translator Server";
+                    }
+                    else {
+                        log("Connected to Translator Server", 2);
+                        return "";
+                    }
+                }
+            };
+
+            translatorStartTask.setOnSucceeded(event -> {
+                String response = translatorStartTask.getValue();
+                if (response != null && !response.isEmpty()) {
+                    return;
+                }
+                else {
+                    showMessage("Translating...", MessageType.WORKING);
+                    log("Translating...", 1);
+                    
+                    // Translate
+                    Task<String> translationTask = new Task<>() {
+                        @Override
+                        protected String call() throws Exception {
+                            return UTranslate.translate(text, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
+                        }
+                    };
+            
+                    translationTask.setOnSucceeded(event1 -> {
+                        String response1 = translationTask.getValue();
+                        if (response1 == null) {
+                            showMessage("Translation failed", MessageType.ERROR);
+                            log("NULL Response. Translation failed", 2);
+                        }
+                        else {
+                            txtValue.setText(response1);
+                            showMessage("Translation successful", MessageType.NORMAL);
+                            log("Translation successful", 2);
+                        }
+                    });
+            
+                    translationTask.setOnFailed(event1 -> {
+                        showMessage("Translation failed", MessageType.ERROR);
+                        System.out.println("Translation failed: " + translationTask.getException().getMessage());
+                        log("Translation failed", 2);
+                    });
+            
+                    new Thread(translationTask).start();
+                }
+            });
+
+            translatorStartTask.setOnFailed(event -> {
+                return;
+            });
+
+            new Thread(translatorStartTask).start();
+        }
+        else {
+            showMessage("Translating...", MessageType.WORKING);
+            log("Translating...", 1);
+            
+            // Translate
+            Task<String> translationTask = new Task<>() {
+                @Override
+                protected String call() throws Exception {
+                    return UTranslate.translate(text, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
+                }
+            };
+    
+            translationTask.setOnSucceeded(event1 -> {
+                String response1 = translationTask.getValue();
+                if (response1 == null) {
+                    showMessage("Translation failed", MessageType.ERROR);
+                    log("NULL Response. Translation failed", 2);
+                }
+                else {
+                    txtValue.setText(response1);
+                    showMessage("Translation successful", MessageType.NORMAL);
+                    log("Translation successful", 2);
+                }
+            });
+    
+            translationTask.setOnFailed(event1 -> {
                 showMessage("Translation failed", MessageType.ERROR);
-                log("NULL Response. Translation failed", 2);
-            }
-            else {
-                txtValue.setText(response);
-                showMessage("Translation successful", MessageType.NORMAL);
-                log("Translation successful", 2);
-            }
-        });
+                System.out.println("Translation failed: " + translationTask.getException().getMessage());
+                log("Translation failed", 2);
+            });
+    
+            new Thread(translationTask).start();
+        }
 
-        translationTask.setOnFailed(event -> {
-            showMessage("Translation failed", MessageType.ERROR);
-            System.out.println("Translation failed: " + translationTask.getException().getMessage());
-            log("Translation failed", 2);
-        });
-
-        new Thread(translationTask).start();
     }
 
     @FXML
