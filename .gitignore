@@ -24,3 +24,7 @@ Thumbs.db
 
 # Settings and Language user files in root directory
 /*.json
+
+# Translator Server Executable
+translator.exe
+translator.py

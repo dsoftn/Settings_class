@@ -4,8 +4,10 @@ package com.dsoftn.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+import javafx.concurrent.Task;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ComboBox;
@@ -19,6 +21,7 @@ import com.dsoftn.Settings.LanguageItemGroup;
 
 import javafx.application.Platform;
 import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,7 @@ import com.dsoftn.utils.UTranslate;
 import com.dsoftn.events.EventEditLanguageRemoved;
 import com.dsoftn.events.EventEditLanguageChanged;
 import com.dsoftn.events.EventEditLanguageAdded;
+import com.dsoftn.events.EventWriteLog;
 
 public class ScrollPaneSection extends VBox {
 
@@ -375,14 +379,128 @@ public class ScrollPaneSection extends VBox {
         showYesNoButtons();
     }
 
+    private void log(String message) {
+        log(message, 0);
+    }
+
+    private void log(String message, int indentLevel) {
+        EventWriteLog event = new EventWriteLog(message, indentLevel);
+        Stage primaryStage = (Stage) txtValue.getScene().getWindow();
+        primaryStage.fireEvent(event);
+    }
+
     // FXML Events
 
     @FXML
     public void onBtnTranslateClick() {
+        if (cmbTranslateFrom.getValue() == null) {
+            showMessage("Select language to translate from");
+            return;
+        }
+
+        log("Translating to " + cmbTranslateFrom.getValue() + " started...");
+
+        // Check if translator.exe is in project working directory
+        File translatorEXE = new File("translator.exe");
+        if (!translatorEXE.exists()) {
+            showMessage("Translator not found", MessageType.ERROR);
+            log("Translator not found", 1);
+            return;
+        }
+
+        // Check if Translator Server is running
+        if (!UTranslate.isTranslatorServerRunning()) {
+            showMessage("Starting Translator Server...");
+            log("Translator Server not running. Starting Translator Server...", 1);
+            
+            boolean serverStarted = UTranslate.startTranslatorServer();
+            if (!serverStarted) {
+                showMessage("Can't start Translator Server", MessageType.ERROR);
+                log("Can't start Translator Server", 1);
+                return;
+            }
+                
+            // Attempt to connect to Translator Server 10 times with 2 seconds delay
+            for (int i = 0; i < 10; i++) {
+                log("Attempting to connect to Translator Server...(" + (i + 1) + "/10)", 2);
+                if (UTranslate.isTranslatorServerRunning()) {
+                    log("Connected to Translator Server", 2);
+                    break;
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    log("InterruptedException: " + e.getMessage() , 2);
+                }
+            }
+            if (!UTranslate.isTranslatorServerRunning()) {
+                showMessage("Can't connect to Translator Server", MessageType.ERROR);
+                log("Can't connect to Translator Server", 2);
+                return;
+            }
+            else {
+                log("Connected to Translator Server", 2);
+            }
+        }
+
         showMessage("Translating...", MessageType.WORKING);
-        String response = UTranslate.translate(txtValue.getText(), langEnum.getLangCode(), LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getGoogleCode());
-        txtValue.setText(response);
-        hideMessage();
+        log("Translating...", 1);
+
+        // Get text to translate
+        Parent parent = this.getParent();
+        ScrollPaneContent content = (ScrollPaneContent) parent;
+        String text;
+
+        if (content != null) {
+            text = content.getValue(LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getLangCode());
+            if (text == null) {
+                showMessage("Can't find text to translate", MessageType.ERROR);
+                log("Can't find text to translate", 2);
+                return;
+            }
+        }
+        else {
+            showMessage("Can't reach Content", MessageType.ERROR);
+            log("Can't reach Content", 2);
+            return;
+        }
+
+        if (text == null || text.isEmpty()) {
+            hideMessage();
+            txtValue.setText("");
+            log("No text to translate", 2);
+            return;
+        }
+        
+        // Translate
+        Task<String> translationTask = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                return UTranslate.translate(text, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
+            }
+        };
+
+        translationTask.setOnSucceeded(event -> {
+            String response = translationTask.getValue();
+            if (response == null) {
+                showMessage("Translation failed", MessageType.ERROR);
+                log("NULL Response. Translation failed", 2);
+            }
+            else {
+                txtValue.setText(response);
+                showMessage("Translation successful", MessageType.NORMAL);
+                log("Translation successful", 2);
+            }
+        });
+
+        translationTask.setOnFailed(event -> {
+            showMessage("Translation failed", MessageType.ERROR);
+            System.out.println("Translation failed: " + translationTask.getException().getMessage());
+            log("Translation failed", 2);
+        });
+
+        new Thread(translationTask).start();
     }
 
     @FXML

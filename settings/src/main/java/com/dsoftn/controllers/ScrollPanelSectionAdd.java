@@ -106,7 +106,6 @@ public class ScrollPanelSectionAdd extends VBox{
             List<String> fileAff = (List<String>) map.get("fileAffected");
             setAffectedFiles(fileAff);
         }
-        System.out.println("After MAP recommended languages: " + recommendedLanguages);
 
         // Recommended Languages
         // Updated by setAffectedFiles method
@@ -139,15 +138,12 @@ public class ScrollPanelSectionAdd extends VBox{
         this.alreadyAddedLanguages = alreadyAddedLanguages;
         updateLanguageSelectionWidgets(null);
         updateRecommendedLanguages();
-        System.out.println("Already added languages: " + alreadyAddedLanguages);
     }
 
     public void setAffectedFiles(List<String> fileAffected) {
         if (fileAffected == null) {
             fileAffected = new ArrayList<>();
         }
-
-        System.out.println("File affected: " + fileAffected);
 
         this.fileAffected = fileAffected;
         recommendedLanguages = getListOfRequiredLanguageNames(fileAffected);
@@ -285,8 +281,6 @@ public class ScrollPanelSectionAdd extends VBox{
     }
 
     private void updateRecommendedLanguages() {
-        System.out.println("Updating recommended languages. Affected files: " + fileAffected);
-
         // Remove custom buttons
         for (int i = hbxMore.getChildren().size() - 1; i >= 0 ; i--) {
             if (hbxMore.getChildren().get(i) instanceof Button && hbxMore.getChildren().get(i).getId() != null && !hbxMore.getChildren().get(i).getId().equals("Protected")) {
@@ -298,7 +292,6 @@ public class ScrollPanelSectionAdd extends VBox{
         lblDots.setManaged(false);
 
         int count = 0;
-        System.out.println("Recommended languages: " + recommendedLanguages);
         for (String lang : recommendedLanguages) {
             if (alreadyAddedLanguages.contains(LanguagesEnum.fromName(lang).getLangCode())) {
                 continue;
