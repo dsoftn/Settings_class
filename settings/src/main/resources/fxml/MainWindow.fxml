@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -317,6 +318,86 @@
                               </SplitPane>
                            </children></AnchorPane>
                      </content>
+                  </Tab>
+                  <Tab fx:id="tabManage" onSelectionChanged="#onTabChanged" text="Manage Languages">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                                 <children>
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <Label styleClass="title-label" text="Manage language file" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Separator>
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <Button mnemonicParsing="false" text="Create new" />
+                                          <Region prefWidth="15.0" />
+                                          <Button mnemonicParsing="false" text="Load file" />
+                                          <Region prefWidth="15.0" />
+                                          <Button mnemonicParsing="false" text="Clear" />
+                                          <Region HBox.hgrow="SOMETIMES" />
+                                          <Label text="Selected:">
+                                             <HBox.margin>
+                                                <Insets right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Label styleClass="label-manage-selected-file" text="NONE">
+                                             <padding>
+                                                <Insets left="25.0" right="25.0" />
+                                             </padding>
+                                          </Label>
+                                          <Region HBox.hgrow="SOMETIMES" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" styleClass="label-manage-file-name">
+                                       <children>
+                                          <Label styleClass="label-manage-file-name" text="..." />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <Separator prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Separator>
+                                    <ScrollPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="SOMETIMES" />
+                                    <Separator prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Separator>
+                                    <HBox>
+                                       <children>
+                                          <Region HBox.hgrow="SOMETIMES" />
+                                          <Label styleClass="label-manage-please_wait" text="Performing actions ... please wait !">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                             <padding>
+                                                <Insets left="15.0" right="15.0" />
+                                             </padding>
+                                          </Label>
+                                          <Region HBox.hgrow="SOMETIMES" />
+                                          <Button mnemonicParsing="false" text="Commit changes" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
                   </Tab>
                </tabs>
                <padding>
