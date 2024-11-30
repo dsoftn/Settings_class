@@ -121,6 +121,31 @@
     -fx-background-color: rgb(3, 53, 32);
 }
 
+.button-delete {
+    -fx-background-color: rgba(255, 0, 0, 0.158);
+    -fx-text-fill: rgb(198, 230, 179);
+    -fx-font-size: 14;
+    -fx-border-width: 1;
+    -fx-border-color: rgb(109, 109, 108);
+    -fx-border-style: solid;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.button-delete:hover {
+    -fx-background-color: rgb(146, 2, 2);
+    -fx-text-fill: rgb(234, 238, 2);
+}
+
+.button-delete:disabled {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgb(207, 205, 205);
+}
+
+.button-delete:pressed {
+    -fx-background-color: rgb(104, 1, 1);
+    -fx-text-fill: #05eeff;
+}
 
 /* TEXT AREA WIDGET ----------------------------------------------------------------------------- */
 .text-area {
