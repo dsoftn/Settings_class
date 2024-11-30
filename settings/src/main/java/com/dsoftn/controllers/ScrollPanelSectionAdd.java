@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.geometry.Insets;
 
 import com.dsoftn.events.EventEditLanguageAdded;
+import com.dsoftn.events.EventAddLanguageToFile;
 
 import javafx.application.Platform;
 import java.io.IOException;
@@ -26,6 +27,8 @@ import com.dsoftn.Settings.Settings;
 
 
 public class ScrollPanelSectionAdd extends VBox{
+    public enum Role {LANGUAGE_EDIT, LANGUAGE_MANAGE};
+
     // Constants
     private static final int MAX_RECOMMENDED_LANGUAGES = 2;
 
@@ -54,6 +57,8 @@ public class ScrollPanelSectionAdd extends VBox{
     private Label lblExists; // Language already exists label than is shown instead of add button
 
     // Variables
+    private Role role = Role.LANGUAGE_EDIT;
+
     private List<String> fileAffected = new ArrayList<>();
     private List<String> recommendedLanguages = new ArrayList<>();
     private List<String> alreadyAddedLanguages = new ArrayList<>();
@@ -61,12 +66,22 @@ public class ScrollPanelSectionAdd extends VBox{
     // Constructors
 
     public ScrollPanelSectionAdd(List<String> fileAffected, List<String> alreadyAddedLanguages) {
+        this(fileAffected, alreadyAddedLanguages, Role.LANGUAGE_EDIT);
+    }
+
+    public ScrollPanelSectionAdd(List<String> fileAffected, List<String> alreadyAddedLanguages, Role role) {
+        this.role = role;
         createWidgets();
         setAffectedFiles(fileAffected);
         setAlreadyAddedLanguages(alreadyAddedLanguages);
     }
 
     public ScrollPanelSectionAdd() {
+        this(Role.LANGUAGE_EDIT);
+    }
+    
+    public ScrollPanelSectionAdd(Role role) {
+        this.role = role;
         createWidgets();
     }
 
@@ -319,9 +334,16 @@ public class ScrollPanelSectionAdd extends VBox{
     }
 
     private void addLanguage(String lang) {
-        Stage primaryStage = (Stage) hbxMore.getScene().getWindow();
-        EventEditLanguageAdded event = new EventEditLanguageAdded(LanguagesEnum.fromName(lang));
-        primaryStage.fireEvent(event);
+        if (role == Role.LANGUAGE_EDIT) {
+            Stage primaryStage = (Stage) hbxMore.getScene().getWindow();
+            EventEditLanguageAdded event = new EventEditLanguageAdded(LanguagesEnum.fromName(lang));
+            primaryStage.fireEvent(event);
+        }
+        else if (role == Role.LANGUAGE_MANAGE) {
+            Stage primaryStage = (Stage) hbxMore.getScene().getWindow();
+            EventAddLanguageToFile event = new EventAddLanguageToFile(LanguagesEnum.fromName(lang));
+            primaryStage.fireEvent(event);
+        }
     }
 
 
