@@ -33,8 +33,14 @@ public class UTranslate {
     public static final String TRANSLATOR_SERVER_HOST = "127.0.0.1";
     public static final int TRANSLATOR_SERVER_PORT = 29975;
 
-    private static final String API_KEY = "YOUR_API_KEY";
-    private static final String TRANSLATE_URL = "https://translation.googleapis.com/language/translate/v2";
+    private static final String GOOGLE_CLOUD_API_KEY = "YOUR_API_KEY";
+    private static final String GOOGLE_CLOUD_TRANSLATE_URL = "https://translation.googleapis.com/language/translate/v2";
+
+    private static final Integer TRANSLATION_MAX_PART_SIZE = 3000;
+    private static final Integer TRANSLATION_MIN_PART_SIZE = 2500;
+    private static final Integer TRANSLATION_PAUSE_BETWEEN_TRANSLATIONS_MS = 1000;
+    private static final Integer TRANSLATION_MAX_RETRIES = 3;
+    private static final String[] TRANSLATION_DELIMITERS = {"\u0001", "\u0002", "<gDelimUnique>"};
 
     private static final Map<Character, String> cyrillicToLatinMap = new HashMap<>();
     static {
@@ -362,6 +368,111 @@ public class UTranslate {
 
     // STATIC METHODS
 
+    public static Map<String, String> translateMap(Map<String, String> mapToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang) {
+        return translateMap(mapToTranslate, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
+    }
+
+    public static Map<String, String> translateMap(Map<String, String> mapToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
+        if (mapToTranslate == null || fromLang == null || toLang == null) {
+            return null;
+        }
+
+        // Convert the map to a list
+        List<String> listOfKeys = new ArrayList<>();
+        List<String> listOfValues = new ArrayList<>();
+        for (Map.Entry<String, String> entry : mapToTranslate.entrySet()) {
+            listOfKeys.add(entry.getKey());
+            listOfValues.add(entry.getValue());
+        }
+
+        // Translate the list
+        List<String> translatedListOfValues = translateList(listOfValues, fromLang, toLang, service);
+        if (translatedListOfValues == null) {
+            System.out.println("Translate Error: Could not translate the map.");
+            return null;
+        }
+
+        // Check if the lists have the same size
+        if (listOfKeys.size() != translatedListOfValues.size()) {
+            System.out.println("Translate Error: The lists have different sizes.");
+            return null;
+        }
+
+        // Convert the list back to a map
+        Map<String, String> translatedMap = new HashMap<>();
+        for (int i = 0; i < listOfKeys.size(); i++) {
+            translatedMap.put(listOfKeys.get(i), translatedListOfValues.get(i));
+        }
+        return translatedMap;
+    }
+
+    public static List<String> translateList(List<String> listToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang) {
+        return translateList(listToTranslate, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
+    }
+
+    public static List<String> translateList(List<String> listToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
+        if (listToTranslate == null || fromLang == null || toLang == null) {
+            return null;
+        }
+
+        List<String> translatedList = new ArrayList<>(); // List of translated text
+
+        // Find the delimiter that is safe for the list
+        String delimiterInUse = null;
+        for (String delimiter : UTranslate.TRANSLATION_DELIMITERS) {
+            if (isDelimiterSafeForList(listToTranslate, delimiter)) {
+                delimiterInUse = delimiter;
+                break;
+            }
+        }
+
+        if (delimiterInUse == null) {
+            System.out.println("No delimiter found for list of text to translate.");
+            return null;
+        }
+
+        // Create text to translate
+        String textToTranslate = String.join(delimiterInUse, listToTranslate);
+        List<String> textToTranslateList = UTranslate.splitByDelimiter(textToTranslate, delimiterInUse, UTranslate.TRANSLATION_MAX_PART_SIZE, UTranslate.TRANSLATION_MIN_PART_SIZE);
+        if (!UTranslate.arePartsValid(textToTranslateList, UTranslate.TRANSLATION_MAX_PART_SIZE, UTranslate.TRANSLATION_MIN_PART_SIZE)) {
+            System.out.println("Parts of text to translate are not valid.");
+            return null;
+        }
+
+        // Translate
+        String translatedText = "";
+        for (String part : textToTranslateList) {
+            String translatedPart = translate(part, fromLang, toLang, service);
+            if (translatedPart == null) {
+                return null;
+            }
+            translatedText += translatedPart;
+        }
+
+        // Split translated text by delimiter
+        String[] translatedParts = translatedText.split(delimiterInUse);
+        if (translatedParts.length != listToTranslate.size()) {
+            System.out.println("Number of translated parts does not match number of original parts.");
+            return null;
+        }
+
+        // Add translated text to list
+        for (String translatedPart : translatedParts) {
+            translatedList.add(translatedPart);
+        }
+
+        return translatedList;
+    }
+
+    private static boolean isDelimiterSafeForList(List<String> listToTranslate, String delimiter) {
+        for (String text : listToTranslate) {
+            if (text.contains(delimiter)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
         return translate(text, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
     }
@@ -390,6 +501,7 @@ public class UTranslate {
 
         // Call translate service
         if (service.equals(TranslateServiceEnum.TRANSLATOR_SERVER_FREE)) {
+            // Translate Server has his own handler for large texts
             String translatedText = UTranslate.translateUsingTranslatorServer(text, fromLang, toLang);
             if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
                 return convertCyrillicToLatin(translatedText);
@@ -397,24 +509,126 @@ public class UTranslate {
                 return translatedText;
             }
         }
-        else if (service.equals(TranslateServiceEnum.GOOGLE_API_WITH_KEY)) {
-            String translatedText = UTranslate.translateUsingGoogleAPI(text, fromLang, toLang);
+        else {
+            // Implement handler for large texts
+            List<String> chunks = splitText(text, UTranslate.TRANSLATION_MAX_PART_SIZE, UTranslate.TRANSLATION_MIN_PART_SIZE);
+            String translatedText = "";
+            for (int i = 0; i < chunks.size(); i++) {
+                String chunk = chunks.get(i);
+
+                String chunkTranslatedText = "";
+                for (int j = 0; j < UTranslate.TRANSLATION_MAX_RETRIES; j++) {
+                    try {
+                        if (service.equals(TranslateServiceEnum.GOOGLE_API_WITH_KEY)) {
+                            chunkTranslatedText = UTranslate.translateUsingGoogleAPI(chunk, fromLang, toLang);
+                        } else if (service.equals(TranslateServiceEnum.GOOGLE_PUBLIC_HTTP_FREE)) {
+                            chunkTranslatedText = UTranslate.translateUsingGooglePublicHTTP(chunk, fromLang, toLang);
+                        }
+                    } catch (Exception e) {
+                        chunkTranslatedText = null;
+                    }
+
+                    try {
+                        // Wait before next retry
+                        if (chunkTranslatedText == null || i < chunks.size() - 1) {
+                            Thread.sleep(UTranslate.TRANSLATION_PAUSE_BETWEEN_TRANSLATIONS_MS);
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return null;
+                    }
+
+                    if (chunkTranslatedText != null) {
+                        break;
+                    }
+                }
+
+                if (chunkTranslatedText == null) {
+                    return null;
+                }
+
+                translatedText += chunkTranslatedText;
+            }
+
             if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
                 return convertCyrillicToLatin(translatedText);
-            } else {
-                return translatedText;
             }
+
+            return translatedText;
         }
-        else if (service.equals(TranslateServiceEnum.GOOGLE_PUBLIC_HTTP_FREE)) {
-            String translatedText = UTranslate.translateUsingGooglePublicHTTP(text, fromLang, toLang);
-            if (toLang.equals(LanguagesEnum.SERBIAN_LAT)) {
-                return convertCyrillicToLatin(translatedText);
-            } else {
-                return translatedText;
-            }
+    }
+
+    public static List<String> splitText(String text, int maxPartSize, int minPartSize) {
+        List<String> parts = new ArrayList<>();
+        
+        // 1. Try to split by newlines
+        parts = splitByDelimiter(text, "\n", maxPartSize, minPartSize);
+        if (arePartsValid(parts, maxPartSize, minPartSize)) {
+            return parts;
+        }
+        
+        // 2. Try to split by punctuation
+        parts = splitByDelimiter(text, "(?<=[.?!])\\s*", maxPartSize, minPartSize);
+        if (arePartsValid(parts, maxPartSize, minPartSize)) {
+            return parts;
         }
 
-        return null;
+        // 3. Try to split by spaces
+        parts = splitByDelimiter(text, "\\s+", maxPartSize, minPartSize);
+        if (arePartsValid(parts, maxPartSize, minPartSize)) {
+            return parts;
+        }
+
+        // 4. Try to split by fixed size
+        return splitByFixedSize(text, maxPartSize);
+    }
+
+    private static List<String> splitByDelimiter(String text, String delimiter, int maxPartSize, int minPartSize) {
+        String[] segments = text.split(delimiter);
+        List<String> parts = new ArrayList<>();
+        StringBuilder currentPart = new StringBuilder();
+    
+        for (String segment : segments) {
+            if (currentPart.length() + segment.length() + delimiter.length() > maxPartSize) {
+                if (currentPart.length() >= minPartSize) {
+                    parts.add(currentPart.toString());
+                    currentPart = new StringBuilder();
+                }
+            }
+            if (currentPart.length() > 0) {
+                currentPart.append(delimiter).append(segment);
+            } else {
+                currentPart.append(segment);
+            }
+        }
+    
+        // Add the last part
+        if (currentPart.length() > 0) {
+            parts.add(currentPart.toString());
+        }
+    
+        return parts;
+    }
+
+    private static boolean arePartsValid(List<String> parts, int maxPartSize, int minPartSize) {
+        for (int i = 0; i < parts.size(); i++) {
+            String part = parts.get(i);
+            if (i < parts.size() - 1 && (part.length() > maxPartSize || part.length() < minPartSize)) {
+                return false;
+            }
+            if (i == parts.size() - 1 && part.length() > maxPartSize) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<String> splitByFixedSize(String text, int maxPartSize) {
+        List<String> parts = new ArrayList<>();
+        for (int i = 0; i < text.length(); i += maxPartSize) {
+            parts.add(text.substring(i, Math.min(i + maxPartSize, text.length())));
+        }
+        return parts;
     }
 
     public static String translateUsingGooglePublicHTTP(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
@@ -480,7 +694,7 @@ public class UTranslate {
         );
 
         Request request = new Request.Builder()
-                .url(TRANSLATE_URL + "?key=" + API_KEY)
+                .url(GOOGLE_CLOUD_TRANSLATE_URL + "?key=" + GOOGLE_CLOUD_API_KEY)
                 .post(body)
                 .build();
 
