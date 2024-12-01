@@ -538,7 +538,7 @@ public class MainWinController {
         }
 
         // Refresh Loaded Map
-        PyDict loadedData = getLanguageFileContent(loadSttFromPath);
+        PyDict loadedData = getLanguageFileContent(loadLangFromPath);
 
         if (loadedData != null) {
             changeLangVisibleList("Loaded");
@@ -5633,7 +5633,6 @@ public class MainWinController {
 
         return null;
     }
-
 
     private boolean validateEditedLanguageItem() {
         if (txtLangKey.getText().isEmpty()) {
