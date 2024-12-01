@@ -179,6 +179,7 @@ public class MainWinController {
     public enum Section {
         SETTINGS,
         LANGUAGE,
+        LANGUAGE_MANAGE,
         ALL;
     }
 
@@ -228,6 +229,9 @@ public class MainWinController {
     private double fontSizeLstLang = 14; // Font size for ListView lstLang
     private String lstLangSortKey = "Created"; // Sort key for lstLang ("Key", "Created")
     private ScrollPaneContent scrollPaneContent = null; // ScrollPaneContent object
+
+    // -------------------------- APPLICATION VARIABLES - LANGUAGE MANAGE
+    private ScrollPaneManageContent scrollPaneManageContent = null; // ScrollPaneManageContent object
 
     // -------------------------- CONSTANTS
     // Icon size for buttons, labels...
@@ -294,6 +298,12 @@ public class MainWinController {
     private Label fieldLabeSttMax;
     @FXML
     private Label fieldLabeSttDesc;
+    @FXML
+    private Label lblMngFileShort; // Language Manage: Short name of file
+    @FXML
+    private Label lblMngFileLong; // Language Manage: Long name of file
+    @FXML
+    private Label lblMngInfo; // Language Manage: Info label
 
     // Buttons
     @FXML
@@ -342,6 +352,14 @@ public class MainWinController {
     private Button btnSaveLang; // Save changed Language
     @FXML
     private Button btnSaveAll; // Save changed Settings and Language
+    @FXML
+    private Button btnMngNew; // Language Manage: Create new Language file
+    @FXML
+    private Button btnMngLoad; // Language Manage: Load Language file
+    @FXML
+    private Button btnMngClear; // Language Manage: Clear (Unload) Language file
+    @FXML
+    private Button btnMngCommit; // Language Manage: Commit changes to Language file
 
     // TextBoxes
     @FXML
@@ -376,6 +394,8 @@ public class MainWinController {
 
     // Layouts
     @FXML
+    private HBox hboxLoadFile; // Contains btnLoadFrom
+    @FXML
     private HBox layoutHBoxFiles; // Contains lstFiles, chkAutoUpdateFiles, btnAddFile, btnRemoveFile
     @FXML
     private VBox layoutVBoxMain; // Layout with all elements
@@ -385,6 +405,8 @@ public class MainWinController {
     private SplitPane sttSttSplitPane; // Split Pane in Settings tab
     @FXML
     private SplitPane sttLangSplitPane; // Split Pane in Language tab
+    @FXML
+    private HBox hboxSaveButtons; // Contains save buttons
 
     // ListBoxes
     @FXML
@@ -407,10 +429,14 @@ public class MainWinController {
     private Tab tabStt;
     @FXML
     private Tab tabLang;
+    @FXML
+    private Tab tabManage;
 
     // Scroll Panes
     @FXML
     private ScrollPane scrPaneLang; // Area for editing all languages for current key
+    @FXML
+    private ScrollPane scrPaneManage; // Area for editing language file content
 
 
     public void initialize() {
@@ -422,7 +448,10 @@ public class MainWinController {
         // Initialize messages dict
         messagesDict.setPyDictValue(String.format("[%s]",Section.SETTINGS.toString()), new ArrayList<>());
         messagesDict.setPyDictValue(String.format("[%s]",Section.LANGUAGE.toString()), new ArrayList<>());
+        messagesDict.setPyDictValue(String.format("[%s]",Section.LANGUAGE_MANAGE.toString()), new ArrayList<>());
         // Add normal message to each section
+        activeSection = Section.LANGUAGE_MANAGE;
+        addMessage(new MsgInfo("1", "Language Manager", "Language Manager 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
         activeSection = Section.LANGUAGE;
         addMessage(new MsgInfo("2", "Language Editor", "Language Editor 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
         activeSection = Section.SETTINGS;
@@ -1233,6 +1262,14 @@ public class MainWinController {
         result.setPyDictValue(Section.LANGUAGE.toString(), langDict);  // Create Language section
 
 
+        // For Language Manager SECTION
+        PyDict langMgrDict = new PyDict();
+
+        langMgrDict.setPyDictValue("scrollPaneManageContent", null); // Current content of scrollPaneManage
+
+        result.setPyDictValue(Section.LANGUAGE_MANAGE.toString(), langMgrDict);  // Create Language Manager section
+
+
         return result;
     }
 
@@ -1329,6 +1366,8 @@ public class MainWinController {
             log("Saving current Language item in changing process: " + txtLangKey.getText());
         }
         
+        // ........................... Language Manage SECTION
+        appState.setPyDictValue(concatKeys(Section.LANGUAGE_MANAGE.toString(), "scrollPaneManageContent"), scrollPaneManageContent.toMap());
         
         log("AppState created");
     }
@@ -1341,6 +1380,7 @@ public class MainWinController {
             appState.setPyDictValue("chkSaveState", true);
             chkSaveState.setSelected(true);
             mountNodeToScrollPane();
+            mountNodeToScrollPaneManage();
             return;
         }
 
@@ -1352,6 +1392,7 @@ public class MainWinController {
             appState.setPyDictValue("chkSaveState", false);
             chkSaveState.setSelected(false);
             mountNodeToScrollPane();
+            mountNodeToScrollPaneManage();
             return;
         }
         else if (chkSaveStateValue == null) {
@@ -1569,6 +1610,21 @@ public class MainWinController {
         }
 
 
+        // .................... Language Manage SECTION
+        mountNodeToScrollPaneManage();
+        if (appState.getPyDictValue(concatKeys(Section.LANGUAGE_MANAGE.toString(), "scrollPaneManageContent")) != null) {
+            if (scrollPaneManageContent != null) {
+                scrollPaneManageContent.fromMap(appState.getPyDictValue(concatKeys(Section.LANGUAGE_MANAGE.toString(), "scrollPaneManageContent")));
+                if (scrollPaneManageContent.getLanguageFileName() != null && !scrollPaneManageContent.getLanguageFileName().isEmpty()) {
+                    File file = new File(scrollPaneManageContent.getLanguageFileName());
+                    lblMngFileLong.setText(file.getAbsolutePath());
+                    lblMngFileShort.setText(file.getName());
+                }
+            }
+        }
+
+
+
         // Handle last opened Section
         if (appState.getPyDictValue("lastSection") != null) {
             try {
@@ -1601,6 +1657,7 @@ public class MainWinController {
     private void activateSection(Section section) {
         activeSection = section;
         if (activeSection == Section.SETTINGS) {
+            showFileAndSaveWidgets(true);
             // Switch to Settings tab
             tabPane.getSelectionModel().select(tabStt);
             // Set info label to show source file for keys
@@ -1615,6 +1672,7 @@ public class MainWinController {
             log("Active section changed to Settings");
         }
         else if (activeSection == Section.LANGUAGE) {
+            showFileAndSaveWidgets(true);
             // Switch to Language tab
             tabPane.getSelectionModel().select(tabLang);
             // Set info label to show source file for keys
@@ -1627,6 +1685,38 @@ public class MainWinController {
             // Populate lstFiles list
             populateList(lstFiles, updateLangFilesPaths);
             log("Active section changed to Language");
+        }
+        else if (activeSection == Section.LANGUAGE_MANAGE) {
+            showFileAndSaveWidgets(false);
+            // Switch to Language Manage tab
+            tabPane.getSelectionModel().select(tabManage);
+            log("Active section changed to Language Manage");
+            
+        }
+    }
+
+    private void showFileAndSaveWidgets(boolean enable) {
+        if (enable) {
+            if (hboxLoadFile != null) {
+                hboxLoadFile.setDisable(false);
+            }
+            if (layoutHBoxFiles != null) {
+                layoutHBoxFiles.setDisable(false);
+            }
+            if (hboxSaveButtons != null) {
+                hboxSaveButtons.setDisable(false);
+            }
+        }
+        else {
+            if (hboxLoadFile != null) {
+                hboxLoadFile.setDisable(true);
+            }
+            if (layoutHBoxFiles != null) {
+                layoutHBoxFiles.setDisable(true);
+            }
+            if (hboxSaveButtons != null) {
+                hboxSaveButtons.setDisable(true);
+            }
         }
     }
 
@@ -1820,6 +1910,10 @@ public class MainWinController {
         // Listener for lstLang
         setupListenerForLstLang();
 
+        // LANGUAGE MANAGE
+        lblMngInfo.setVisible(false);
+        lblMngInfo.setManaged(false);
+
         // OTHER
 
         // AnchorPaneMain KeyPress and MouseClick events
@@ -1839,6 +1933,12 @@ public class MainWinController {
         scrollPaneContent = new ScrollPaneContent(null, primaryStage, updateLangFilesList);
 
         scrPaneLang.setContent(scrollPaneContent);
+    }
+
+    private void mountNodeToScrollPaneManage() {
+        scrollPaneManageContent = new ScrollPaneManageContent(primaryStage, loadLangFromPath);
+
+        scrPaneManage.setContent(scrollPaneManageContent);
     }
 
     private List<String> getLangAffectedFilesList() {
@@ -2495,6 +2595,9 @@ public class MainWinController {
         else if (tabLang.isSelected()) {
             activateSection(Section.LANGUAGE);
         }
+        else if (tabManage.isSelected()) {
+            activateSection(Section.LANGUAGE_MANAGE);
+        }
     }
 
     @FXML
@@ -2652,6 +2755,47 @@ public class MainWinController {
     }
 
     @FXML
+    private void onBtnMngLoad() {
+        log("Started FileDialog for selecting file to load in Settings Manager...");
+        logIndentPlus();
+
+        File selectedFile = getFileDialogSelectedFile();
+
+        if (selectedFile != null) {
+            PyDict loadedData = getLanguageFileContent(selectedFile.getAbsolutePath());
+            if (loadedData != null) {
+                setLangFileToScrollPaneManage(selectedFile.getAbsolutePath());
+            }
+            else {
+                log("Failed to load language file: " + selectedFile.getAbsolutePath());
+            }
+        }
+        else {
+            log("No file selected");
+        }
+
+        logIndentMinus();
+    }
+
+    private void setLangFileToScrollPaneManage(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            scrollPaneManageContent.setLanguageFileName("");
+            lblMngFileLong.setText("");
+            lblMngFileShort.setText("NONE");
+            return;
+        }
+        File file = new File(filePath);
+        scrollPaneManageContent.setLanguageFileName(file.getAbsolutePath());
+        lblMngFileLong.setText(file.getAbsolutePath());
+        lblMngFileShort.setText(file.getName());
+    }
+
+    @FXML
+    private void onBtnMngClear() {
+        setLangFileToScrollPaneManage("");
+    }
+
+    @FXML
     private void onBtnAddFileAction() {
         log("Started FileDialog for adding file that should be updated...");
         logIndentPlus();
@@ -2800,8 +2944,26 @@ public class MainWinController {
                 showMessage(msgInfoSuccess);
             }
         }
+    }
 
+    @FXML
+    private void onBtnMngNew() {
+        log("Started FileDialog for creating new file...");
+        logIndentPlus();
+        File selectedFile = getFileDialogSaveFile();
 
+        if (selectedFile == null) {
+            log("No file was selected");
+            logIndentMinus();
+            return;
+        }
+
+        Settings settings = new Settings();
+        settings.createNewLanguagesFile(selectedFile);
+
+        log("New language file created: " + selectedFile.getAbsolutePath());
+
+        setLangFileToScrollPaneManage(selectedFile.getAbsolutePath());
     }
 
     @FXML

@@ -363,14 +363,15 @@ public class ScrollPaneContent extends VBox {
     }
 
     private void updateAlreadyAddedForAllElements() {
+        List<String> alreadyAdded = getAlreadyAddedLanguageCodes();
         for (Node node : elementList) {
             if (node instanceof ScrollPaneSection) {
                 ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
-                scrollPaneSection.setAlreadyAddedLanguages(getAlreadyAddedLanguageCodes());
+                scrollPaneSection.setAlreadyAddedLanguages(alreadyAdded);
             }
             else if (node instanceof ScrollPanelSectionAdd) {
                 ScrollPanelSectionAdd scrollPanelSectionAdd = (ScrollPanelSectionAdd) node;
-                scrollPanelSectionAdd.setAlreadyAddedLanguages(getAlreadyAddedLanguageCodes());
+                scrollPanelSectionAdd.setAlreadyAddedLanguages(alreadyAdded);
             }
         }
     }

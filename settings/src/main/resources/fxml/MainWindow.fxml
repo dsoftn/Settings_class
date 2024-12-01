@@ -32,7 +32,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Label>
-            <HBox alignment="CENTER_RIGHT">
+            <HBox fx:id="hboxLoadFile" alignment="CENTER_RIGHT">
                <children>
                   <Button fx:id="btnLoadFrom" mnemonicParsing="false" onAction="#onBtnLoadFromAction" styleClass="button-mini" text="Load from:">
                      <cursor>
@@ -63,7 +63,7 @@
                <children>
                   <VBox alignment="CENTER" minHeight="0.0" prefHeight="98.0" prefWidth="150.0">
                      <children>
-                        <CheckBox fx:id="chkAutoUpdateFiles" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onChkAutoUpdateFilesAction" stylesheets="@../css/style.css" text="Auto Update Files" VBox.vgrow="SOMETIMES">
+                        <CheckBox fx:id="chkAutoUpdateFiles" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onChkAutoUpdateFilesAction" selected="true" stylesheets="@../css/style.css" text="Auto Update Files" VBox.vgrow="SOMETIMES">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
@@ -321,7 +321,7 @@
                   </Tab>
                   <Tab fx:id="tabManage" onSelectionChanged="#onTabChanged" text="Manage Languages">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: rgb(53, 53, 53);">
                            <children>
                               <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <padding>
@@ -340,18 +340,18 @@
                                     </Separator>
                                     <HBox alignment="CENTER">
                                        <children>
-                                          <Button mnemonicParsing="false" text="Create new" />
+                                          <Button fx:id="btnMngNew" mnemonicParsing="false" onAction="#onBtnMngNew" text="Create new" />
                                           <Region prefWidth="15.0" />
-                                          <Button mnemonicParsing="false" text="Load file" />
+                                          <Button fx:id="btnMngLoad" mnemonicParsing="false" onAction="#onBtnMngLoad" text="Load file" />
                                           <Region prefWidth="15.0" />
-                                          <Button mnemonicParsing="false" text="Clear" />
+                                          <Button fx:id="btnMngClear" mnemonicParsing="false" onAction="#onBtnMngClear" text="Clear" />
                                           <Region HBox.hgrow="SOMETIMES" />
                                           <Label text="Selected:">
                                              <HBox.margin>
                                                 <Insets right="10.0" />
                                              </HBox.margin>
                                           </Label>
-                                          <Label styleClass="label-manage-selected-file" text="NONE">
+                                          <Label fx:id="lblMngFileShort" styleClass="label-manage-selected-file" text="NONE">
                                              <padding>
                                                 <Insets left="25.0" right="25.0" />
                                              </padding>
@@ -361,7 +361,7 @@
                                     </HBox>
                                     <HBox alignment="CENTER" styleClass="label-manage-file-name">
                                        <children>
-                                          <Label styleClass="label-manage-file-name" text="..." />
+                                          <Label fx:id="lblMngFileLong" styleClass="label-manage-file-name" />
                                        </children>
                                        <VBox.margin>
                                           <Insets top="5.0" />
@@ -372,7 +372,7 @@
                                           <Insets bottom="10.0" top="5.0" />
                                        </VBox.margin>
                                     </Separator>
-                                    <ScrollPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="SOMETIMES" />
+                                    <ScrollPane fx:id="scrPaneManage" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES" />
                                     <Separator prefWidth="200.0">
                                        <VBox.margin>
                                           <Insets bottom="10.0" top="10.0" />
@@ -381,7 +381,7 @@
                                     <HBox>
                                        <children>
                                           <Region HBox.hgrow="SOMETIMES" />
-                                          <Label styleClass="label-manage-please_wait" text="Performing actions ... please wait !">
+                                          <Label fx:id="lblMngInfo" styleClass="label-manage-please_wait" text="Performing actions ... please wait !">
                                              <HBox.margin>
                                                 <Insets />
                                              </HBox.margin>
@@ -390,7 +390,7 @@
                                              </padding>
                                           </Label>
                                           <Region HBox.hgrow="SOMETIMES" />
-                                          <Button mnemonicParsing="false" text="Commit changes" />
+                                          <Button fx:id="btnMngCommit" mnemonicParsing="false" text="Commit changes" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -407,7 +407,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </TabPane>
-            <HBox spacing="10.0">
+            <HBox fx:id="hboxSaveButtons" spacing="10.0">
                <children>
                   <CheckBox fx:id="chkSaveState" mnemonicParsing="false" onAction="#onChkSaveStateAction" selected="true" text="Save state on exit" />
                   <Region maxHeight="0.0" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="0.0" HBox.hgrow="ALWAYS" />

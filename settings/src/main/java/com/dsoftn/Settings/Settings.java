@@ -3,6 +3,7 @@ package com.dsoftn.Settings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.FileWriter;
 import java.io.File;
 import java.util.stream.Collectors;
@@ -390,6 +391,22 @@ public class Settings {
         }
 
         return true;
+    }
+
+    public Integer countLanguagesInBase() {
+        ArrayList<ArrayList<String>> langCodes = lang.getPyDictValue("available_languages");
+
+        return langCodes.size();
+    }
+
+    public List<LanguageItem> getListAllLanguageItemsForLanguage(LanguagesEnum forLanguage) {
+        Map<String, LanguageItem> langItems = lang.getPyDictValue(PyDict.concatKeys("data", forLanguage.getLangCode()));
+
+        ArrayList<LanguageItem> langItemsList = new ArrayList<>();
+        if (langItems != null) {
+            langItemsList = new ArrayList<>(langItems.values());
+        }
+        return langItemsList;
     }
 
     // Getters and Setters for User values

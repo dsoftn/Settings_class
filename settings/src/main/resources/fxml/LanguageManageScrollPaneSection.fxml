@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox style="-fx-border-color: #ffff00; -fx-border-width: 1;" stylesheets="@../css/ScrollPaneSection.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Region maxHeight="20.0" minHeight="20.0" prefHeight="20.0" stylesheets="@../css/ScrollPaneSection.css" />
+      <HBox alignment="CENTER">
+         <children>
+            <Region maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+            <Label fx:id="lblLangCode" styleClass="label-marked" text="EN">
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </Label>
+            <Region maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+            <Label fx:id="lblLangName" styleClass="label-marked" text="english">
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </Label>
+            <Region HBox.hgrow="SOMETIMES" />
+            <Label styleClass="label-normal" text="Translate from">
+               <padding>
+                  <Insets right="5.0" />
+               </padding>
+            </Label>
+            <ComboBox fx:id="cmbTranslateFrom" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" />
+            <Region maxWidth="5.0" minWidth="5.0" prefWidth="5.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER">
+         <children>
+            <Region HBox.hgrow="SOMETIMES" />
+            <Label styleClass="label-normal" text="Status:">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="lblStatus" styleClass="label-msg-normal" text="Undefined">
+               <padding>
+                  <Insets left="15.0" right="15.0" />
+               </padding>
+            </Label>
+            <Region prefWidth="20.0" />
+            <Label fx:id="lblAboutTo" styleClass="label-normal" text="About to:">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="lblAction" styleClass="label-msg-working" text="Translate missing">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets left="15.0" right="15.0" />
+               </padding>
+            </Label>
+            <Region HBox.hgrow="SOMETIMES" />
+         </children>
+         <VBox.margin>
+            <Insets left="10.0" right="10.0" top="5.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox>
+         <VBox.margin>
+            <Insets left="10.0" right="10.0" top="5.0" />
+         </VBox.margin>
+         <children>
+            <Label fx:id="lblInfo" styleClass="label-normal" text="Actions:">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+      <HBox alignment="TOP_RIGHT" spacing="5.0">
+         <children>
+            <Button fx:id="btnNoAction" mnemonicParsing="false" onAction="#onBtnNoActionClick" styleClass="button-recommended-lang" text="No Action" />
+            <Region HBox.hgrow="SOMETIMES" />
+            <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#onBtnAddClick" text="Add" />
+            <Button fx:id="btnAddAndTrans" mnemonicParsing="false" onAction="#onBtnAddAndTransClick" text="Add &amp; Translate" />
+            <Button fx:id="btnTransMissing" mnemonicParsing="false" onAction="#onBtnTransMissingClick" text="Translate missing" />
+            <Button fx:id="btnTransAll" mnemonicParsing="false" onAction="#onBtnTransAllClick" text="Retranslate ALL" />
+            <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#onBtnDeleteClick" styleClass="button-delete" text="Delete" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" left="10.0" right="10.0" />
+         </VBox.margin>
+      </HBox>
+   </children>
+</VBox>
