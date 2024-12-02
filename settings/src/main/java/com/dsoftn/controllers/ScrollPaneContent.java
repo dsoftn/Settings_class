@@ -216,7 +216,6 @@ public class ScrollPaneContent extends VBox {
 
         updateAlreadyAddedForAllElements();
 
-        // call refreshAllElements(); later
         Platform.runLater(() -> this.layout());
         
     }

@@ -191,6 +191,7 @@ public class MainWinController {
     private Stage primaryStage;
 
     private PyDict messagesDict = new PyDict();
+    private boolean messageFadeOutRunning = false;
     private Section activeSection = Section.SETTINGS; // Current section
     private boolean isMessageDetailsShown = false; // If true, message list is currently shown
     public String logGlobalIndent = ""; // This will be used to indent each log message
@@ -1000,52 +1001,60 @@ public class MainWinController {
     }
 
     private void updateMessageLabel() {
-        updateMessageLabel("FadeOut");
+        updateMessageLabelFadeOut();
     }
 
-    private void updateMessageLabel(String action) {
+    private void updateMessageLabelFadeOut() {
+        if (messageFadeOutRunning) {
+            return;
+        }
+        messageFadeOutRunning = true;
+
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(MSG_LABEL_FADE_OUT_DURATION), lblInfo);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        fadeOut.setOnFinished(event -> {
+            updateMessageLabelFadeIn();
+        });
+        fadeOut.play();
+
+        return;
+    }
+
+    private void updateMessageLabelFadeIn() {
         List<MsgInfo> errorList = getMsgList();
 
-        if (action.equals("FadeOut")) {
-            FadeTransition fadeOut = new FadeTransition(Duration.seconds(MSG_LABEL_FADE_OUT_DURATION), lblInfo);
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
+        lblInfo.getStyleClass().removeAll("info-label", "warning-label", "error-label", "title-label");
 
-            fadeOut.setOnFinished(event -> {
-                updateMessageLabel("Update");
-            });
-            fadeOut.play();
-        }
-        else if (action.equals("Update")) {
-            lblInfo.setOpacity(0.0);
-            lblInfo.getStyleClass().removeAll("info-label", "warning-label", "error-label", "title-label");
-
-            if (errorList.isEmpty()) {
-                lblInfo.setText("Internal error in Settings Editor !!!");
-                lblInfo.getStyleClass().add("error-label");
-                lblInfo.setId(null);
-            } else {
-                MsgInfo msg = errorList.get(errorList.size() - 1);
-                lblInfo.setText(msg.msgText);
-                lblInfo.getStyleClass().add(msg.getStyleClass());
-                lblInfo.setId(msg.msgID);
-            }
-            lblInfo.setOpacity(0.0);
-
-            FadeTransition fadeIn = new FadeTransition(Duration.seconds(MSG_LABEL_FADE_IN_DURATION), lblInfo);
-            fadeIn.setFromValue(0.0);
-            fadeIn.setToValue(1.0);
-
-            fadeIn.setOnFinished(event -> {
-                lblInfo.setOpacity(1.0);
-            });
-
-            fadeIn.play();
+        if (errorList.isEmpty()) {
+            lblInfo.setText("Internal error in Settings Editor !!!");
+            lblInfo.getStyleClass().add("error-label");
+            lblInfo.setId(null);
+            messageFadeOutRunning = false;
+            return;
         }
 
+        MsgInfo msg = errorList.get(errorList.size() - 1);
+        lblInfo.setText(msg.msgText);
+        lblInfo.getStyleClass().add(msg.getStyleClass());
+        lblInfo.setId(msg.msgID);
         updateInfoLabelToolTip();
         updateInfoLabelIcon();
 
+        lblInfo.setOpacity(0.0);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(MSG_LABEL_FADE_IN_DURATION), lblInfo);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        fadeIn.setOnFinished(event -> {
+            lblInfo.setOpacity(1.0);
+        });
+
+        fadeIn.play();
+
+        messageFadeOutRunning = false;
     }
 
     // Load / Save APP STATE
