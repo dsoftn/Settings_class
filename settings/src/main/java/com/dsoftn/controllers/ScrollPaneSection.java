@@ -14,7 +14,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Region;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseButton;
 
 import com.dsoftn.Settings.LanguageItemGroup;
 
@@ -588,6 +591,14 @@ public class ScrollPaneSection extends VBox {
     public void onTxtValueClick() {
         txtValue.layout();
         this.layout();
+    }
+
+    @FXML
+    public void onLblMsgClick(MouseEvent event) {
+        // Hide message if left mouse button is clicked
+        if (event.getButton() == MouseButton.PRIMARY) {
+            hideMessage();
+        }
     }
     
 

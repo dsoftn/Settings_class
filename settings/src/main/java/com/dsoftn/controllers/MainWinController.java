@@ -1219,6 +1219,12 @@ public class MainWinController {
         result.setPyDictValue("lastSection", null); // Last shown section
         result.setPyDictValue("fontSizeLstFiles", null); // Font size for lstFiles
         result.setPyDictValue("chkAutoUpdateFiles", null); // Auto update files checkbox
+        // Main Win geometry
+        result.setPyDictValue("mainWinGeometryState", null); // MINIMIZED, NORMAL, MAXIMIZED
+        result.setPyDictValue("mainWinGeometryX", null); // X position
+        result.setPyDictValue("mainWinGeometryY", null); // Y position
+        result.setPyDictValue("mainWinGeometryWidth", null); // Width
+        result.setPyDictValue("mainWinGeometryHeight", null); // Height
 
 
         // For Settings SECTION
@@ -1295,6 +1301,21 @@ public class MainWinController {
         appState.setPyDictValue("lastSection", activeSection.toString());
         appState.setPyDictValue("fontSizeLstFiles", fontSizeLstFiles);
         appState.setPyDictValue("chkAutoUpdateFiles", chkAutoUpdateFiles.isSelected());
+        // Main Win geometry
+        String mainWinGeometryState = "NORMAL";
+        if (primaryStage.isMaximized()) {
+            mainWinGeometryState = "MAXIMIZED";
+        }
+        else if (primaryStage.isIconified()) {
+            mainWinGeometryState = "MINIMIZED";
+        }
+        appState.setPyDictValue("mainWinGeometryState", mainWinGeometryState);
+        if (mainWinGeometryState.equals("NORMAL")) {
+            appState.setPyDictValue("mainWinGeometryX", primaryStage.getX());
+            appState.setPyDictValue("mainWinGeometryY", primaryStage.getY());
+            appState.setPyDictValue("mainWinGeometryWidth", primaryStage.getWidth());
+            appState.setPyDictValue("mainWinGeometryHeight", primaryStage.getHeight());
+        }
 
         // ........................... Settings SECTION
         appState.setPyDictValue(concatKeys(Section.SETTINGS.toString(), "loadSttFromPath"), loadSttFromPath);
@@ -1420,6 +1441,35 @@ public class MainWinController {
         if (appState.getPyDictValue("chkAutoUpdateFiles") != null) {
             chkAutoUpdateFiles.setSelected(appState.getPyDictBooleanValueEXPLICIT("chkAutoUpdateFiles"));
         }
+
+        // Main Win Geometry
+        String mainWinGeometryState = "";
+        if (appState.getPyDictValue("mainWinGeometryState") != null) {
+            mainWinGeometryState = appState.getPyDictValue("mainWinGeometryState");
+        }
+        if (mainWinGeometryState.equals("MINIMIZED")) {
+            primaryStage.setIconified(true);
+        }
+        else if (mainWinGeometryState.equals("MAXIMIZED")) {
+            primaryStage.setMaximized(true);
+        }
+        else if (mainWinGeometryState.equals("NORMAL")) {
+            primaryStage.setMaximized(false);
+            primaryStage.setIconified(false);
+            if (appState.getPyDictValue("mainWinGeometryX") != null) {
+                primaryStage.setX(appState.getPyDictDoubleValueEXPLICIT("mainWinGeometryX"));
+            }
+            if (appState.getPyDictValue("mainWinGeometryY") != null) {
+                primaryStage.setY(appState.getPyDictDoubleValueEXPLICIT("mainWinGeometryY"));
+            }
+            if (appState.getPyDictValue("mainWinGeometryWidth") != null) {
+                primaryStage.setWidth(appState.getPyDictDoubleValueEXPLICIT("mainWinGeometryWidth"));
+            }
+            if (appState.getPyDictValue("mainWinGeometryHeight") != null) {
+                primaryStage.setHeight(appState.getPyDictDoubleValueEXPLICIT("mainWinGeometryHeight"));
+            }
+        }
+        
 
         
         // .................... Settings SECTION
@@ -4885,9 +4935,7 @@ public class MainWinController {
             sttLoadedCurrentItem = itemName;
         }
 
-        if (! txtSttKey.getText().equals(itemName)) {
-            populateSttItem(itemName);
-        }
+        populateSttItem(itemName);
     }
 
     private void populateSttItem(String itemName) {
@@ -6234,9 +6282,7 @@ public class MainWinController {
             langLoadedCurrentItem = itemName;
         }
 
-        if (! txtLangKey.getText().equals(itemName)) {
-            populateLangItem(itemName);
-        }
+        populateLangItem(itemName);
     }
 
     private void deleteLangChangedItem() {

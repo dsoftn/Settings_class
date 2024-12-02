@@ -207,12 +207,14 @@ public class ScrollPaneContent extends VBox {
         
 
         elementList.clear();
-        addFooter();
 
         for (LanguageItem languageItem : languageItemGroup.getLanguageItems()) {
             ScrollPaneSection scrollPaneSection = new ScrollPaneSection(languageItem);
-            elementList.add(elementList.size() - 1, scrollPaneSection);
+            scrollPaneSection.setLanguageItemGroup(languageItemGroup);
+            
+            elementList.add(scrollPaneSection);
         }
+        addFooter();
 
         updateAlreadyAddedForAllElements();
 
