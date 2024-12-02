@@ -583,6 +583,12 @@ public class ScrollPaneSection extends VBox {
     public void onBtnNoClick() {
         hideMessage();
     }
+
+    @FXML
+    public void onTxtValueClick() {
+        txtValue.layout();
+        this.layout();
+    }
     
 
 }

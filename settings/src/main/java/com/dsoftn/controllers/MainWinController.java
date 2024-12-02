@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
+import javafx.concurrent.Task;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
@@ -2756,6 +2757,15 @@ public class MainWinController {
 
     @FXML
     private void onBtnMngLoad() {
+        loadManagedLanguageFile();
+    }
+
+    @FXML
+    private void onLblMngFileShortClick() {
+        loadManagedLanguageFile();
+    }
+
+    private void loadManagedLanguageFile() {
         log("Started FileDialog for selecting file to load in Settings Manager...");
         logIndentPlus();
 
@@ -2775,6 +2785,48 @@ public class MainWinController {
         }
 
         logIndentMinus();
+    }
+
+    @FXML
+    private void onBtnMngCommitClick() {
+        lblMngInfo.setText("Performing actions ... please wait !");
+        lblMngInfo.setVisible(true);
+        lblMngInfo.setManaged(true);
+
+        Task<String> executeActions = new Task<String>() {
+            @Override
+            protected String call() throws Exception {
+                return scrollPaneManageContent.executeAllActions();
+            }
+        };
+
+        executeActions.setOnSucceeded(event -> {
+            String result = executeActions.getValue();
+            if (result.startsWith("ERROR")) {
+                lblMngInfo.setText("Done with errors.");
+                msgBoxInfoCritical("Language Manager", "Actions performed on language file:\n" + scrollPaneManageContent.getLanguageFileName(), result);
+                scrollPaneManageContent.setLanguageFileName(scrollPaneManageContent.getLanguageFileName());
+            }
+            else {
+                lblMngInfo.setText("Done.");
+                msgBoxInfo("Language Manager", "Actions performed on language file:\n" + scrollPaneManageContent.getLanguageFileName(), result);
+                setLangFileToScrollPaneManage(scrollPaneManageContent.getLanguageFileName());
+            }
+            lblMngInfo.setVisible(false);
+            lblMngInfo.setManaged(false);
+
+        });
+
+        executeActions.setOnFailed(event -> {
+            lblMngInfo.setText("Failed.");
+            String result = executeActions.getException().getMessage();
+            msgBoxInfoCritical("Language Manager", "Actions performed on language file:\n" + scrollPaneManageContent.getLanguageFileName(), result);
+            scrollPaneManageContent.setLanguageFileName(scrollPaneManageContent.getLanguageFileName());
+            lblMngInfo.setVisible(false);
+            lblMngInfo.setManaged(false);
+        });
+
+        new Thread(executeActions).start();
     }
 
     private void setLangFileToScrollPaneManage(String filePath) {
@@ -3568,6 +3620,15 @@ public class MainWinController {
 
     private void msgBoxInfoCritical(String title, String header, String content) {
         Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.initOwner(primaryStage);
+        alert.showAndWait();
+    }
+
+    private void msgBoxInfo(String title, String header, String content) {
+        Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);

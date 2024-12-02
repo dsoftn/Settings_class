@@ -345,7 +345,9 @@ public class Settings {
      * @return <b>boolean</b> <i>true</i> if language was added, <i>false</i> otherwise
      */
     public boolean addNewLanguageInBase(LanguagesEnum newLang) {
-        if (getAvailableLanguageCodes().contains(newLang.getLangCode())) {
+        List<String> availableLangCodes = getAvailableLanguageCodes();
+        
+        if (availableLangCodes.contains(newLang.getLangCode())) {
             return false;
         }
 
@@ -357,6 +359,20 @@ public class Settings {
         if (!lang.isPyDictKeyExists(PyDict.concatKeys("data", newLang.getLangCode()))) {
             PyDict newDataKey = new PyDict();
             lang.setPyDictValue(PyDict.concatKeys("data", newLang.getLangCode()), newDataKey);
+        }
+
+        // Copy data from first available language
+        if (availableLangCodes.size() > 0) {
+            List<LanguageItem> items = getListAllLanguageItemsForLanguage(LanguagesEnum.fromLangCode(availableLangCodes.get(0)));
+
+            for (LanguageItem item : items) {
+                LanguageItem newItem = item.duplicate();
+                newItem.setCreationDate(item.getCreationDate());
+                newItem.setLanguageCode(newLang.getLangCode());
+                newItem.setValue("");
+
+                setLanguageItem(newItem, newLang.getLangCode());
+            }
         }
 
         return true;

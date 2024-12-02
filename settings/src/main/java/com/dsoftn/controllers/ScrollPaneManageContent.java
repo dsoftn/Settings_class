@@ -116,6 +116,33 @@ public class ScrollPaneManageContent extends VBox {
         return languageFileName;
     }
 
+    public String executeAllActions() {
+        log("Language Manager: Executing all actions...");
+        String result = "";
+        String header = "";
+
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneManageSection) {
+                ScrollPaneManageSection scrollPaneSection = (ScrollPaneManageSection) node;
+                String nodeResult = scrollPaneSection.executeAction();
+                result += nodeResult + "\n";
+                if (nodeResult.contains("ERROR")) {
+                    header = "ERROR: Some Actions Failed !";
+                }
+            }
+        }
+
+        if (header.isEmpty()) {
+            header = "All Actions Executed Successfully !";
+        }
+
+        result = header + "\n\n" + result;
+
+        log("Language Manager: Executed all actions.");
+
+        return result;
+    }
+
     // Serialization / Deserialization
 
     public Map<String, Object> toMap() {

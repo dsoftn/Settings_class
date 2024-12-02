@@ -351,7 +351,7 @@
                                                 <Insets right="10.0" />
                                              </HBox.margin>
                                           </Label>
-                                          <Label fx:id="lblMngFileShort" styleClass="label-manage-selected-file" text="NONE">
+                                          <Label fx:id="lblMngFileShort" onMouseClicked="#onLblMngFileShortClick" styleClass="label-manage-selected-file" text="NONE">
                                              <padding>
                                                 <Insets left="25.0" right="25.0" />
                                              </padding>
@@ -372,7 +372,7 @@
                                           <Insets bottom="10.0" top="5.0" />
                                        </VBox.margin>
                                     </Separator>
-                                    <ScrollPane fx:id="scrPaneManage" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES" />
+                                    <ScrollPane fx:id="scrPaneManage" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-width: 0;" VBox.vgrow="SOMETIMES" />
                                     <Separator prefWidth="200.0">
                                        <VBox.margin>
                                           <Insets bottom="10.0" top="10.0" />
@@ -390,7 +390,7 @@
                                              </padding>
                                           </Label>
                                           <Region HBox.hgrow="SOMETIMES" />
-                                          <Button fx:id="btnMngCommit" mnemonicParsing="false" text="Commit changes" />
+                                          <Button fx:id="btnMngCommit" mnemonicParsing="false" onAction="#onBtnMngCommitClick" text="Commit changes" />
                                        </children>
                                     </HBox>
                                  </children>

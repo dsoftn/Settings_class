@@ -1,5 +1,6 @@
 package com.dsoftn.controllers;
 
+import javafx.application.Platform;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
@@ -172,36 +173,37 @@ public class ScrollPaneContent extends VBox {
 
         this.group = languageItemGroup;
 
+        // Deprecated block: This code try to use old widgets and just change data, i want all element widgets to be recreated
         // Check if all required languages are already added
-        boolean allLanguagesAdded = true;
-        for (LanguageItem languageItem : languageItemGroup.getLanguageItems()) {
-            boolean languageAdded = false;
-            for (Node node : elementList) {
-                if (node instanceof ScrollPaneSection) {
-                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
-                    if (scrollPaneSection.getLanguageCode().equals(languageItem.getLanguageCode())) {
-                        languageAdded = true;
-                        break;
-                    }
-                }
-            }
-            if (!languageAdded) {
-                allLanguagesAdded = false;
-                break;
-            }
-        }
+        // boolean allLanguagesAdded = true;
+        // for (LanguageItem languageItem : languageItemGroup.getLanguageItems()) {
+        //     boolean languageAdded = false;
+        //     for (Node node : elementList) {
+        //         if (node instanceof ScrollPaneSection) {
+        //             ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+        //             if (scrollPaneSection.getLanguageCode().equals(languageItem.getLanguageCode())) {
+        //                 languageAdded = true;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     if (!languageAdded) {
+        //         allLanguagesAdded = false;
+        //         break;
+        //     }
+        // }
 
-        if (allLanguagesAdded) {
-            for (Node node : elementList) {
-                if (node instanceof ScrollPaneSection) {
-                    ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
-                    scrollPaneSection.setLanguageItemGroup(languageItemGroup);
-                }
-            }
+        // if (allLanguagesAdded) {
+        //     for (Node node : elementList) {
+        //         if (node instanceof ScrollPaneSection) {
+        //             ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+        //             scrollPaneSection.setLanguageItemGroup(languageItemGroup);
+        //         }
+        //     }
             
-            updateAlreadyAddedForAllElements();
-            return;
-        }
+        //     updateAlreadyAddedForAllElements();
+        //     return;
+        // }
         
 
         elementList.clear();
@@ -213,6 +215,10 @@ public class ScrollPaneContent extends VBox {
         }
 
         updateAlreadyAddedForAllElements();
+
+        // call refreshAllElements(); later
+        Platform.runLater(() -> this.layout());
+        
     }
 
     public List<LanguagesEnum> getListOfRequiredLanguages(List<String> listOfAffectedFiles) {
@@ -337,6 +343,19 @@ public class ScrollPaneContent extends VBox {
     }
 
     // Private methods
+
+    private void refreshAllElements() {
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                scrollPaneSection.layout();
+            }
+            else if (node instanceof ScrollPanelSectionAdd) {
+                ScrollPanelSectionAdd scrollPanelSectionAdd = (ScrollPanelSectionAdd) node;
+                scrollPanelSectionAdd.layout();
+            }
+        }
+    }
 
     private void checkIfSectionValueNeedsUpdate() {
         if (hasChangedSections()) {

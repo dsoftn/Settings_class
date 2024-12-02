@@ -40,7 +40,8 @@ public class UTranslate {
     private static final Integer TRANSLATION_MIN_PART_SIZE = 2500;
     private static final Integer TRANSLATION_PAUSE_BETWEEN_TRANSLATIONS_MS = 1000;
     private static final Integer TRANSLATION_MAX_RETRIES = 3;
-    private static final String[] TRANSLATION_DELIMITERS = {"\u0001", "\u0002", "<gDelimUnique>"};
+    private static final String[] TRANSLATION_DELIMITERS = {"<gDelimUnique>", "<gDelimUnique2>", "<gDelimUnique3>", "<gDelimUnique4>", "<gDelimUnique5>"};
+    private static final TranslateServiceEnum TRANSLATION_DEFAULT_SERVICE = TranslateServiceEnum.TRANSLATOR_SERVER_FREE;
 
     private static final Map<Character, String> cyrillicToLatinMap = new HashMap<>();
     static {
@@ -369,7 +370,7 @@ public class UTranslate {
     // STATIC METHODS
 
     public static Map<String, String> translateMap(Map<String, String> mapToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        return translateMap(mapToTranslate, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
+        return translateMap(mapToTranslate, fromLang, toLang, UTranslate.TRANSLATION_DEFAULT_SERVICE);
     }
 
     public static Map<String, String> translateMap(Map<String, String> mapToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
@@ -407,7 +408,7 @@ public class UTranslate {
     }
 
     public static List<String> translateList(List<String> listToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        return translateList(listToTranslate, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
+        return translateList(listToTranslate, fromLang, toLang, UTranslate.TRANSLATION_DEFAULT_SERVICE);
     }
 
     public static List<String> translateList(List<String> listToTranslate, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
@@ -450,7 +451,7 @@ public class UTranslate {
         }
 
         // Split translated text by delimiter
-        String[] translatedParts = translatedText.split(delimiterInUse);
+        String[] translatedParts = translatedText.split(delimiterInUse, -1);
         if (translatedParts.length != listToTranslate.size()) {
             System.out.println("Number of translated parts does not match number of original parts.");
             return null;
@@ -474,7 +475,7 @@ public class UTranslate {
     }
 
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        return translate(text, fromLang, toLang, TranslateServiceEnum.TRANSLATOR_SERVER_FREE);
+        return translate(text, fromLang, toLang, UTranslate.TRANSLATION_DEFAULT_SERVICE);
     }
 
     public static String translate(String text, LanguagesEnum fromLang, LanguagesEnum toLang, TranslateServiceEnum service) {
@@ -584,26 +585,33 @@ public class UTranslate {
     }
 
     private static List<String> splitByDelimiter(String text, String delimiter, int maxPartSize, int minPartSize) {
-        String[] segments = text.split(delimiter);
+        String[] segments = text.split(delimiter, -1);
         List<String> parts = new ArrayList<>();
         StringBuilder currentPart = new StringBuilder();
     
+        boolean hasRemainingText = false;
+        int counter = 0;
+
         for (String segment : segments) {
+            hasRemainingText = true;
             if (currentPart.length() + segment.length() + delimiter.length() > maxPartSize) {
                 if (currentPart.length() >= minPartSize) {
                     parts.add(currentPart.toString());
                     currentPart = new StringBuilder();
+                    hasRemainingText = false;
+                    counter = 0;
                 }
             }
-            if (currentPart.length() > 0) {
+            if (counter > 0) {
                 currentPart.append(delimiter).append(segment);
             } else {
                 currentPart.append(segment);
             }
+            counter++;
         }
     
         // Add the last part
-        if (currentPart.length() > 0) {
+        if (hasRemainingText) {
             parts.add(currentPart.toString());
         }
     

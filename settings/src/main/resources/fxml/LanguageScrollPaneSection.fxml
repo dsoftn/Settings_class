@@ -63,7 +63,7 @@
             </Button>
          </children>
       </HBox>
-      <TextArea fx:id="txtValue" maxHeight="120.0" minHeight="120.0" prefHeight="120.0" stylesheets="@../css/ScrollPaneSection.css" wrapText="true">
+      <TextArea fx:id="txtValue" maxHeight="120.0" minHeight="120.0" onMouseClicked="#onTxtValueClick" prefHeight="120.0" stylesheets="@../css/ScrollPaneSection.css" wrapText="true">
          <VBox.margin>
             <Insets top="3.0" />
          </VBox.margin>

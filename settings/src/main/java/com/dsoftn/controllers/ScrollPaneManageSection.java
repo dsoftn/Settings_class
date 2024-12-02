@@ -206,7 +206,243 @@ public class ScrollPaneManageSection extends VBox {
         return settings.getAvailableLanguageCodes().contains(langEnum.getLangCode());
     }
 
+    public Action getAction() {
+        return action;
+    }
+
+    public String executeAction() {
+        if (action == Action.NONE) {
+            return "Language " + langEnum.getName() + ": Action: " + action.toString();
+        }
+
+        String result = "Language " + langEnum.getName() + ": Action: " + action.toString() + ": ";
+
+        if (action == Action.TRANSLATE_MISSING) {
+            String actionResult = translateMissingEntries();
+            result += actionResult;
+            log("Language " + langEnum.getName() + ": Action: " + action.toString() + ": " + actionResult, 1);
+        }
+        else if (action == Action.TRANSLATE_ALL) {
+            String actionResult = translateAllEntries();
+            result += actionResult;
+            log("Language " + langEnum.getName() + ": Action: " + action.toString() + ": " + actionResult, 1);
+        }
+        else if (action == Action.DELETE) {
+            String actionResult = deleteLanguage();
+            result += actionResult;
+            log("Language " + langEnum.getName() + ": Action: " + action.toString() + ": " + actionResult, 1);
+        }
+        else if (action == Action.ADD) {
+            String actionResult = addLanguage();
+            result += actionResult;
+            log("Language " + langEnum.getName() + ": Action: " + action.toString() + ": " + actionResult, 1);
+        }
+        else if (action == Action.ADD_AND_TRANSLATE) {
+            String actionResult = "Add: " + addLanguage();
+            actionResult += "Translate: " + translateAllEntries();
+            result += actionResult;
+            log("Language " + langEnum.getName() + ": Action: " + action.toString() + ": " + actionResult, 1);
+        }
+
+        return result;
+    }
     // Private Methods
+
+    private String deleteLanguage() {
+        // Load file to Settings
+        Settings settings = new Settings();
+        settings.languagesFilePath = languageFileName;
+        Boolean success = settings.load(false, true, false);
+
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR loading language file.";
+        }
+
+        // Check if language is present
+        if (!settings.getAvailableLanguageCodes().contains(langEnum.getLangCode())) {
+            return "ERROR: Language not present.";
+        }
+
+        // Delete language
+        if (!settings.removeLanguageFromBase(langEnum)) {
+            return "ERROR deleting language.";
+        }
+
+        // Save file
+        if (!settings.save(false, true, false)) {
+            return "ERROR saving language file.";
+        }
+
+        return "SUCCESS!";
+    }
+
+    private String addLanguage() {
+        // Load file to Settings
+        Settings settings = new Settings();
+        settings.languagesFilePath = languageFileName;
+        Boolean success = settings.load(false, true, false);
+
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR loading language file.";
+        }
+
+        // Check if language is present
+        if (settings.getAvailableLanguageCodes().contains(langEnum.getLangCode())) {
+            return "ERROR: Language already present.";
+        }
+
+        // Add language
+        if (!settings.addNewLanguageInBase(langEnum)) {
+            return "ERROR adding language.";
+        }
+
+        // Save file
+        if (!settings.save(false, true, false)) {
+            return "ERROR saving language file.";
+        }
+
+        return "SUCCESS!";
+    }
+
+    private String translateMissingEntries() {
+        // Check if translate from language selected
+        if (cmbTranslateFrom.getValue() == null || LanguagesEnum.fromName(cmbTranslateFrom.getValue()) == null || LanguagesEnum.fromName(cmbTranslateFrom.getValue()) == LanguagesEnum.UNKNOWN) {
+            return "ERROR: Translate from language not selected.";
+        }
+
+        // Load file to Settings
+        Settings settings = new Settings();
+        settings.languagesFilePath = languageFileName;
+        Boolean success = settings.load(false, true, false);
+
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR loading language file.";
+        }
+
+        // Find missing translations
+        if (!settings.getAvailableLanguageCodes().contains(langEnum.getLangCode())) {
+            return "ERROR: Language" + langEnum.getName() + " not present.";
+        }
+        List<LanguageItem> languageItems = settings.getListAllLanguageItemsForLanguage(langEnum);
+        if (languageItems == null || languageItems.isEmpty()) {
+            return "ERROR: Language items not found.";
+        }
+
+        Map<String, String> missingTranslations = new HashMap<>();
+        for (LanguageItem item : languageItems) {
+            if (item.getValue().isEmpty()) {
+                missingTranslations.put(item.getKey(), item.getValue());
+            }
+        }
+
+        if (missingTranslations.isEmpty()) {
+            return "ERROR: No missing translations found.";
+        }
+
+        // Find source values
+        if (!settings.getAvailableLanguageCodes().contains(LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getLangCode())) {
+            return "ERROR: Language" + LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getName() + " not present.";
+        }
+        List<LanguageItem> sourceLanguageItems = settings.getListAllLanguageItemsForLanguage(LanguagesEnum.fromName(cmbTranslateFrom.getValue()));
+        if (sourceLanguageItems == null || sourceLanguageItems.isEmpty()) {
+            return "ERROR: Translate from language items not found.";
+        }
+
+        Map<String, String> sourceValues = new HashMap<>();
+        for (LanguageItem item : sourceLanguageItems) {
+            sourceValues.put(item.getKey(), item.getValue());
+        }
+
+        // Translate missing translations
+        Map<String, String> translations = UTranslate.translateMap(sourceValues, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
+
+        if (translations == null || translations.isEmpty()) {
+            return "ERROR: Translation failed.";
+        }
+
+        // Save translations
+        for (LanguageItem item : languageItems) {
+            if (missingTranslations.containsKey(item.getKey())) {
+                item.setValue(translations.get(item.getKey()));
+                settings.setLanguageItem(item);
+            }
+        }
+
+        // Save file
+        success = settings.save(false, true, false);
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR: Saving language file failed.";
+        }
+
+        return "SUCCESS!";
+    }
+
+    private String translateAllEntries() {
+        // Check if translate from language selected
+        if (cmbTranslateFrom.getValue() == null || LanguagesEnum.fromName(cmbTranslateFrom.getValue()) == null || LanguagesEnum.fromName(cmbTranslateFrom.getValue()) == LanguagesEnum.UNKNOWN) {
+            return "ERROR: Translate from language not selected.";
+        }
+
+        // Load file to Settings
+        Settings settings = new Settings();
+        settings.languagesFilePath = languageFileName;
+        Boolean success = settings.load(false, true, false);
+
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR loading language file.";
+        }
+
+        // Get all items
+        List<LanguageItem> languageItems = settings.getListAllLanguageItemsForLanguage(langEnum);
+        if (languageItems == null || languageItems.isEmpty()) {
+            return "ERROR: Language items not found.";
+        }
+
+        Map<String, String> allItems = new HashMap<>();
+        for (LanguageItem item : languageItems) {
+            allItems.put(item.getKey(), item.getValue());
+        }
+
+        // Find source values
+        if (!settings.getAvailableLanguageCodes().contains(LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getLangCode())) {
+            return "ERROR: Language" + LanguagesEnum.fromName(cmbTranslateFrom.getValue()).getName() + " not present.";
+        }
+        List<LanguageItem> sourceLanguageItems = settings.getListAllLanguageItemsForLanguage(LanguagesEnum.fromName(cmbTranslateFrom.getValue()));
+        if (sourceLanguageItems == null || sourceLanguageItems.isEmpty()) {
+            return "ERROR: Translate from language items not found.";
+        }
+
+        Map<String, String> sourceValues = new HashMap<>();
+        for (LanguageItem item : sourceLanguageItems) {
+            sourceValues.put(item.getKey(), item.getValue());
+        }
+
+        // Translate items
+        Map<String, String> translations = UTranslate.translateMap(sourceValues, LanguagesEnum.fromName(cmbTranslateFrom.getValue()), langEnum);
+
+        if (translations == null || translations.isEmpty()) {
+            return "ERROR: Translation failed.";
+        }
+
+        // Save translations
+        for (LanguageItem item : languageItems) {
+            if (allItems.containsKey(item.getKey())) {
+                item.setValue(translations.get(item.getKey()));
+                settings.setLanguageItem(item);
+            }
+            else {
+                return "ERROR: Translated-Existing item mismatch.";
+            }
+        }
+
+        // Save file
+        success = settings.save(false, true, false);
+        if (!success || !settings.getLastErrorString().isEmpty()) {
+            return "ERROR: Saving language file failed.";
+        }
+
+        return "SUCCESS!";
+    }
 
     private void setAction(Action action) {
         lblAction.getStyleClass().remove("label-msg-normal");
@@ -311,6 +547,7 @@ public class ScrollPaneManageSection extends VBox {
             btnTransMissing.setDisable(false);
             btnTransAll.setDisable(false);
             lblStatus.setText("Missing" + missingTrans + " translations");
+            lblStatus.getStyleClass().add("label-msg-working");
         }
 
         // Set buttons availability depending on language presence in Settings

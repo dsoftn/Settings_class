@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox style="-fx-border-color: #ffff00; -fx-border-width: 1;" stylesheets="@../css/ScrollPaneSection.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+<VBox style="-fx-border-color: rgb(73,73,73); -fx-border-width: 1; -fx-background-color: rgb(3, 37, 46);" stylesheets="@../css/ScrollPaneSection.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Region maxHeight="20.0" minHeight="20.0" prefHeight="20.0" stylesheets="@../css/ScrollPaneSection.css" />
       <HBox alignment="CENTER">
