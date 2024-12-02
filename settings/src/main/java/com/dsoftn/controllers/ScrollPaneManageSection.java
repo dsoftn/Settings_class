@@ -4,25 +4,13 @@ package com.dsoftn.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.Region;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 
-import com.dsoftn.Settings.LanguageItemGroup;
-import com.dsoftn.controllers.ScrollPaneSection.MessageType;
-
-import javafx.application.Platform;
 import java.io.IOException;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -574,10 +562,6 @@ public class ScrollPaneManageSection extends VBox {
                 cmbTranslateFrom.getItems().add(langEnum.getName());
             }
         }        
-    }
-
-    private void log(String message) {
-        log(message, 0);
     }
 
     private void log(String message, int indentLevel) {

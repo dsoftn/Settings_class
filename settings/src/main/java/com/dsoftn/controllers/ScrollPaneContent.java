@@ -345,19 +345,6 @@ public class ScrollPaneContent extends VBox {
 
     // Private methods
 
-    private void refreshAllElements() {
-        for (Node node : elementList) {
-            if (node instanceof ScrollPaneSection) {
-                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
-                scrollPaneSection.layout();
-            }
-            else if (node instanceof ScrollPanelSectionAdd) {
-                ScrollPanelSectionAdd scrollPanelSectionAdd = (ScrollPanelSectionAdd) node;
-                scrollPanelSectionAdd.layout();
-            }
-        }
-    }
-
     private void checkIfSectionValueNeedsUpdate() {
         if (hasChangedSections()) {
             for (Node node : elementList) {

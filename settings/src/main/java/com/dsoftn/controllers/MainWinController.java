@@ -1996,7 +1996,7 @@ public class MainWinController {
     }
 
     private void mountNodeToScrollPaneManage() {
-        scrollPaneManageContent = new ScrollPaneManageContent(primaryStage, loadLangFromPath);
+        scrollPaneManageContent = new ScrollPaneManageContent(primaryStage);
 
         scrPaneManage.setContent(scrollPaneManageContent);
     }
@@ -2873,6 +2873,10 @@ public class MainWinController {
             }
             lblMngInfo.setVisible(false);
             lblMngInfo.setManaged(false);
+
+            if (scrollPaneManageContent.getLanguageFileName().equals(loadLangFromPath)) {
+                msgBoxInfo("Language Manager", "Strongly recommended", "Please reload currently loaded language file in LANGUAGE SECTION.");
+            }
 
         });
 

@@ -12,19 +12,12 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
-import com.dsoftn.Settings.LanguageItemGroup;
-import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.Settings.Settings;
 import com.dsoftn.events.EventAddLanguageToFile;
-import com.dsoftn.events.EventEditLanguageChanged;
-import com.dsoftn.events.EventEditLanguageContentChanged;
-import com.dsoftn.events.EventEditLanguageRemoved;
 import com.dsoftn.events.EventWriteLog;
 
 public class ScrollPaneManageContent extends VBox {
     // Variables
-    private String langLoadedListFileName = ""; // List loaded in language edit
     private String languageFileName = ""; // File name to work with
     private Stage primaryStage;
     private ObservableList<Node> elementList = FXCollections.observableArrayList(); // list of nodes
@@ -32,7 +25,7 @@ public class ScrollPaneManageContent extends VBox {
 
     // Constructor
     
-    public ScrollPaneManageContent(Stage primaryStage, String langLoadedListFileName) {
+    public ScrollPaneManageContent(Stage primaryStage) {
         this.primaryStage = primaryStage;
         // Listener for element list
         elementList.addListener((ListChangeListener<Node>) c -> {
