@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Pos;
+import javafx.concurrent.Task;
+import javafx.application.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -505,6 +507,31 @@ public class SaveDialogController {
         SaveSection saveTypePrev = this.saveType;
         setSaveType(SaveSection.WORKING);
         this.saveType = saveTypePrev;
+
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                saveDataTask();
+                return null;
+            }
+        };
+
+        task.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                log("Unexpected error: Failed to save data", 1);
+                log(task.getException().getMessage(), 2);
+                String strErrors = "Unexpected error: Unable to save data:\n" + task.getException().getMessage();
+                lblError.setText(strErrors);
+                setSaveType(SaveSection.ERROR);
+            });
+        });
+
+        Thread thread = new Thread(task);
+        thread.start();
+
+    }
+
+    private void saveDataTask() {
         String strErrors = "";
         log("Starting data save...", 1);
 
