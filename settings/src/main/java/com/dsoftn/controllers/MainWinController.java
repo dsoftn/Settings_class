@@ -1827,7 +1827,7 @@ public class MainWinController {
             msg = "\n" + msg;
         }
         
-        System.out.println(msg);
+        // System.out.println(msg);
 
         // Create file if not exists
         if (!Files.exists(Path.of(APP_LOG_FILE_NAME))) {
