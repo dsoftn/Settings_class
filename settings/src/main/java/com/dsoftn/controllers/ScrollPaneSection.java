@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.dsoftn.Settings.LanguageItem;
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 import com.dsoftn.utils.UTranslate;
 import com.dsoftn.events.EventEditLanguageRemoved;
 import com.dsoftn.events.EventEditLanguageChanged;

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.Settings.Settings;
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 import com.dsoftn.utils.UTranslate;
 import com.dsoftn.events.EventAddLanguageToFile;
 import com.dsoftn.events.EventWriteLog;

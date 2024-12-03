@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
 
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 import com.dsoftn.Settings.Settings;
 
 

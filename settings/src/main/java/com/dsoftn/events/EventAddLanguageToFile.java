@@ -3,7 +3,7 @@ package com.dsoftn.events;
 import javafx.event.Event;
 import javafx.event.EventType;
 
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 
 
 public class EventAddLanguageToFile extends Event {

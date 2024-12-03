@@ -88,7 +88,7 @@ import com.dsoftn.controllers.SaveDialogController.SaveSection;
 import com.dsoftn.events.EventWriteLog;
 import com.dsoftn.events.EventSettingsSaved;
 import com.dsoftn.events.EventEditLanguageContentChanged;
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 
 
 public class MainWinController {

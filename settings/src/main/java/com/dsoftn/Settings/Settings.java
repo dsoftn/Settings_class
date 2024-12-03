@@ -15,7 +15,7 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 import com.dsoftn.utils.PyDict;
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;

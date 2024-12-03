@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.nio.file.StandardCopyOption;
 
 import com.dsoftn.utils.PyDict;
-import com.dsoftn.utils.UTranslate.LanguagesEnum;
+import com.dsoftn.utils.LanguagesEnum;
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.Settings.LanguageItemGroup;
 import com.dsoftn.Settings.Settings;
