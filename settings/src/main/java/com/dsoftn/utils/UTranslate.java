@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class UTranslate {
     private static final Integer TRANSLATION_MIN_PART_SIZE = 2500;
     private static final Integer TRANSLATION_PAUSE_BETWEEN_TRANSLATIONS_MS = 1000;
     private static final Integer TRANSLATION_MAX_RETRIES = 3;
-    private static final String[] TRANSLATION_DELIMITERS = {"<gDelimUnique>", "<gDelimUnique2>", "<gDelimUnique3>", "<gDelimUnique4>", "<gDelimUnique5>"};
+    private static final String[] TRANSLATION_DELIMITERS = {"<29975)>", "<01)34)>", "<1d2s3o4f5t6n>", "<653424>", "<21367154352>"};
     private static final TranslateServiceEnum TRANSLATION_DEFAULT_SERVICE = TranslateServiceEnum.TRANSLATOR_SERVER_FREE;
 
     private static final Map<Character, String> cyrillicToLatinMap = new HashMap<>();
@@ -451,7 +452,7 @@ public class UTranslate {
         }
 
         // Split translated text by delimiter
-        String[] translatedParts = translatedText.split(delimiterInUse, -1);
+        String[] translatedParts = translatedText.split(Pattern.quote(delimiterInUse), -1);
         if (translatedParts.length != listToTranslate.size()) {
             System.out.println("Number of translated parts does not match number of original parts.");
             return null;
@@ -585,7 +586,7 @@ public class UTranslate {
     }
 
     private static List<String> splitByDelimiter(String text, String delimiter, int maxPartSize, int minPartSize) {
-        String[] segments = text.split(delimiter, -1);
+        String[] segments = text.split(Pattern.quote(delimiter), -1);
         List<String> parts = new ArrayList<>();
         StringBuilder currentPart = new StringBuilder();
     

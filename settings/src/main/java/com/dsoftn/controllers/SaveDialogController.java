@@ -228,27 +228,25 @@ public class SaveDialogController {
             populateWidgets();
         }
         else if (type == SaveSection.ALL) {
+            boolean hasSttItems = true;
+            boolean hasLangItems = true;
+
             // Show Settings
             List<String> sttFilesToUpdate = appState.getPyDictValue(PyDict.concatKeys(Section.SETTINGS.toString(), "updateSttFilesPaths"));
             layoutSectionStt.setVisible(true);
             layoutSectionStt.setManaged(true);
+            lblCompleted.setText("Settings");
             if (getChangedSettingsItemsList().isEmpty() || sttFilesToUpdate == null || sttFilesToUpdate.isEmpty()) {
+                hasSttItems = false;
                 if (getChangedSettingsItemsList().isEmpty()) {
-                    layoutSectionCompleted.setVisible(true);
-                    layoutSectionCompleted.setManaged(true);
-                    lblCompleted.setText("No settings to save");
-                    btnOk.setVisible(true);
-                    btnOk.setManaged(true);
+                    lblCompleted.setText(lblCompleted.getText() + "\nNo settings items to save");
                 }
                 else {
-                    layoutSectionCompleted.setVisible(true);
-                    layoutSectionCompleted.setManaged(true);
-                    lblCompleted.setText("No selected settings files to update");
-                    btnOk.setVisible(true);
-                    btnOk.setManaged(true);
+                    lblCompleted.setText(lblCompleted.getText() + "\nNo selected settings files to update");
                 }
             }
             else {
+                lblCompleted.setText(lblCompleted.getText() + "\nAll Settings files are successfully saved.");
                 btnSave.setVisible(true);
                 btnSave.setManaged(true);
                 btnCancel.setVisible(true);
@@ -259,37 +257,29 @@ public class SaveDialogController {
             List<String> langFilesToUpdate = appState.getPyDictValue(PyDict.concatKeys(Section.LANGUAGE.toString(), "updateLangFilesPaths"));
             layoutSectionLang.setVisible(true);
             layoutSectionLang.setManaged(true);
+            lblCompleted.setText(lblCompleted.getText() + "\nLanguage");
             if (getChangedLanguageItemsList().isEmpty() || langFilesToUpdate == null || langFilesToUpdate.isEmpty()) {
+                hasLangItems = false;
                 if (getChangedLanguageItemsList().isEmpty()) {
-                    if (layoutSectionCompleted.isVisible()) {
-                        lblCompleted.setText(lblCompleted.getText() + "\nNo language to save");
-                    }
-                    else {
-                        lblCompleted.setText("No language to save");
-                    }
-                    layoutSectionCompleted.setVisible(true);
-                    layoutSectionCompleted.setManaged(true);
-                    btnOk.setVisible(true);
-                    btnOk.setManaged(true);
+                    lblCompleted.setText(lblCompleted.getText() + "\nNo language items to save");
                 }
                 else {
-                    if (layoutSectionCompleted.isVisible()) {
-                        lblCompleted.setText(lblCompleted.getText() + "\nNo selected language files to update");
-                    }
-                    else {
-                        lblCompleted.setText("No selected language files to update");
-                    }
-                    layoutSectionCompleted.setVisible(true);
-                    layoutSectionCompleted.setManaged(true);
-                    btnOk.setVisible(true);
-                    btnOk.setManaged(true);
+                    lblCompleted.setText(lblCompleted.getText() + "\nNo selected language files to update");
                 }
             }
             else {
+                lblCompleted.setText(lblCompleted.getText() + "\nAll Language files are successfully saved.");
                 btnSave.setVisible(true);
                 btnSave.setManaged(true);
                 btnCancel.setVisible(true);
                 btnCancel.setManaged(true);
+            }
+
+            if (!hasSttItems && !hasLangItems) {
+                layoutSectionCompleted.setVisible(true);
+                layoutSectionCompleted.setManaged(true);
+                btnOk.setVisible(true);
+                btnOk.setManaged(true);
             }
 
             populateWidgets();

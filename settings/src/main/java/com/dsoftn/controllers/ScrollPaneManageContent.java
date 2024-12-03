@@ -109,6 +109,19 @@ public class ScrollPaneManageContent extends VBox {
         return languageFileName;
     }
 
+    public boolean hasActions() {
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneManageSection) {
+                ScrollPaneManageSection scrollPaneSection = (ScrollPaneManageSection) node;
+                if (scrollPaneSection.getAction() != ScrollPaneManageSection.Action.NONE) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public String executeAllActions() {
         log("Language Manager: Executing all actions...");
         String result = "";

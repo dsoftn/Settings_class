@@ -237,6 +237,7 @@ public class MainWinController {
 
     // -------------------------- CONSTANTS
     // Icon size for buttons, labels...
+    private final String APP_TITLE = "Settings and Language Editor";
     private final double WIDGET_GRAPHIC_SIZE = 20;
     // Messages
     private final double MSG_LABEL_FADE_IN_DURATION = 0.2;
@@ -453,11 +454,11 @@ public class MainWinController {
         messagesDict.setPyDictValue(String.format("[%s]",Section.LANGUAGE_MANAGE.toString()), new ArrayList<>());
         // Add normal message to each section
         activeSection = Section.LANGUAGE_MANAGE;
-        addMessage(new MsgInfo("1", "Language Manager", "Language Manager 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
+        addMessage(new MsgInfo("1", APP_TITLE, "Language Manager 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
         activeSection = Section.LANGUAGE;
-        addMessage(new MsgInfo("2", "Language Editor", "Language Editor 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
+        addMessage(new MsgInfo("2", APP_TITLE, "Language Editor 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
         activeSection = Section.SETTINGS;
-        addMessage(new MsgInfo("1", "Settings Editor", "Settings Editor 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
+        addMessage(new MsgInfo("1", APP_TITLE, "Settings Editor 2.0\ndsoftn@gmail.com", MsgInfo.MsgStyle.NORMAL, MsgInfo.ErrorCode.NONE, 0, -1, false));
 
         setupWidgets();
 
@@ -2571,7 +2572,7 @@ public class MainWinController {
 
     private void setupWidgetsText() {
         // Set Text
-        lblInfo.setText("Settings Editor 2.0");
+        lblInfo.setText(APP_TITLE);
         lblSource.setText("Click to load keys from file");
 
         // Set ToolTips
@@ -2861,10 +2862,11 @@ public class MainWinController {
 
         executeActions.setOnSucceeded(event -> {
             String result = executeActions.getValue();
+            boolean hasActions = scrollPaneManageContent.hasActions();
             if (result.startsWith("ERROR")) {
                 lblMngInfo.setText("Done with errors.");
                 msgBoxInfoCritical("Language Manager", "Actions performed on language file:\n" + scrollPaneManageContent.getLanguageFileName(), result);
-                scrollPaneManageContent.setLanguageFileName(scrollPaneManageContent.getLanguageFileName());
+                setLangFileToScrollPaneManage(scrollPaneManageContent.getLanguageFileName());
             }
             else {
                 lblMngInfo.setText("Done.");
@@ -2874,8 +2876,17 @@ public class MainWinController {
             lblMngInfo.setVisible(false);
             lblMngInfo.setManaged(false);
 
-            if (scrollPaneManageContent.getLanguageFileName().equals(loadLangFromPath)) {
-                msgBoxInfo("Language Manager", "Strongly recommended", "Please reload currently loaded language file in LANGUAGE SECTION.");
+            if (scrollPaneManageContent.getLanguageFileName().equals(loadLangFromPath) && hasActions) {
+                if (chkAutoUpdateFiles.isSelected()) {
+                    msgBoxInfo("Language Manager", "Reloading Language Section file", "You have made some changes to Language file that has been loaded in LANGUAGE SECTIOn.\nFile in LANGUAGE SECTION will be reloaded.");
+                    reloadLanguageFile(scrollPaneManageContent.getLanguageFileName());
+                }
+                else {
+                    boolean canReloadFile = msgBoxInfoQuestion("Language Manager", "Strongly recommended", "You have made some changes to Language file that has been loaded in LANGUAGE SECTIOn.\nPlease reload currently loaded language file in LANGUAGE SECTION.\n\nDo you want to reload file now ?");
+                    if (canReloadFile) {
+                        reloadLanguageFile(scrollPaneManageContent.getLanguageFileName());
+                    }
+                }
             }
 
         });
@@ -2890,6 +2901,45 @@ public class MainWinController {
         });
 
         new Thread(executeActions).start();
+    }
+
+    private void reloadLanguageFile(String filePath) {
+        log("Reloading language file: " + filePath);
+        logIndentPlus();
+        
+        // Check if file exists
+        File file = new File(filePath);
+        if (!file.exists()) {
+            log("Reloading failed: File does not exist");
+            logIndentMinus();
+            return;
+        }
+        
+        // Get file content
+        PyDict loadedData = getLanguageFileContent(filePath);
+        if (loadedData == null) {
+            log("Failed to reload language file: No Data !");
+            logIndentMinus();
+            return;
+        }
+
+        // Load data to langLoadedMap
+        List<LanguageItemGroup> listOfItems = LanguageItemGroup.getListOfGroupLanguageObjectsFromLanguageMapObject(loadedData);
+        langLoadedMap.clear();
+        for (LanguageItemGroup itemGroup : listOfItems) {
+            langLoadedMap.put(itemGroup.getGroupKey(), itemGroup);
+        }
+
+        // Refresh Visible List
+        changeLangVisibleList(langVisibleList);
+        
+        // Refresh variables
+        loadLangFromPath = filePath;
+        lblSource.setText(loadLangFromPath);
+        
+        // Finish
+        log("File reloaded.");
+        logIndentMinus();
     }
 
     private void setLangFileToScrollPaneManage(String filePath) {
@@ -3375,6 +3425,10 @@ public class MainWinController {
         openSaveDialog(SaveSection.LANGUAGE);
     }
 
+    @FXML
+    private void onBtnSaveAllClick() {
+        openSaveDialog(SaveSection.ALL);
+    }
 
     private void openSaveDialog(SaveSection type) {
         try {
@@ -3401,6 +3455,12 @@ public class MainWinController {
 
             saveDialogStage.showAndWait();
             log("Save dialog closed");
+            if (type == SaveSection.LANGUAGE || type == SaveSection.ALL) {
+                scrollPaneManageContent.setLanguageFileName(scrollPaneManageContent.getLanguageFileName());
+                logIndentPlus();
+                log("Manage Language content updated");
+                logIndentMinus();
+            }
         }
         catch (IOException e) {
             log("Opening save dialog failed:");
