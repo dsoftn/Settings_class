@@ -9,6 +9,13 @@ The `Settings` class is designed to simplify the management of application setti
 - Allows type safety for different data types like `String`, `int`, `boolean`, etc.
 - Simple methods for adding, updating, and deleting settings.
 
+## Extras
+
+- This repository includes a **Settings & Language Editor** that allows you to create and manage settings for your application in a user-friendly interface.
+
+## Screenshot
+![App Screenshot](images/screenshot.jpg)
+
 ## Usage
 
 1. Clone or download the repository:

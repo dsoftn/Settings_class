@@ -455,7 +455,7 @@ public class UTranslate {
     }
 
     public static String translateUsingGooglePublicHTTP(String text, LanguagesEnum fromLang, LanguagesEnum toLang) {
-        // LIMITAIONS:
+        // LIMITATIONS:
         // Up to 5000 characters per request
         // Up to 100 requests per minute (recommended: 60)
 

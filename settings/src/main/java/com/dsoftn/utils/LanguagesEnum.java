@@ -1,3 +1,4 @@
+// cSpell:disable
 package com.dsoftn.utils;
 
 import java.util.ArrayList;
