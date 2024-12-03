@@ -14,7 +14,7 @@ The `Settings` class is designed to simplify the management of application setti
 - This repository includes a **Settings & Language Editor** that allows you to create and manage settings for your application in a user-friendly interface.
 
 ## Screenshot
-![App Screenshot](images/screenshot.jpg)
+![App Screenshot](screenshot.jpg)
 
 ## Usage
 
