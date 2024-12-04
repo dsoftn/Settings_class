@@ -238,6 +238,7 @@ public class MainWinController {
     // -------------------------- CONSTANTS
     // Icon size for buttons, labels...
     private final String APP_TITLE = "Settings and Language Editor";
+    private final boolean PRINT_LOG_TO_CONSOLE = false;
     private final double WIDGET_GRAPHIC_SIZE = 20;
     // Messages
     private final double MSG_LABEL_FADE_IN_DURATION = 0.2;
@@ -1827,7 +1828,9 @@ public class MainWinController {
             msg = "\n" + msg;
         }
         
-        // System.out.println(msg);
+        if (PRINT_LOG_TO_CONSOLE) {
+            System.out.println(msg);
+        }
 
         // Create file if not exists
         if (!Files.exists(Path.of(APP_LOG_FILE_NAME))) {
