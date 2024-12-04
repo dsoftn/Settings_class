@@ -220,6 +220,7 @@ public class MainWinController {
     private String sttVisibleList = ""; // List of settings keys that are visible ("Loaded" or "Changed")
     private double fontSizeLstStt = 14; // Font size for ListView lstStt
     private String lstSttSortKey = "Created"; // Sort key for lstStt ("Key", "Created")
+    private boolean sttListReloadedItem = false; // Signal to lstStt.onMouseClicked that item should be reloaded
 
     // -------------------------- APPLICATION VARIABLES - LANGUAGE
     private PyDict langLoadedMap = new PyDict(); // Map of languages that are loaded from file
@@ -231,6 +232,7 @@ public class MainWinController {
     private double fontSizeLstLang = 14; // Font size for ListView lstLang
     private String lstLangSortKey = "Created"; // Sort key for lstLang ("Key", "Created")
     private ScrollPaneContent scrollPaneContent = null; // ScrollPaneContent object
+    private boolean langListReloadedItem = false; // Signal to lstLang.onMouseClicked that item should be reloaded
 
     // -------------------------- APPLICATION VARIABLES - LANGUAGE MANAGE
     private ScrollPaneManageContent scrollPaneManageContent = null; // ScrollPaneManageContent object
@@ -2074,8 +2076,20 @@ public class MainWinController {
     private void setupListenerForLstLang() {
         lstLang.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
+                langListReloadedItem = true;
                 log("Current Language item changed to: " + newValue);
                 langCurrentItemChanged(newValue);
+            }
+        });
+
+        lstLang.setOnMousePressed((MouseEvent event) -> {
+            langListReloadedItem = false;
+        });
+
+        lstLang.setOnMouseClicked((MouseEvent event) -> {
+            if (!langListReloadedItem && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1 && lstLang.getSelectionModel().getSelectedItem() != null) {
+                log("Current Language item reloaded to: " + lstLang.getSelectionModel().getSelectedItem());
+                langCurrentItemChanged(lstLang.getSelectionModel().getSelectedItem());
             }
         });
     }
@@ -2291,8 +2305,20 @@ public class MainWinController {
     private void setupListenerForLstStt() {
         lstStt.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
+                sttListReloadedItem = true;
                 log("Current Settings item changed to: " + newValue);
                 sttCurrentItemChanged(newValue);
+            }
+        });
+
+        lstStt.setOnMousePressed((MouseEvent event) -> {
+            sttListReloadedItem = false;
+        });
+
+        lstStt.setOnMouseClicked((MouseEvent event) -> {
+            if (!sttListReloadedItem && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1 && lstStt.getSelectionModel().getSelectedItem() != null) {
+                log("Current Settings item reloaded to: " + lstStt.getSelectionModel().getSelectedItem());
+                sttCurrentItemChanged(lstStt.getSelectionModel().getSelectedItem());
             }
         });
     }
@@ -4429,7 +4455,11 @@ public class MainWinController {
         // Data Type
         List<String> allowedValueDataTypes = getAvailableDataTypes(txtSttValue.getText());
         for (int i = 0; i < allowedValueDataTypes.size(); i++) {
-            allowedValueDataTypes.set(i, allowedValueDataTypes.get(i).toUpperCase());
+            String fixedItem = allowedValueDataTypes.get(i).toUpperCase();
+            if (fixedItem.contains("(")) {
+                fixedItem = fixedItem.substring(0, fixedItem.indexOf("(")).trim();
+            }
+            allowedValueDataTypes.set(i, fixedItem);
         }
         allowedValueDataTypes.add(DataType.STRING.toString());
 
@@ -4472,7 +4502,11 @@ public class MainWinController {
         // Default Value
         List<String> allowedDefValueDataTypes = getAvailableDataTypes(txtSttDefValue.getText());
         for (int i = 0; i < allowedDefValueDataTypes.size(); i++) {
-            allowedDefValueDataTypes.set(i, allowedDefValueDataTypes.get(i).toUpperCase());
+            String fixedItem = allowedDefValueDataTypes.get(i).toUpperCase();
+            if (fixedItem.contains("(")) {
+                fixedItem = fixedItem.substring(0, fixedItem.indexOf("(")).trim();
+            }
+            allowedDefValueDataTypes.set(i, fixedItem);
         }
         allowedDefValueDataTypes.add(DataType.STRING.toString());
 
