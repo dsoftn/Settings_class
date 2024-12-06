@@ -633,9 +633,9 @@ public class UTranslate {
 
     public static boolean startTranslatorServer() {
         boolean result;
-        result = UFile.startFile("translator.py", "-server");
+        result = UFile.startFile("./Translator/translator.py", "-server");
         if (!result) {
-            result = UFile.startFile("translator.exe", "-server");
+            result = UFile.startFile("./Translator/translator.exe", "-server");
         }
 
         return result;

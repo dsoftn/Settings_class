@@ -1,9 +1,13 @@
 # Maven target folder
 /settings/target/
+/target/
 
 # Eclipse, IntelliJ IDEA, and VSCode specific files
+/settings/.idea/
 /.idea/
+/settings/.vscode/
 /.vscode/
+/settings/*.iml
 /*.iml
 
 # Log files
@@ -19,16 +23,16 @@ Thumbs.db
 # Temporary files
 *.tmp
 
-# Configuration file i root directory
+# Configuration file
+/settings/config.json
 /config.json
 
-# Settings and Language user files in root directory
+# Settings and Language user files
+/settings/*.json
 /*.json
 
-# Config file in /settings directory
-/settings/config.json
-
 # Translator Server Executable
+/settings/Translator/*.*
 translator.exe
 translator.py
 translator.bat
