@@ -405,7 +405,7 @@ public class ScrollPaneSection extends VBox {
         log("Translating from " + cmbTranslateFrom.getValue() + " to " + langEnum.getName() + " started...");
 
         // Check if translator.exe is in project working directory
-        File translatorEXE = new File("translator.exe");
+        File translatorEXE = new File("./Translator/translator.exe");
         if (!translatorEXE.exists()) {
             showMessage("Translator not found", MessageType.ERROR);
             log("Translator not found", 1);
