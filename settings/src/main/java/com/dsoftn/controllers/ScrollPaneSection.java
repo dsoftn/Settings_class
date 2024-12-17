@@ -280,6 +280,19 @@ public class ScrollPaneSection extends VBox {
         }
     }
 
+    public LanguagesEnum getTranslateFromLanguage() {
+        return LanguagesEnum.fromName(cmbTranslateFrom.getValue());
+    }
+
+    public boolean setTranslateFromLanguage(LanguagesEnum languagesEnum) {
+        if (languagesEnum != null && cmbTranslateFrom.getItems().contains(languagesEnum.getName())) {
+            cmbTranslateFrom.setValue(languagesEnum.getName());
+            return true;
+        }
+
+        return false;
+    }
+
     // Private Methods
 
     private void showYesNoButtons() {

@@ -205,18 +205,40 @@ public class ScrollPaneContent extends VBox {
         //     return;
         // }
         
+        // Remember all translation languages that are already set
+        Map<String, LanguagesEnum> alreadySetLanguages = new HashMap<>();
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                if (scrollPaneSection.getLanguageCode() != null && scrollPaneSection.getTranslateFromLanguage() != null) {
+                    alreadySetLanguages.put(scrollPaneSection.getLanguageCode(), scrollPaneSection.getTranslateFromLanguage());
+                }
+            }
+        }
 
+        // Clear all elements
         elementList.clear();
 
+        // Add new elements
         for (LanguageItem languageItem : languageItemGroup.getLanguageItems()) {
             ScrollPaneSection scrollPaneSection = new ScrollPaneSection(languageItem);
             scrollPaneSection.setLanguageItemGroup(languageItemGroup);
-            
+
             elementList.add(scrollPaneSection);
         }
         addFooter();
 
         updateAlreadyAddedForAllElements();
+
+        // Set all translation languages that are already set
+        for (Node node : elementList) {
+            if (node instanceof ScrollPaneSection) {
+                ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
+                if (scrollPaneSection.getLanguageCode() != null && scrollPaneSection.getTranslateFromLanguage() == null) {
+                    scrollPaneSection.setTranslateFromLanguage(alreadySetLanguages.get(scrollPaneSection.getLanguageCode()));
+                }
+            }
+        }
 
         Platform.runLater(() -> this.layout());
         
