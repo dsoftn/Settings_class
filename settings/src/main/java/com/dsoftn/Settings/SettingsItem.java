@@ -1,7 +1,7 @@
 package com.dsoftn.Settings;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -900,7 +900,7 @@ public class SettingsItem {
     }    
 
     /**
-     * If string can be converted to Map, returns PyDict (HashMap) value, otherwise returns null
+     * If string can be converted to Map, returns PyDict (LinkedHashMap) value, otherwise returns null
      * @param data - string to check
      * @return - PyDict value or null
      */
@@ -908,7 +908,7 @@ public class SettingsItem {
         Gson gson = new Gson();
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object> map = gson.fromJson(data, HashMap.class);
+            Map<String, Object> map = gson.fromJson(data, LinkedHashMap.class);
             if (map == null) {
                 return null;
             }

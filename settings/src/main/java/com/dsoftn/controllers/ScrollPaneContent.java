@@ -11,7 +11,7 @@ import javafx.scene.Node;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.dsoftn.utils.LanguagesEnum;
 import com.dsoftn.Settings.LanguageItemGroup;
@@ -206,7 +206,7 @@ public class ScrollPaneContent extends VBox {
         // }
         
         // Remember all translation languages that are already set
-        Map<String, LanguagesEnum> alreadySetLanguages = new HashMap<>();
+        Map<String, LanguagesEnum> alreadySetLanguages = new LinkedHashMap<>();
         for (Node node : elementList) {
             if (node instanceof ScrollPaneSection) {
                 ScrollPaneSection scrollPaneSection = (ScrollPaneSection) node;
@@ -272,7 +272,7 @@ public class ScrollPaneContent extends VBox {
     // Serialization / Deserialization
 
     public Map<String, Object> toMap() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
         
         // Sections
         List<Map<String, Object>> sections = new ArrayList<>();

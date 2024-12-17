@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -4414,7 +4414,7 @@ public class MainWinController {
     private Map<String, String> getChangedItemReport() {
         int problemCount = 0;
         
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = new LinkedHashMap<>();
         result.put("result", "true");
         result.put("Problems", "No problems found.");
         result.put("SettingsKey", "Ok.");
@@ -5403,7 +5403,7 @@ public class MainWinController {
     }    
 
     /**
-     * If string can be converted to Map, returns PyDict (HashMap) value, otherwise returns null
+     * If string can be converted to Map, returns PyDict (LinkedHashMap) value, otherwise returns null
      * @param data - string to check
      * @return - PyDict value or null
      */
@@ -5411,7 +5411,7 @@ public class MainWinController {
         Gson gson = new Gson();
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object> map = gson.fromJson(data, HashMap.class);
+            Map<String, Object> map = gson.fromJson(data, LinkedHashMap.class);
             if (map == null) {
                 return null;
             }

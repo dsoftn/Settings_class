@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -44,7 +44,7 @@ public class UTranslate {
     private static final String[] TRANSLATION_DELIMITERS = {"<29975)>", "<01)34)>", "<1d2s3o4f5t6n>", "<653424>", "<21367154352>"};
     private static final TranslateServiceEnum TRANSLATION_DEFAULT_SERVICE = TranslateServiceEnum.TRANSLATOR_SERVER_FREE;
 
-    private static final Map<Character, String> cyrillicToLatinMap = new HashMap<>();
+    private static final Map<Character, String> cyrillicToLatinMap = new LinkedHashMap<>();
     static {
         cyrillicToLatinMap.put('А', "A");
         cyrillicToLatinMap.put('Б', "B");
@@ -108,7 +108,7 @@ public class UTranslate {
         cyrillicToLatinMap.put('ш', "š");
     }
 
-    private static final Map<String, Character> latinToCyrillicMap = new HashMap<>();
+    private static final Map<String, Character> latinToCyrillicMap = new LinkedHashMap<>();
     static {
         latinToCyrillicMap.put("Lj", 'Љ');
         latinToCyrillicMap.put("LJ", 'Љ');
@@ -215,7 +215,7 @@ public class UTranslate {
         }
 
         // Convert the list back to a map
-        Map<String, String> translatedMap = new HashMap<>();
+        Map<String, String> translatedMap = new LinkedHashMap<>();
         for (int i = 0; i < listOfKeys.size(); i++) {
             translatedMap.put(listOfKeys.get(i), translatedListOfValues.get(i));
         }
@@ -541,7 +541,7 @@ public class UTranslate {
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Make Map object
-            Map<String, String> data = new HashMap<>();
+            Map<String, String> data = new LinkedHashMap<>();
             data.put("text", text);
             data.put("from", fromLang.getGoogleCode());
             data.put("to", toLang.getGoogleCode());

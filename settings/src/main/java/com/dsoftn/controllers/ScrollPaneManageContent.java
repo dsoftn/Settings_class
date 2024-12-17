@@ -10,7 +10,7 @@ import javafx.scene.Node;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.dsoftn.Settings.Settings;
 import com.dsoftn.events.EventAddLanguageToFile;
@@ -152,7 +152,7 @@ public class ScrollPaneManageContent extends VBox {
     // Serialization / Deserialization
 
     public Map<String, Object> toMap() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
         
         // Sections
         // List<Map<String, Object>> sections = new ArrayList<>();

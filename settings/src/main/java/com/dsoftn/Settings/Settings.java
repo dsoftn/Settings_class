@@ -494,7 +494,7 @@ public class Settings {
 
     /**
      * <p><b>User Settings</b></p>
-     * <p>Returns Map Object (PyDict|HashMap) representation of value</p>
+     * <p>Returns Map Object (PyDict|LinkedHashMap) representation of value</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @return <b>Object</b> <i>value</i> - Returns User settings value for specified key
      * @throws RuntimeException if key not found
@@ -505,7 +505,7 @@ public class Settings {
 
     /**
      * <p><b>User Settings</b></p>
-     * <p>Returns PyDict Object (PyDict|HashMap) representation of value</p>
+     * <p>Returns PyDict Object (PyDict|LinkedHashMap) representation of value</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @return <b>Object</b> <i>value</i> - Returns User settings value for specified key
      * @throws RuntimeException if key not found
@@ -790,7 +790,7 @@ public class Settings {
 
     /**
      * <p><b>Application Settings</b></p>
-     * <p>Returns Map Object (PyDict|HashMap) representation of value</p>
+     * <p>Returns Map Object (PyDict|LinkedHashMap) representation of value</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @return <b>Object</b> <i>value</i> - Returns User settings value for specified key
      * @throws RuntimeException if key not found
@@ -801,7 +801,7 @@ public class Settings {
 
     /**
      * <p><b>Application Settings</b></p>
-     * <p>Returns PyDict Object (PyDict|HashMap) representation of value</p>
+     * <p>Returns PyDict Object (PyDict|LinkedHashMap) representation of value</p>
      * @param key - <b>String</b> <i>key</i> - key of setting
      * @return <b>Object</b> <i>value</i> - Returns User settings value for specified key
      * @throws RuntimeException if key not found

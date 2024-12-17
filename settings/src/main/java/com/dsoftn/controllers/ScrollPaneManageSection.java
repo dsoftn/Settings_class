@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 import com.dsoftn.Settings.LanguageItem;
@@ -100,7 +100,7 @@ public class ScrollPaneManageSection extends VBox {
     // Serialization and Deserialization
 
     public Map<String, Object> toMap() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         if (langEnum == null) {
             result.put("langEnum", null);
@@ -316,7 +316,7 @@ public class ScrollPaneManageSection extends VBox {
             return "ERROR: Language items not found.";
         }
 
-        Map<String, String> missingTranslations = new HashMap<>();
+        Map<String, String> missingTranslations = new LinkedHashMap<>();
         for (LanguageItem item : languageItems) {
             if (item.getValue().isEmpty()) {
                 missingTranslations.put(item.getKey(), item.getValue());
@@ -336,7 +336,7 @@ public class ScrollPaneManageSection extends VBox {
             return "ERROR: Translate from language items not found.";
         }
 
-        Map<String, String> sourceValues = new HashMap<>();
+        Map<String, String> sourceValues = new LinkedHashMap<>();
         for (LanguageItem item : sourceLanguageItems) {
             sourceValues.put(item.getKey(), item.getValue());
         }
@@ -386,7 +386,7 @@ public class ScrollPaneManageSection extends VBox {
             return "ERROR: Language items not found.";
         }
 
-        Map<String, String> allItems = new HashMap<>();
+        Map<String, String> allItems = new LinkedHashMap<>();
         for (LanguageItem item : languageItems) {
             allItems.put(item.getKey(), item.getValue());
         }
@@ -400,7 +400,7 @@ public class ScrollPaneManageSection extends VBox {
             return "ERROR: Translate from language items not found.";
         }
 
-        Map<String, String> sourceValues = new HashMap<>();
+        Map<String, String> sourceValues = new LinkedHashMap<>();
         for (LanguageItem item : sourceLanguageItems) {
             sourceValues.put(item.getKey(), item.getValue());
         }

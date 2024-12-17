@@ -1,6 +1,6 @@
 package com.dsoftn.utils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import java.util.List;
@@ -10,14 +10,14 @@ import java.util.regex.Pattern;
 
 /**
  * <p>Class for working with Python dictionaries</p>
- * <p>PyDict extends <i>HashMap</i> with additional methods for working with Python dictionaries</p>
+ * <p>PyDict extends <i>LinkedHashMap</i> with additional methods for working with Python dictionaries</p>
  * <p>Use PyDict as follows:</p>
  * <p><b>Example</b>:</p> 
  * <p>    PyDict dict = new PyDict();<p>
  * <p>    dict.setPyDictValue("[key1][key2]", "my string value");</p>
  * <p>    if (dict.isPyDictKeyExists("[key1][key2]")) { String value = (String) dict.getPyDictValue("[key1][key2]"); }</p>
  */
-public class PyDict extends HashMap<String, Object> {
+public class PyDict extends LinkedHashMap<String, Object> {
     public static final String PY_DICT_VERSION = "1.0.0";
 
     private static final ArrayList<String> PYDICT_KEYS_DELIMITERS = new ArrayList<String>(List.of("[]", ",", " "));
@@ -29,7 +29,7 @@ public class PyDict extends HashMap<String, Object> {
         super();
     }
 
-    public PyDict(HashMap<String, Object> map) {
+    public PyDict(LinkedHashMap<String, Object> map) {
         super(map);
     }
 

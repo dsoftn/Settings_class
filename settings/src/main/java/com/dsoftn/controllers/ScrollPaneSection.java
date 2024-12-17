@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.dsoftn.Settings.LanguageItem;
 import com.dsoftn.utils.LanguagesEnum;
@@ -99,7 +99,7 @@ public class ScrollPaneSection extends VBox {
     // Serialization and Deserialization
 
     public Map<String, Object> toMap() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         if (langEnum == null) {
             result.put("langEnum", null);

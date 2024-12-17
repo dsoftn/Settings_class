@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.net.URL;
 
 import com.dsoftn.utils.LanguagesEnum;
@@ -88,7 +88,7 @@ public class ScrollPanelSectionAdd extends VBox{
     // Serialization and deserialization
 
     public Map<String, Object> toMap() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         // File Affected
         result.put("fileAffected", fileAffected);
