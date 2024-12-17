@@ -3,13 +3,13 @@ package com.dsoftn.Settings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.io.FileWriter;
 import java.io.File;
 import java.util.stream.Collectors;
 import java.lang.reflect.Type;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
@@ -1257,6 +1257,17 @@ public class Settings {
         lastErrorString = "";
     }
 
+    public void reset() {
+        data = new PyDict();
+        lang = new PyDict();
+        appData = new PyDict();
+        activeLanguage = "";
+        lastErrorString = "";
+        userSettingsFilePath = "";
+        languagesFilePath = "";
+        appDataFilePath = "";
+    }
+
     // Private methods
 
     /**
@@ -1301,9 +1312,9 @@ public class Settings {
             .create();
             
         String json = gson.toJson(translatedData);
-        // Write data to file
-        try (FileWriter file = new FileWriter(filePath)) {
-            file.write(json);
+        // Write data to file, encoding to UTF-8
+        try {
+            Files.write(Path.of(filePath), json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             printError("Error saving data: " + e.getMessage());
             throw new RuntimeException(e);
@@ -1355,8 +1366,8 @@ public class Settings {
             
         String json = gson.toJson(translatedData);
         // Write data to file
-        try (FileWriter file = new FileWriter(filePath)) {
-            file.write(json);
+        try {
+            Files.write(Path.of(filePath), json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             printError("Error saving data: " + e.getMessage());
             throw new RuntimeException(e);
@@ -1420,8 +1431,8 @@ public class Settings {
             
         String json = gson.toJson(translatedData);
         // Write data to file
-        try (FileWriter file = new FileWriter(filePath)) {
-            file.write(json);
+        try {
+            Files.write(Path.of(filePath), json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             printError("Error saving data: " + e.getMessage());
             throw new RuntimeException(e);
@@ -1510,7 +1521,7 @@ public class Settings {
 
         Gson gson = new Gson();
         try {
-            String json = new String(Files.readAllBytes(Path.of(filePath)));
+            String json = new String(Files.readAllBytes(Path.of(filePath)), StandardCharsets.UTF_8);
             Type type = new TypeToken<Map<String, Object>>(){}.getType();
             Map<String, Object> loadedData = gson.fromJson(json, type);
             if (convertToSettingsItems) {

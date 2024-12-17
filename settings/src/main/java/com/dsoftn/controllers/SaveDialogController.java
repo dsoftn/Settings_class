@@ -788,7 +788,9 @@ public class SaveDialogController {
             }
 
             EventSettingsSaved eventSaved = new EventSettingsSaved(sttHasSaved, langHasSaved );
-            primaryStage.fireEvent(eventSaved);
+            Platform.runLater(() -> {
+                primaryStage.fireEvent(eventSaved);
+            });
         }
         else {
             log("Finished saving data, completed WITH ERRORS", 1);
@@ -968,7 +970,9 @@ public class SaveDialogController {
     // Log
     private void log(String msg, int level) {
         EventWriteLog logEvent = new EventWriteLog(msg, level);
-        primaryStage.fireEvent(logEvent);
+        Platform.runLater(() -> {
+            primaryStage.fireEvent(logEvent);
+        });
     }
 
 

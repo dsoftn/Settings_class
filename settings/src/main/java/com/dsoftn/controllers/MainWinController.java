@@ -70,6 +70,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
@@ -1071,7 +1072,8 @@ public class MainWinController {
         if (Files.exists(Path.of(filePath))) {
             Gson gson = new Gson();
             try {
-                appState = gson.fromJson(Files.readString(Path.of(filePath)), PyDict.class);
+                String appStateString = new String(Files.readAllBytes(Path.of(filePath)), StandardCharsets.UTF_8);
+                appState = gson.fromJson(appStateString, PyDict.class);
                 if (appState.getPyDictValue("chkSaveState") == null) {
                     appState.setPyDictValue("chkSaveState", true);
                     chkSaveState.setSelected(true);
@@ -1180,7 +1182,7 @@ public class MainWinController {
             .create();
         String json = gson.toJson(appState);
         try {
-            Files.writeString(Path.of(filePath), json);
+            Files.write(Path.of(filePath), json.getBytes(StandardCharsets.UTF_8));
             log("AppState saved to '" + filePath + "'");
         } catch (Exception e) {
             MsgInfo msg = new MsgInfo(
