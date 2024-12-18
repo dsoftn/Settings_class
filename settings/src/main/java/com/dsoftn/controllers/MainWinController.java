@@ -36,6 +36,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
@@ -2103,6 +2104,7 @@ public class MainWinController {
     }
 
     private void setupListenerForTxtLangKey() {
+        // Listener for text change
         txtLangKey.textProperty().addListener((observable, oldValue, newValue) -> {
             String itemName = txtLangKey.getText();
             if (isLangItemExists(itemName)) {
@@ -2135,6 +2137,15 @@ public class MainWinController {
 
             updateLangWidgetsAppearance();
         });
+
+        // Listener for key press
+        txtLangKey.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtLangKey.selectAll();
+            }
+        });
+        
     }
 
     private void setupListenerForTxtSttValue() {
@@ -2150,12 +2161,28 @@ public class MainWinController {
                 checkIfSettingsEntryIsValid();
             }
         });
+
+        // Listener for key press
+        txtSttValue.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttValue.selectAll();
+            }
+        });
     }
 
     private void setupListenerForDefaultValue() {
         txtSttDefValue.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
+        });
+
+        // Listener for key press
+        txtSttDefValue.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttDefValue.selectAll();
+            }
         });
     }
 
@@ -2164,6 +2191,15 @@ public class MainWinController {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
         });
+
+        // Listener for key press
+        txtSttMin.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttMin.selectAll();
+            }
+        });
+
     }
 
     private void setupListenerForMaxValue() {
@@ -2171,15 +2207,34 @@ public class MainWinController {
             checkIfUserIsChangingSetting();
             checkIfSettingsEntryIsValid();
         });
+
+        // Listener for key press
+        txtSttMax.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttMax.selectAll();
+            }
+        });
+
     }
 
     private void setupListenerForDescription() {
         txtSttDesc.textProperty().addListener((observable, oldValue, newValue) -> {
             checkIfUserIsChangingSetting();
         });
+
+        // Listener for key press
+        txtSttDesc.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttDesc.selectAll();
+            }
+        });
+
     }
 
     private void setupListenerForTxtSttKey() {
+        // Listener for text change
         txtSttKey.textProperty().addListener((observable, oldValue, newValue) -> {
             String itemName = txtSttKey.getText();
             if (isSttItemExists(itemName)) {
@@ -2207,6 +2262,14 @@ public class MainWinController {
                 }
             }
             updateSttWidgetsAppearance();
+        });
+
+        // Listener for key press
+        txtSttKey.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // Select all
+                txtSttKey.selectAll();
+            }
         });
     }
 

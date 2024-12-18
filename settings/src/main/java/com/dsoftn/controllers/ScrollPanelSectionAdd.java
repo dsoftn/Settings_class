@@ -360,6 +360,8 @@ public class ScrollPanelSectionAdd extends VBox{
             hbxAdd.setVisible(true);
             hbxAdd.setManaged(true);
             btnMore.setText("Hide languages");
+            txtFilter.requestFocus();
+            txtFilter.selectAll();
         }
     }
 
@@ -370,6 +372,8 @@ public class ScrollPanelSectionAdd extends VBox{
         btnAdd.setManaged(false);
         lblExists.setVisible(true);
         lblExists.setManaged(true);
+        txtFilter.requestFocus();
+        txtFilter.selectAll();
     }
 
 

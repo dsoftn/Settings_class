@@ -12,10 +12,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 
 import com.dsoftn.Settings.LanguageItemGroup;
 
@@ -23,6 +29,7 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -63,6 +70,16 @@ public class ScrollPaneSection extends VBox {
     private Button btnNo; // No button
     @FXML
     private Region regMsg;
+    // Floating buttons
+    @FXML
+    private Pane paneClip; // Pane for floating buttons
+    @FXML
+    private Button btnClear; // Clear button
+    @FXML
+    private Button btnPaste; // Paste button
+    @FXML
+    private Button btnCopy; // Copy button
+
 
     // Properties
     private LanguagesEnum langEnum = null;
@@ -71,6 +88,9 @@ public class ScrollPaneSection extends VBox {
     private LanguageItemGroup languageItemGroup = null;
     private String originalValue = "";
     private String translateFromValue = "";
+
+    // Variables
+    private boolean canShowClipPane = true; // Can show floating buttons
 
     public ScrollPaneSection(String languageCode, String value) {
         this.langEnum = LanguagesEnum.fromLangCode(languageCode);
@@ -317,7 +337,7 @@ public class ScrollPaneSection extends VBox {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/LanguageScrollPaneSection.fxml"));
         fxmlLoader.setController(this);
         try {
-            VBox content = fxmlLoader.load();
+            AnchorPane content = fxmlLoader.load();
             this.getChildren().add(content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -344,7 +364,26 @@ public class ScrollPaneSection extends VBox {
                 Stage primaryStage = (Stage) txtValue.getScene().getWindow();
                 primaryStage.fireEvent(eventLangChanged);
                 hideMessage();
+                hideClipPane();
             });
+        });
+
+        // Set listener for txtValue key press
+        txtValue.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                txtValue.setText("");
+                hideClipPane();
+            }
+        });
+        
+        // Set on Focus event for txtValue
+        txtValue.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                showClipPane();
+            }
+            else {
+                Platform.runLater(() -> hideClipPane());
+            }
         });
 
         // Set listener for cmbTranslateFrom change
@@ -400,6 +439,45 @@ public class ScrollPaneSection extends VBox {
         EventWriteLog event = new EventWriteLog(message, indentLevel);
         Stage primaryStage = (Stage) txtValue.getScene().getWindow();
         primaryStage.fireEvent(event);
+    }
+
+    private void showClipPane() {
+        if (!canShowClipPane) {
+            canShowClipPane = true;
+            return;
+        }
+
+        paneClip.setVisible(true);
+        
+        // Button Clear and Copy
+        if (txtValue.getText() != null && !txtValue.getText().isEmpty()) {
+            btnClear.setDisable(false);
+            btnCopy.setDisable(false);
+        }
+        else {
+            btnClear.setDisable(true);
+            btnCopy.setDisable(true);
+        }
+
+        // Button Paste
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        String content = clipboard.getString();
+        if (content != null && !content.isEmpty()) {
+            btnPaste.setDisable(false);
+            if (content.equals(txtValue.getText())) {
+                btnPaste.setDisable(true);
+                btnCopy.setDisable(true);
+            }
+        }
+        else {
+            btnPaste.setDisable(true);
+        }
+    }
+
+    private void hideClipPane() {
+        Platform.runLater(() -> {
+            paneClip.setVisible(false);
+        });
     }
 
     // FXML Events
@@ -611,6 +689,35 @@ public class ScrollPaneSection extends VBox {
             hideMessage();
         }
     }
-    
+
+    @FXML
+    public void onBtnClearPressed() {
+        txtValue.setText("");
+        canShowClipPane = false;
+        txtValue.requestFocus();
+        hideClipPane();
+    }
+
+    @FXML
+    public void onBtnCopyPressed() {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(txtValue.getText());
+        Clipboard.getSystemClipboard().setContent(content);
+        canShowClipPane = false;
+        txtValue.requestFocus();
+        hideClipPane();
+    }
+
+    @FXML
+    public void onBtnPastePressed() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        String text = clipboard.getString();
+        txtValue.setText(text);
+        canShowClipPane = false;
+        txtValue.requestFocus();
+        txtValue.positionCaret(txtValue.getText().length());
+        hideClipPane();
+    }
+
 
 }
