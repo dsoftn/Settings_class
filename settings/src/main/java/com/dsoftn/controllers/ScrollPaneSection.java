@@ -343,6 +343,7 @@ public class ScrollPaneSection extends VBox {
             e.printStackTrace();
         }
 
+        paneClip.setVisible(false);
         lblLangCode.setText(langEnum.getLangCode());
         lblLangName.setText(langEnum.getName());
         txtValue.setText(value);
@@ -375,7 +376,7 @@ public class ScrollPaneSection extends VBox {
                 hideClipPane();
             }
         });
-        
+
         // Set on Focus event for txtValue
         txtValue.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
